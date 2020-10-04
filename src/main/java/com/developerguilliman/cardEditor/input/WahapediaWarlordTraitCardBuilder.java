@@ -37,13 +37,13 @@ import com.developerguilliman.cardEditor.data.CardData;
  *
  * @author DeveloperGuilliman
  */
-public class WahapediaStratagemCardBuilder implements ICardInput {
+public class WahapediaWarlordTraitCardBuilder implements ICardInput {
 
     private final int maxToGroup;
     private final boolean reorderByName;
     private final boolean deduplicate;
 
-    public WahapediaStratagemCardBuilder(int maxToGroup, boolean reorderByName, boolean deduplicate) {
+    public WahapediaWarlordTraitCardBuilder(int maxToGroup, boolean reorderByName, boolean deduplicate) {
 
         this.maxToGroup = maxToGroup;
         this.reorderByName = reorderByName;
@@ -54,11 +54,11 @@ public class WahapediaStratagemCardBuilder implements ICardInput {
     public List<List<CardData>> build(InputStream source) {
         try {
             Document doc = Jsoup.parse(source, null, "");
-            Elements cardElements = doc.select("div.Columns2 div.BreakInsideAvoid.Corner7");
+            Elements cardElements = doc.select("div.Columns2 div.BreakInsideAvoid p.impact18");
 
             List<CardData> list = new ArrayList<>();
             for (Element cardElement : cardElements) {
-                CardData card = buildStratagem(cardElement);
+                CardData card = buildTrait(cardElement);
                 if (card != null) {
                     list.add(card);
                 }
@@ -69,7 +69,7 @@ public class WahapediaStratagemCardBuilder implements ICardInput {
 
             if (deduplicate) {
 
-                TreeSet<CardData> deduplicator = new TreeSet<CardData>(
+                TreeSet<CardData> deduplicator = new TreeSet<>(
                         Comparator.comparing(CardData::getTitle).thenComparing(CardData::getName)
                                 .thenComparing(CardData::getLegend).thenComparing(CardData::getRules)
                                 .thenComparing(CardData::getCost));
@@ -130,38 +130,52 @@ public class WahapediaStratagemCardBuilder implements ICardInput {
         }
     }
 
-    private CardData buildStratagem(Element cardElement) {
+    private CardData buildTrait(Element cardElement) {
 
         try {
-            String lastText = "";
-
-            Elements nameElement = cardElement.select("p.stratName");
-            String name = nameElement.text();
-            if (!name.isEmpty()) {
-                lastText = name;
+            Elements warlordElements = cardElement.parents().select("div.Columns2").select("td.impact18");
+            if (warlordElements.size() <2) {
+                 return null;
+            }
+            String type = warlordElements.get(1).text();
+            if (!"WARLORD TRAIT".equalsIgnoreCase(type)) {
+                return null;
             }
 
-            String faction = cardElement.select("p.stratFaction").text();
-            if (!faction.isEmpty()) {
-                lastText = faction;
+            Elements nextElements = cardElement.nextElementSiblings().select("p");
+            if (nextElements.isEmpty()) {
+                return null;
             }
 
-            String description = cardElement.select("p.stratLegend").text();
-            if (!description.isEmpty()) {
-                lastText = description;
+            Element titleElement = cardElement.parents().select("div.Columns2").first().previousElementSiblings().select("h2.outline_header").first();
+            String title = titleElement.ownText();
+
+            String name = cardElement.text();
+
+            int ioName = name.indexOf(':');
+            if (ioName > 0) {
+                String preName = name.substring(0, ioName).trim();
+                name = name.substring(ioName + 1).trim();
+                title = preName + " " + title;
             }
 
-            Element rulesElement = nameElement.parents().first();
-            String rules = rulesElement.text();
-            int io = rules.indexOf(lastText) + lastText.length();
-            rules = rules.substring(io);
+            String description = nextElements.first().text();
 
-            Elements siblings = cardElement.siblingElements();
-            String cost = siblings.select("div.stratPts").text();
+            String rules;
+            if (nextElements.size() == 2) {
+                rules = nextElements.last().text();
+            } else {
+                rules = cardElement.parent().text();
+                int io = rules.indexOf(description) + description.length();
+                rules = rules.substring(io);
 
-            return new CardData(faction, name, description, rules, cost);
+            }
+            String cost = "";
+
+            return new CardData(title, name, description, rules, cost);
         } catch (Exception e) {
-            System.err.println("Error " + e + " at element " + cardElement.html());
+            System.err.println("Error at element " + cardElement.html());
+            e.printStackTrace();
             return null;
         }
     }

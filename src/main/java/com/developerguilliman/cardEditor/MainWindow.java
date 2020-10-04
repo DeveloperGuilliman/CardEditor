@@ -17,7 +17,9 @@
 package com.developerguilliman.cardEditor;
 
 import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.input.WahapediaPsychicPowerCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaStratagemCardBuilder;
+import com.developerguilliman.cardEditor.input.WahapediaWarlordTraitCardBuilder;
 import com.developerguilliman.cardEditor.input.XmlCardInput;
 import com.developerguilliman.cardEditor.output.PdfOutput;
 import com.developerguilliman.cardEditor.output.XmlCardOutput;
@@ -253,6 +255,8 @@ public class MainWindow extends javax.swing.JFrame {
         saveAsMenuItem = new javax.swing.JMenuItem();
         importMenu = new javax.swing.JMenu();
         wahapediaStratagemImportMenuItem = new javax.swing.JMenuItem();
+        wahapediaWarlordTraitImportMenuItem = new javax.swing.JMenuItem();
+        wahapediaPsychicPowerImportMenuItem = new javax.swing.JMenuItem();
         exportMenu = new javax.swing.JMenu();
         pdfExportMenuItem = new javax.swing.JMenuItem();
 
@@ -437,6 +441,22 @@ public class MainWindow extends javax.swing.JFrame {
         });
         importMenu.add(wahapediaStratagemImportMenuItem);
 
+        wahapediaWarlordTraitImportMenuItem.setText("Wahapedia Warlord traits...");
+        wahapediaWarlordTraitImportMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                wahapediaWarlordTraitImportMenuItemActionPerformed(evt);
+            }
+        });
+        importMenu.add(wahapediaWarlordTraitImportMenuItem);
+
+        wahapediaPsychicPowerImportMenuItem.setText("Wahapedia Pyschic powers...");
+        wahapediaPsychicPowerImportMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                wahapediaPsychicPowerImportMenuItemActionPerformed(evt);
+            }
+        });
+        importMenu.add(wahapediaPsychicPowerImportMenuItem);
+
         jMenuBar1.add(importMenu);
 
         exportMenu.setText("Export");
@@ -584,6 +604,35 @@ public class MainWindow extends javax.swing.JFrame {
 
     }//GEN-LAST:event_pdfExportMenuItemActionPerformed
 
+    private void wahapediaWarlordTraitImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaWarlordTraitImportMenuItemActionPerformed
+        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import stratagems for", "Wahapedia Stratagem import", JOptionPane.QUESTION_MESSAGE);
+        if (urlString == null) {
+            return;
+        }
+        Callable<Void> callable = () -> {
+            WahapediaWarlordTraitCardBuilder builder = new WahapediaWarlordTraitCardBuilder(1, false, true);
+            cards = builder.build(new URL(urlString).openStream());
+            sectionList.updateUI();
+            cardList.updateUI();
+            return null;
+        };
+        WaitingDialog.show(this, "Loading warlord traits from Wahapedia...", callable);    }//GEN-LAST:event_wahapediaWarlordTraitImportMenuItemActionPerformed
+
+    private void wahapediaPsychicPowerImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaPsychicPowerImportMenuItemActionPerformed
+        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import stratagems for", "Wahapedia Stratagem import", JOptionPane.QUESTION_MESSAGE);
+        if (urlString == null) {
+            return;
+        }
+        Callable<Void> callable = () -> {
+            WahapediaPsychicPowerCardBuilder builder = new WahapediaPsychicPowerCardBuilder(1, false, true);
+            cards = builder.build(new URL(urlString).openStream());
+            sectionList.updateUI();
+            cardList.updateUI();
+            return null;
+        };
+        WaitingDialog.show(this, "Loading psychic powers from Wahapedia...", callable);
+    }//GEN-LAST:event_wahapediaPsychicPowerImportMenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -636,7 +685,9 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JScrollPane sectionScrollPane;
     private javax.swing.JLabel titleLabel;
     private javax.swing.JTextField titleTextField;
+    private javax.swing.JMenuItem wahapediaPsychicPowerImportMenuItem;
     private javax.swing.JMenuItem wahapediaStratagemImportMenuItem;
+    private javax.swing.JMenuItem wahapediaWarlordTraitImportMenuItem;
     // End of variables declaration//GEN-END:variables
 
     private List<CardData> getCurrentSection() {
