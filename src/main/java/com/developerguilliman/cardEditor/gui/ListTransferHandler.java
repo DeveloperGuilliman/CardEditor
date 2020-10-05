@@ -18,7 +18,6 @@ package com.developerguilliman.cardEditor.gui;
 
 import java.awt.datatransfer.*;
 import java.io.IOException;
-import java.util.AbstractMap;
 import java.util.List;
 import javax.swing.*;
 
@@ -29,17 +28,25 @@ import javax.swing.*;
  */
 public class ListTransferHandler<T> extends TransferHandler {
 
-    private final DataFlavor dataFlavor;
-    private final AbstractListListModel<T> listModel;
+    private final DataFlavor[] dataFlavors;
 
-    public ListTransferHandler(AbstractListListModel<T> listModel) {
-        this.dataFlavor = new DataFlavor(listModel.getClass(), null);
-        this.listModel = listModel;
+    public ListTransferHandler() {
+        this.dataFlavors = new DataFlavor[]{new DataFlavor(List.class, null)};
+
+    }
+
+    public ListTransferHandler(Class<T> clazz) {
+        this.dataFlavors = new DataFlavor[]{new DataFlavor(clazz, null), new DataFlavor(List.class, null)};
     }
 
     @Override
     public boolean canImport(TransferHandler.TransferSupport info) {
-        return info.isDataFlavorSupported(dataFlavor);
+        for (DataFlavor df : dataFlavors) {
+            if (info.isDataFlavorSupported(df)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -47,19 +54,23 @@ public class ListTransferHandler<T> extends TransferHandler {
         return new Transferable() {
             @Override
             public DataFlavor[] getTransferDataFlavors() {
-                return new DataFlavor[]{dataFlavor};
+                return dataFlavors;
             }
 
             @Override
             public boolean isDataFlavorSupported(DataFlavor flavor) {
-                return dataFlavor.equals(flavor);
+                for (DataFlavor df : dataFlavors) {
+                    if (flavor.match(df)) {
+                        return true;
+                    }
+                }
+                return false;
             }
 
             @Override
             public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
                 JList list = (JList) c;
-                int index = list.getSelectedIndex();
-                return new AbstractMap.SimpleImmutableEntry<>(index, listModel.getList().get(index));
+                return list.getSelectedValue();
             }
         };
     }
@@ -80,28 +91,16 @@ public class ListTransferHandler<T> extends TransferHandler {
         int newIndex = dl.getIndex();
 
         Transferable t = info.getTransferable();
-        AbstractMap.SimpleImmutableEntry<Integer, T> data;
+        T data;
         try {
-            data = (AbstractMap.SimpleImmutableEntry<Integer, T>) t.getTransferData(dataFlavor);
+            data = (T) t.getTransferData(dataFlavors[0]);
         } catch (UnsupportedFlavorException | IOException e) {
             return false;
         }
 
-        int oldIndex = data.getKey();
         int selectedIndex = newIndex;
-        if (newIndex < oldIndex) {
-            oldIndex++;
-        } else {
-            selectedIndex--;
-        }
-        if (oldIndex == newIndex) {
-            return false;
-        }
-        T value = data.getValue();
-        List<T> list = listModel.getList();
-
-        list.add(newIndex, value);
-        list.remove(oldIndex);
+        AbstractListListModel<T> list = (AbstractListListModel<T>) jlist.getModel();
+        list.add(newIndex, data);
         jlist.setSelectedIndex(selectedIndex);
         jlist.updateUI();
         return true;

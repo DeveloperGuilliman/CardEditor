@@ -51,10 +51,10 @@ public class WaitingDialog extends javax.swing.JDialog {
                     t.printStackTrace();
                     l.dispose();
                     JOptionPane.showMessageDialog(parent, t.getLocalizedMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                } finally {
                 }
             }
         };
+        t.setName("WaitingDialogTask");
         t.setDaemon(true);
         t.start();
         java.awt.EventQueue.invokeLater(() -> {

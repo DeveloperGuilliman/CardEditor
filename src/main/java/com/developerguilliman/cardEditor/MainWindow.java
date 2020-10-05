@@ -16,10 +16,10 @@
  */
 package com.developerguilliman.cardEditor;
 
-import com.developerguilliman.cardEditor.gui.WaitingDialog;
-import com.developerguilliman.cardEditor.gui.ListTransferHandler;
-import com.developerguilliman.cardEditor.gui.AbstractListListModel;
 import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.gui.CardNode;
+import com.developerguilliman.cardEditor.gui.SectionNode;
+import com.developerguilliman.cardEditor.gui.WaitingDialog;
 import com.developerguilliman.cardEditor.input.WahapediaPsychicPowerCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaStratagemCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaWarlordTraitCardBuilder;
@@ -37,10 +37,15 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 /**
  *
@@ -49,8 +54,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class MainWindow extends javax.swing.JFrame {
 
     private final List<List<CardData>> cards;
+    private final DefaultMutableTreeNode root;
+
     private List<CardData> actualSection;
     private CardData actualCard;
+
+    private DefaultMutableTreeNode actualSectionNode;
+    private DefaultMutableTreeNode actualCardNode;
 
     private File actualFile;
 
@@ -60,37 +70,9 @@ public class MainWindow extends javax.swing.JFrame {
     public MainWindow() {
         cards = new ArrayList<>();
         initComponents();
-        AbstractListListModel<List<CardData>> sectionListModel = new AbstractListListModel<List<CardData>>() {
-            @Override
-            protected List<List<CardData>> getList() {
-                return cards;
-            }
 
-            @Override
-            protected String createString(int index, List<CardData> element) {
-                return "Section " + (index + 1) + " (" + element.size() + ")";
-            }
-
-        };
-        sectionList.setModel(sectionListModel);
-        sectionList.setTransferHandler(new ListTransferHandler(sectionListModel));
-
-        AbstractListListModel<CardData> cardListModel = new AbstractListListModel<CardData>() {
-            @Override
-            protected List<CardData> getList() {
-                return actualSection;
-            }
-
-            @Override
-            protected String createString(int index, CardData element) {
-                return (element != null) ? element.getName() : null;
-            }
-
-        };
-
-        cardList.setModel(cardListModel);
-        cardList.setTransferHandler(new ListTransferHandler(cardListModel));
-
+        root = new DefaultMutableTreeNode("Cards", true);
+        cardTree.setModel(new DefaultTreeModel(root, true));
         titleTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent index) {
@@ -112,7 +94,6 @@ public class MainWindow extends javax.swing.JFrame {
                     return;
                 }
                 actualCard.setTitle(titleTextField.getText());
-                cardList.updateUI();
             }
         });
 
@@ -137,7 +118,7 @@ public class MainWindow extends javax.swing.JFrame {
                     return;
                 }
                 actualCard.setName(nameTextField.getText());
-                cardList.updateUI();
+                cardTree.updateUI();
             }
         });
 
@@ -162,7 +143,6 @@ public class MainWindow extends javax.swing.JFrame {
                     return;
                 }
                 actualCard.setLegend(legendTextArea.getText());
-                cardList.updateUI();
             }
         });
 
@@ -187,7 +167,6 @@ public class MainWindow extends javax.swing.JFrame {
                     return;
                 }
                 actualCard.setRules(rulesTextArea.getText());
-                cardList.updateUI();
             }
         });
 
@@ -212,10 +191,9 @@ public class MainWindow extends javax.swing.JFrame {
                     return;
                 }
                 actualCard.setCost(costTextField.getText());
-                cardList.updateUI();
             }
         });
-
+        updateCardFields();
     }
 
     /**
@@ -227,19 +205,14 @@ public class MainWindow extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        listsPanel = new javax.swing.JPanel();
-        sectionPanel = new javax.swing.JPanel();
-        sectionScrollPane = new javax.swing.JScrollPane();
-        sectionList = new javax.swing.JList<>();
+        treePanel = new javax.swing.JPanel();
         sectionButtonsPanel = new javax.swing.JPanel();
         addSectionButton = new javax.swing.JButton();
         removeSectionButton = new javax.swing.JButton();
-        cardPanel = new javax.swing.JPanel();
-        cardlPane = new javax.swing.JScrollPane();
-        cardList = new javax.swing.JList<>();
-        cardsButtonsPanel = new javax.swing.JPanel();
         addCardButton1 = new javax.swing.JButton();
         removeCardButton1 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        cardTree = new javax.swing.JTree();
         dataPanel = new javax.swing.JPanel();
         titleLabel = new javax.swing.JLabel();
         titleTextField = new javax.swing.JTextField();
@@ -274,22 +247,10 @@ public class MainWindow extends javax.swing.JFrame {
         setMinimumSize(new java.awt.Dimension(620, 460));
         setPreferredSize(new java.awt.Dimension(1000, 750));
 
-        listsPanel.setLayout(new java.awt.GridLayout(1, 0));
+        treePanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        treePanel.setLayout(new java.awt.BorderLayout());
 
-        sectionPanel.setLayout(new java.awt.BorderLayout());
-
-        sectionList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        sectionList.setDragEnabled(true);
-        sectionList.setDropMode(javax.swing.DropMode.INSERT);
-        sectionList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                sectionListValueChanged(evt);
-            }
-        });
-        sectionScrollPane.setViewportView(sectionList);
-
-        sectionPanel.add(sectionScrollPane, java.awt.BorderLayout.CENTER);
-
+        sectionButtonsPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 3, 0));
         sectionButtonsPanel.setLayout(new javax.swing.BoxLayout(sectionButtonsPanel, javax.swing.BoxLayout.LINE_AXIS));
 
         addSectionButton.setText("Add Section");
@@ -308,33 +269,13 @@ public class MainWindow extends javax.swing.JFrame {
         });
         sectionButtonsPanel.add(removeSectionButton);
 
-        sectionPanel.add(sectionButtonsPanel, java.awt.BorderLayout.NORTH);
-
-        listsPanel.add(sectionPanel);
-
-        cardPanel.setLayout(new java.awt.BorderLayout());
-
-        cardList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        cardList.setDragEnabled(true);
-        cardList.setDropMode(javax.swing.DropMode.INSERT);
-        cardList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                cardListValueChanged(evt);
-            }
-        });
-        cardlPane.setViewportView(cardList);
-
-        cardPanel.add(cardlPane, java.awt.BorderLayout.CENTER);
-
-        cardsButtonsPanel.setLayout(new javax.swing.BoxLayout(cardsButtonsPanel, javax.swing.BoxLayout.LINE_AXIS));
-
         addCardButton1.setText("Add Card");
         addCardButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addCardButton1ActionPerformed(evt);
             }
         });
-        cardsButtonsPanel.add(addCardButton1);
+        sectionButtonsPanel.add(addCardButton1);
 
         removeCardButton1.setText("Remove Card");
         removeCardButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -342,14 +283,25 @@ public class MainWindow extends javax.swing.JFrame {
                 removeCardButton1ActionPerformed(evt);
             }
         });
-        cardsButtonsPanel.add(removeCardButton1);
+        sectionButtonsPanel.add(removeCardButton1);
 
-        cardPanel.add(cardsButtonsPanel, java.awt.BorderLayout.NORTH);
+        treePanel.add(sectionButtonsPanel, java.awt.BorderLayout.NORTH);
 
-        listsPanel.add(cardPanel);
+        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
+        cardTree.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        cardTree.setRootVisible(false);
+        cardTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                cardTreeValueChanged(evt);
+            }
+        });
+        jScrollPane1.setViewportView(cardTree);
 
-        getContentPane().add(listsPanel, java.awt.BorderLayout.WEST);
+        treePanel.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
+        getContentPane().add(treePanel, java.awt.BorderLayout.WEST);
+
+        dataPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3));
         dataPanel.setLayout(new javax.swing.BoxLayout(dataPanel, javax.swing.BoxLayout.PAGE_AXIS));
 
         titleLabel.setLabelFor(titleTextField);
@@ -513,54 +465,47 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addSectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSectionButtonActionPerformed
-        cards.add(new ArrayList());
-        updateListsUI();
+        ArrayList section = new ArrayList();
+        cards.add(section);
+        DefaultMutableTreeNode sectionNode = createSectionNode(section, cards.size());
+        root.add(sectionNode);
+        expandNodes(cardTree, sectionNode);
+        forceUpdateUI();
     }//GEN-LAST:event_addSectionButtonActionPerformed
 
     private void removeSectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeSectionButtonActionPerformed
-        int section = sectionList.getSelectedIndex();
-        if (section < 0 || section > cards.size()) {
+        if (actualSection == null) {
             return;
         }
-        cards.remove(section);
-        sectionList.clearSelection();
-        updateSelectedSection(-1);
+        cards.remove(actualSection);
+        root.remove(actualSectionNode);
+        actualCard = null;
+        actualCardNode = null;
+        actualSection = null;
+        actualSectionNode = null;
+        forceUpdateUI();
     }//GEN-LAST:event_removeSectionButtonActionPerformed
-
-    private void sectionListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_sectionListValueChanged
-        updateSelectedSection(sectionList.getSelectedIndex());
-    }//GEN-LAST:event_sectionListValueChanged
-
-    private void cardListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_cardListValueChanged
-        int selectedCard = cardList.getSelectedIndex();
-        if (selectedCard < 0 || selectedCard >= actualSection.size()) {
-            actualCard = null;
-        } else {
-            actualCard = actualSection.get(selectedCard);
-        }
-        updateCardFields();
-    }//GEN-LAST:event_cardListValueChanged
 
     private void addCardButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addCardButton1ActionPerformed
         if (actualSection == null) {
             return;
         }
-        CardData stratagemData = new CardData();
-        stratagemData.setName("NEW");
-        actualSection.add(stratagemData);
-        updateListsUI();
+        CardData card = new CardData();
+        card.setName("NEW");
+        actualSection.add(card);
+        actualSectionNode.add(createCardNode(card));
+        forceUpdateUI();
     }//GEN-LAST:event_addCardButton1ActionPerformed
 
     private void removeCardButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeCardButton1ActionPerformed
-        if (actualSection == null) {
+        if (actualSection == null && actualCard != null) {
             return;
         }
-        int card = cardList.getSelectedIndex();
-        if (card < 0 || card > actualSection.size()) {
-            return;
-        }
-        actualSection.remove(card);
-        updateListsUI();
+        actualSection.remove(actualCard);
+        actualSectionNode.remove(actualCardNode);
+        actualCard = null;
+        actualCardNode = null;
+        forceUpdateUI();
     }//GEN-LAST:event_removeCardButton1ActionPerformed
 
     private void loadMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadMenuItemActionPerformed
@@ -599,8 +544,11 @@ public class MainWindow extends javax.swing.JFrame {
     private void newMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newMenuItemActionPerformed
         actualFile = null;
         cards.clear();
-        updateSelectedSection(-1);
-        updateListsUI();
+        actualCard = null;
+        actualSection = null;
+        actualCardNode = null;
+        actualSectionNode = null;
+        updateTree();
     }//GEN-LAST:event_newMenuItemActionPerformed
 
     private void wahapediaStratagemImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaStratagemImportMenuItemActionPerformed
@@ -611,7 +559,7 @@ public class MainWindow extends javax.swing.JFrame {
         Callable<Void> callable = () -> {
             WahapediaStratagemCardBuilder builder = new WahapediaStratagemCardBuilder(1, false, true);
             cards.addAll(builder.build(new URL(urlString).openStream()));
-            updateListsUI();
+            updateTree();
             return null;
         };
         WaitingDialog.show(this, "Loading stratagems from Wahapedia...", callable);
@@ -644,7 +592,7 @@ public class MainWindow extends javax.swing.JFrame {
         Callable<Void> callable = () -> {
             WahapediaWarlordTraitCardBuilder builder = new WahapediaWarlordTraitCardBuilder(1, false, true);
             cards.addAll(builder.build(new URL(urlString).openStream()));
-            updateListsUI();
+            updateTree();
             return null;
         };
         WaitingDialog.show(this, "Loading warlord traits from Wahapedia...", callable);    }//GEN-LAST:event_wahapediaWarlordTraitImportMenuItemActionPerformed
@@ -657,7 +605,7 @@ public class MainWindow extends javax.swing.JFrame {
         Callable<Void> callable = () -> {
             WahapediaPsychicPowerCardBuilder builder = new WahapediaPsychicPowerCardBuilder(1, false, true);
             cards.addAll(builder.build(new URL(urlString).openStream()));
-            updateListsUI();
+            updateTree();
             return null;
         };
         WaitingDialog.show(this, "Loading psychic powers from Wahapedia...", callable);
@@ -670,8 +618,7 @@ public class MainWindow extends javax.swing.JFrame {
         }
         cards.clear();
         cards.add(singleSection);
-        sectionList.setSelectedIndex(0);
-        updateSelectedSection(0);
+        updateTree();
     }//GEN-LAST:event_compactAllSectionsMenuItemActionPerformed
 
     private void reorderNameSectionMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reorderNameSectionMenuItemActionPerformed
@@ -680,8 +627,7 @@ public class MainWindow extends javax.swing.JFrame {
         }
         Collections.sort(actualSection, Comparator.comparing(CardData::getName));
         actualCard = null;
-        cardList.clearSelection();
-        updateListsUI();
+        updateSectionSubTree(actualSection, actualSectionNode);
     }//GEN-LAST:event_reorderNameSectionMenuItemActionPerformed
 
     private void reorderTitleSectionMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reorderTitleSectionMenuItemActionPerformed
@@ -690,9 +636,35 @@ public class MainWindow extends javax.swing.JFrame {
         }
         Collections.sort(actualSection, Comparator.comparing(CardData::getTitle));
         actualCard = null;
-        cardList.clearSelection();
-        updateListsUI();
+        updateSectionSubTree(actualSection, actualSectionNode);
     }//GEN-LAST:event_reorderTitleSectionMenuItemActionPerformed
+
+    private void cardTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_cardTreeValueChanged
+
+        DefaultMutableTreeNode path = (DefaultMutableTreeNode) cardTree.getLastSelectedPathComponent();
+
+        actualCard = null;
+        actualSection = null;
+
+        if (path != null) {
+            TreeNode[] pathNodes = path.getPath();
+
+            for (int i = pathNodes.length - 1; i >= 0; i--) {
+                DefaultMutableTreeNode pathNode = (DefaultMutableTreeNode) pathNodes[i];
+                Object pathObject = pathNode.getUserObject();
+                if (pathObject instanceof CardNode) {
+                    CardNode cardNode = (CardNode) pathObject;
+                    actualCard = cardNode.getCard();
+                    actualCardNode = pathNode;
+                } else if (pathObject instanceof SectionNode) {
+                    SectionNode sectionNode = (SectionNode) pathObject;
+                    actualSection = sectionNode.getSections();
+                    actualSectionNode = pathNode;
+                }
+            }
+        }
+        forceUpdateUI();
+    }//GEN-LAST:event_cardTreeValueChanged
 
     /**
      * @param args the command line arguments
@@ -713,10 +685,7 @@ public class MainWindow extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addCardButton1;
     private javax.swing.JButton addSectionButton;
-    private javax.swing.JList<String> cardList;
-    private javax.swing.JPanel cardPanel;
-    private javax.swing.JScrollPane cardlPane;
-    private javax.swing.JPanel cardsButtonsPanel;
+    private javax.swing.JTree cardTree;
     private javax.swing.JMenuItem compactAllSectionsMenuItem;
     private javax.swing.JLabel costLabel;
     private javax.swing.JTextField costTextField;
@@ -725,10 +694,10 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu importMenu;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel legendLabel;
     private javax.swing.JScrollPane legendScrollPane;
     private javax.swing.JTextArea legendTextArea;
-    private javax.swing.JPanel listsPanel;
     private javax.swing.JMenuItem loadMenuItem;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JTextField nameTextField;
@@ -744,12 +713,10 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JMenuItem saveMenuItem;
     private javax.swing.JPanel sectionButtonsPanel;
-    private javax.swing.JList<String> sectionList;
     private javax.swing.JMenu sectionMenu;
-    private javax.swing.JPanel sectionPanel;
-    private javax.swing.JScrollPane sectionScrollPane;
     private javax.swing.JLabel titleLabel;
     private javax.swing.JTextField titleTextField;
+    private javax.swing.JPanel treePanel;
     private javax.swing.JMenuItem wahapediaPsychicPowerImportMenuItem;
     private javax.swing.JMenuItem wahapediaStratagemImportMenuItem;
     private javax.swing.JMenuItem wahapediaWarlordTraitImportMenuItem;
@@ -764,7 +731,7 @@ public class MainWindow extends javax.swing.JFrame {
 
             cards.clear();
             cards.addAll(newCards);
-            updateSelectedSection(0);
+            updateTree();
             actualFile = file;
             return null;
         };
@@ -829,33 +796,76 @@ public class MainWindow extends javax.swing.JFrame {
             legendTextArea.setText("");
             rulesTextArea.setText("");
             costTextField.setText("");
+            titleTextField.setEnabled(false);
+            nameTextField.setEnabled(false);
+            legendTextArea.setEnabled(false);
+            rulesTextArea.setEnabled(false);
+            costTextField.setEnabled(false);
         } else {
             titleTextField.setText(actualCard.getTitle());
             nameTextField.setText(actualCard.getName());
             legendTextArea.setText(actualCard.getLegend());
             rulesTextArea.setText(actualCard.getRules());
             costTextField.setText(actualCard.getCost());
+            titleTextField.setEnabled(true);
+            nameTextField.setEnabled(true);
+            legendTextArea.setEnabled(true);
+            rulesTextArea.setEnabled(true);
+            costTextField.setEnabled(true);
         }
     }
 
-    private void updateListsUI() {
+    private void updateTree() {
+
+        root.removeAllChildren();
+        int i = 1;
+        for (List<CardData> section : cards) {
+            DefaultMutableTreeNode sectionNode = createSectionNode(section, i++);
+            root.add(sectionNode);
+            updateNode(section, sectionNode);
+        }
+        expandNodes(cardTree, root);
+        forceUpdateUI();
+    }
+
+    private void updateSectionSubTree(List<CardData> section, DefaultMutableTreeNode sectionNode) {
+
+        sectionNode.removeAllChildren();
+        updateNode(section, sectionNode);
+        forceUpdateUI();
+    }
+
+    private void updateNode(List<CardData> section, DefaultMutableTreeNode sectionNode) {
+
+        for (CardData c : section) {
+            sectionNode.add(createCardNode(c));
+        }
+    }
+
+    private void forceUpdateUI() {
         java.awt.EventQueue.invokeLater(() -> {
-            sectionList.updateUI();
-            cardList.updateUI();
+            cardTree.updateUI();
             updateCardFields();
         });
     }
 
-    private void updateSelectedSection(int selectedSection) {
-        if (selectedSection < 0 || selectedSection >= cards.size()) {
-            actualSection = null;
-            actualCard = null;
-        } else {
-            actualSection = cards.get(selectedSection);
-            actualCard = null;
-        }
-        cardList.clearSelection();
-
-        updateListsUI();
+    private static DefaultMutableTreeNode createCardNode(CardData card) {
+        return new DefaultMutableTreeNode(new CardNode(card), false);
     }
+
+    private static DefaultMutableTreeNode createSectionNode(List<CardData> section, int index) {
+        return new DefaultMutableTreeNode(new SectionNode(section, index), true);
+    }
+
+    private static void expandNodes(JTree tree, DefaultMutableTreeNode node) {
+        ArrayList<DefaultMutableTreeNode> list = Collections.list(node.children());
+        for (DefaultMutableTreeNode treeNode : list) {
+            expandNodes(tree, treeNode);
+        }
+        if (!node.isRoot()) {
+            TreePath path = new TreePath(node.getPath());
+            tree.expandPath(path);
+        }
+    }
+
 }

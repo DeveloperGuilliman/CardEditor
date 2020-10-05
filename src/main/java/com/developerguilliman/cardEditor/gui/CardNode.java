@@ -16,32 +16,27 @@
  */
 package com.developerguilliman.cardEditor.gui;
 
-import java.util.List;
-import javax.swing.AbstractListModel;
+import com.developerguilliman.cardEditor.data.CardData;
 
 /**
  *
  * @author DeveloperGuilliman
- * @param <T>
  */
-public abstract class AbstractListListModel<T> extends AbstractListModel<T> {
+public class CardNode {
 
-    @Override
-    public int getSize() {
-        List<T> list = getList();
-        return (list != null) ? list.size() : 0;
+    private final CardData card;
+
+    public CardNode(CardData card) {
+        this.card = card;
     }
 
     @Override
-    public T getElementAt(int index) {
-        List<T> list = getList();
-        return (list != null) ? list.get(index) : null;
+    public String toString() {
+        return card.getName();
     }
 
-    protected abstract List<T> getList();
-
-    public void add(int index, T object) {
-        getList().add(index, object);
+    public CardData getCard() {
+        return card;
     }
 
 }
