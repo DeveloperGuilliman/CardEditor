@@ -43,7 +43,7 @@ public class PdfOutput implements ICardOutput {
 	private static final float LEADING_FACTOR = 1.125f;
 	private static final float LEADING_INTERTEXT_FACTOR = 0.5f;
 
-	private static final Color VERY_LIGHT_GRAY = new Color(0xe0, 0xe0, 0xe0);
+	private static final Color VERY_LIGHT_GRAY = new Color(0xe7, 0xe7, 0xe7);
 
 	private final int perX;
 	private final int perY;

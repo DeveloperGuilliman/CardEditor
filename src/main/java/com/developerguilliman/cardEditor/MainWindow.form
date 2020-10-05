@@ -89,6 +89,37 @@
             </MenuItem>
           </SubComponents>
         </Menu>
+        <Menu class="javax.swing.JMenu" name="sectionMenu">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Section"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="compactAllSectionsMenuItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Compact all sections"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="compactAllSectionsMenuItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="reorderTitleSectionMenuItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Reorder cards by title"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="reorderTitleSectionMenuItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="reorderNameSectionMenuItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Reorder cards by name"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="reorderNameSectionMenuItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
       </SubComponents>
     </Menu>
   </NonVisualComponents>
@@ -152,6 +183,10 @@
                 <Component class="javax.swing.JList" name="sectionList">
                   <Properties>
                     <Property name="selectionMode" type="int" value="0"/>
+                    <Property name="dragEnabled" type="boolean" value="true"/>
+                    <Property name="dropMode" type="javax.swing.DropMode" editor="org.netbeans.modules.form.editors.EnumEditor">
+                      <Value id="INSERT"/>
+                    </Property>
                   </Properties>
                   <Events>
                     <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="sectionListValueChanged"/>
@@ -210,8 +245,9 @@
                 <Component class="javax.swing.JList" name="cardList">
                   <Properties>
                     <Property name="selectionMode" type="int" value="0"/>
-                    <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
-                      <Color id="Cursor Por defecto"/>
+                    <Property name="dragEnabled" type="boolean" value="true"/>
+                    <Property name="dropMode" type="javax.swing.DropMode" editor="org.netbeans.modules.form.editors.EnumEditor">
+                      <Value id="INSERT"/>
                     </Property>
                   </Properties>
                   <Events>
@@ -279,9 +315,6 @@
               <Dimension value="[2147483647, 20]"/>
             </Property>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="titleTextFieldActionPerformed"/>
-          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="nameLabel">
           <Properties>

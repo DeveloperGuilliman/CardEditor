@@ -159,7 +159,7 @@ public class WahapediaStratagemCardBuilder implements ICardInput {
             Elements siblings = cardElement.siblingElements();
             String cost = siblings.select("div.stratPts").text();
 
-            return new CardData(faction, name, description, rules, cost);
+            return new CardData(faction, name.toUpperCase(), description, rules, cost);
         } catch (Exception e) {
             System.err.println("Error " + e + " at element " + cardElement.html());
             return null;

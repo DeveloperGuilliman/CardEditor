@@ -54,7 +54,8 @@ public class WahapediaPsychicPowerCardBuilder implements ICardInput {
     public List<List<CardData>> build(InputStream source) {
         try {
             Document doc = Jsoup.parse(source, null, "");
-            Elements cardElements = doc.select("div.Columns2 div.BreakInsideAvoid p.impact18, div.Columns2 div.BreakInsideAvoid>h3");
+            //Elements cardElements = doc.select("div.Columns2 div.BreakInsideAvoid p.impact18, div.Columns2 div.BreakInsideAvoid>h3");
+            Elements cardElements = doc.select("div.Columns2 div.BreakInsideAvoid p.impact18");
 
             List<CardData> list = new ArrayList<>();
             for (Element cardElement : cardElements) {
@@ -129,25 +130,24 @@ public class WahapediaPsychicPowerCardBuilder implements ICardInput {
             cardSections.add(singletons);
         }
     }
-
-    private CardData buildTrait(Element cardElement) {
+ private CardData buildTrait(Element cardElement) {
 
         try {
-            Elements warlordElements = cardElement.parents().select("div.Columns2").select("td.impact18");
-            if (warlordElements.size() <2) {
-                 return null;
+            Elements warlordElements = warlordElements(cardElement);
+            if (warlordElements.size() < 2) {
+                return null;
             }
-            String type = warlordElements.get(1).text();
-            if (!"WARLORD TRAIT".equalsIgnoreCase(type)) {
+            String type = warlordElements.get(1).html();
+            if (!"PSYCHIC POWER".equalsIgnoreCase(type)) {
                 return null;
             }
 
-            Elements nextElements = cardElement.nextElementSiblings().select("p");
+            Elements nextElements = nextElements(cardElement);
             if (nextElements.isEmpty()) {
                 return null;
             }
 
-            Element titleElement = cardElement.parents().select("div.Columns2").first().previousElementSiblings().select("h2.outline_header").first();
+            Element titleElement = titleElement(cardElement);
             String title = titleElement.ownText();
 
             String name = cardElement.text();
@@ -166,18 +166,29 @@ public class WahapediaPsychicPowerCardBuilder implements ICardInput {
                 rules = nextElements.last().text();
             } else {
                 rules = cardElement.parent().text();
-                int io = rules.indexOf(description) + description.length();
-                rules = rules.substring(io);
-
+                int ioRules = rules.indexOf(description) + description.length();
+                rules = rules.substring(ioRules);
             }
             String cost = "";
 
-            return new CardData(title, name, description, rules, cost);
+            return new CardData(title, name.toUpperCase(), description, rules, cost);
         } catch (Exception e) {
             System.err.println("Error at element " + cardElement.html());
             e.printStackTrace();
             return null;
         }
+    }
+
+    private Elements warlordElements(Element cardElement) {
+        return cardElement.parents().select("div.Columns2").select("td.impact18");
+    }
+
+    private Elements nextElements(Element cardElement) {
+        return cardElement.nextElementSiblings().select("p");
+    }
+
+    private Element titleElement(Element cardElement) {
+        return cardElement.parents().select("div.Columns2").first().previousElementSiblings().select("h2.outline_header").first();
     }
 
 }

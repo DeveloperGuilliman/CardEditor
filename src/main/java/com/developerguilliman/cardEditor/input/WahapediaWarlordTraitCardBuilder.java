@@ -103,7 +103,7 @@ public class WahapediaWarlordTraitCardBuilder implements ICardInput {
             String currentFaction = card.getTitle();
             if (!currentFaction.equals(lastFaction)) {
                 lastFaction = currentFaction;
-                lastStratagemSection = new ArrayList<CardData>();
+                lastStratagemSection = new ArrayList<>();
                 cardSections.add(lastStratagemSection);
             }
             lastStratagemSection.add(card);
@@ -133,25 +133,27 @@ public class WahapediaWarlordTraitCardBuilder implements ICardInput {
     private CardData buildTrait(Element cardElement) {
 
         try {
-            Elements warlordElements = cardElement.parents().select("div.Columns2").select("td.impact18");
-            if (warlordElements.size() <2) {
-                 return null;
+            Elements warlordElements = warlordElements(cardElement);
+            if (warlordElements.size() < 2) {
+                return null;
             }
-            String type = warlordElements.get(1).text();
+            String type = warlordElements.get(1).html();
             if (!"WARLORD TRAIT".equalsIgnoreCase(type)) {
                 return null;
             }
 
-            Elements nextElements = cardElement.nextElementSiblings().select("p");
+            Elements nextElements = nextElements(cardElement);
             if (nextElements.isEmpty()) {
                 return null;
             }
 
-            Element titleElement = cardElement.parents().select("div.Columns2").first().previousElementSiblings().select("h2.outline_header").first();
+            Element titleElement = titleElement(cardElement);
             String title = titleElement.ownText();
+            if (title.endsWith("Traits")) {
+                title = title.substring(0, title.length() - 1);
+            }
 
             String name = cardElement.text();
-
             int ioName = name.indexOf(':');
             if (ioName > 0) {
                 String preName = name.substring(0, ioName).trim();
@@ -166,18 +168,29 @@ public class WahapediaWarlordTraitCardBuilder implements ICardInput {
                 rules = nextElements.last().text();
             } else {
                 rules = cardElement.parent().text();
-                int io = rules.indexOf(description) + description.length();
-                rules = rules.substring(io);
-
+                int ioRules = rules.indexOf(description) + description.length();
+                rules = rules.substring(ioRules);
             }
             String cost = "";
 
-            return new CardData(title, name, description, rules, cost);
+            return new CardData(title, name.toUpperCase(), description, rules, cost);
         } catch (Exception e) {
             System.err.println("Error at element " + cardElement.html());
             e.printStackTrace();
             return null;
         }
+    }
+
+    private Elements warlordElements(Element cardElement) {
+        return cardElement.parents().select("div.Columns2").select("td.impact18");
+    }
+
+    private Elements nextElements(Element cardElement) {
+        return cardElement.nextElementSiblings().select("p");
+    }
+
+    private Element titleElement(Element cardElement) {
+        return cardElement.parents().select("div.Columns2").first().previousElementSiblings().select("h2.outline_header").first();
     }
 
 }

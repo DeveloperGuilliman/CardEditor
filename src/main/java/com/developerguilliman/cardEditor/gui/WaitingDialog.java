@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.developerguilliman.cardEditor;
+package com.developerguilliman.cardEditor.gui;
 
 import java.util.concurrent.Callable;
 import javax.swing.JOptionPane;
@@ -50,7 +50,7 @@ public class WaitingDialog extends javax.swing.JDialog {
                 } catch (Throwable t) {
                     t.printStackTrace();
                     l.dispose();
-                    JOptionPane.showConfirmDialog(parent, t.getLocalizedMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(parent, t.getLocalizedMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 } finally {
                 }
             }
@@ -77,7 +77,6 @@ public class WaitingDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(280, 30));
         setUndecorated(true);
-        setPreferredSize(new java.awt.Dimension(280, 30));
         setResizable(false);
         setSize(new java.awt.Dimension(180, 30));
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.Y_AXIS));

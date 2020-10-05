@@ -16,6 +16,9 @@
  */
 package com.developerguilliman.cardEditor;
 
+import com.developerguilliman.cardEditor.gui.WaitingDialog;
+import com.developerguilliman.cardEditor.gui.ListTransferHandler;
+import com.developerguilliman.cardEditor.gui.AbstractListListModel;
 import com.developerguilliman.cardEditor.data.CardData;
 import com.developerguilliman.cardEditor.input.WahapediaPsychicPowerCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaStratagemCardBuilder;
@@ -28,9 +31,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
-import javax.swing.AbstractListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -44,7 +48,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class MainWindow extends javax.swing.JFrame {
 
-    private List<List<CardData>> cards;
+    private final List<List<CardData>> cards;
+    private List<CardData> actualSection;
+    private CardData actualCard;
 
     private File actualFile;
 
@@ -54,158 +60,158 @@ public class MainWindow extends javax.swing.JFrame {
     public MainWindow() {
         cards = new ArrayList<>();
         initComponents();
-        sectionList.setModel(new AbstractListModel<String>() {
+        AbstractListListModel<List<CardData>> sectionListModel = new AbstractListListModel<List<CardData>>() {
             @Override
-            public int getSize() {
-                return cards.size();
+            protected List<List<CardData>> getList() {
+                return cards;
             }
 
             @Override
-            public String getElementAt(int arg0) {
-                return "Section " + (arg0 + 1);
-            }
-        });
-
-        cardList.setModel(new AbstractListModel<String>() {
-            @Override
-            public int getSize() {
-                List<CardData> section = getCurrentSection();
-                return (section != null) ? section.size() : 0;
+            protected String createString(int index, List<CardData> element) {
+                return "Section " + (index + 1) + " (" + element.size() + ")";
             }
 
+        };
+        sectionList.setModel(sectionListModel);
+        sectionList.setTransferHandler(new ListTransferHandler(sectionListModel));
+
+        AbstractListListModel<CardData> cardListModel = new AbstractListListModel<CardData>() {
             @Override
-            public String getElementAt(int arg0) {
-                List<CardData> section = getCurrentSection();
-                return (section != null) ? section.get(arg0).getName() : null;
+            protected List<CardData> getList() {
+                return actualSection;
             }
-        });
+
+            @Override
+            protected String createString(int index, CardData element) {
+                return (element != null) ? element.getName() : null;
+            }
+
+        };
+
+        cardList.setModel(cardListModel);
+        cardList.setTransferHandler(new ListTransferHandler(cardListModel));
 
         titleTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent arg0) {
+            public void insertUpdate(DocumentEvent index) {
                 update();
             }
 
             @Override
-            public void removeUpdate(DocumentEvent arg0) {
+            public void removeUpdate(DocumentEvent index) {
                 update();
             }
 
             @Override
-            public void changedUpdate(DocumentEvent arg0) {
+            public void changedUpdate(DocumentEvent index) {
                 update();
             }
 
             private void update() {
-                CardData card = getCurrentCard();
-                if (card == null) {
+                if (actualCard == null) {
                     return;
                 }
-                card.setTitle(titleTextField.getText());
+                actualCard.setTitle(titleTextField.getText());
                 cardList.updateUI();
             }
         });
 
         nameTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent arg0) {
+            public void insertUpdate(DocumentEvent index) {
                 update();
             }
 
             @Override
-            public void removeUpdate(DocumentEvent arg0) {
+            public void removeUpdate(DocumentEvent index) {
                 update();
             }
 
             @Override
-            public void changedUpdate(DocumentEvent arg0) {
+            public void changedUpdate(DocumentEvent index) {
                 update();
             }
 
             private void update() {
-                CardData card = getCurrentCard();
-                if (card == null) {
+                if (actualCard == null) {
                     return;
                 }
-                card.setName(nameTextField.getText());
+                actualCard.setName(nameTextField.getText());
                 cardList.updateUI();
             }
         });
 
         legendTextArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent arg0) {
+            public void insertUpdate(DocumentEvent index) {
                 update();
             }
 
             @Override
-            public void removeUpdate(DocumentEvent arg0) {
+            public void removeUpdate(DocumentEvent index) {
                 update();
             }
 
             @Override
-            public void changedUpdate(DocumentEvent arg0) {
+            public void changedUpdate(DocumentEvent index) {
                 update();
             }
 
             private void update() {
-                CardData card = getCurrentCard();
-                if (card == null) {
+                if (actualCard == null) {
                     return;
                 }
-                card.setLegend(legendTextArea.getText());
+                actualCard.setLegend(legendTextArea.getText());
                 cardList.updateUI();
             }
         });
 
         rulesTextArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent arg0) {
+            public void insertUpdate(DocumentEvent index) {
                 update();
             }
 
             @Override
-            public void removeUpdate(DocumentEvent arg0) {
+            public void removeUpdate(DocumentEvent index) {
                 update();
             }
 
             @Override
-            public void changedUpdate(DocumentEvent arg0) {
+            public void changedUpdate(DocumentEvent index) {
                 update();
             }
 
             private void update() {
-                CardData card = getCurrentCard();
-                if (card == null) {
+                if (actualCard == null) {
                     return;
                 }
-                card.setRules(rulesTextArea.getText());
+                actualCard.setRules(rulesTextArea.getText());
                 cardList.updateUI();
             }
         });
 
         costTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent arg0) {
+            public void insertUpdate(DocumentEvent index) {
                 update();
             }
 
             @Override
-            public void removeUpdate(DocumentEvent arg0) {
+            public void removeUpdate(DocumentEvent index) {
                 update();
             }
 
             @Override
-            public void changedUpdate(DocumentEvent arg0) {
+            public void changedUpdate(DocumentEvent index) {
                 update();
             }
 
             private void update() {
-                CardData card = getCurrentCard();
-                if (card == null) {
+                if (actualCard == null) {
                     return;
                 }
-                card.setCost(costTextField.getText());
+                actualCard.setCost(costTextField.getText());
                 cardList.updateUI();
             }
         });
@@ -259,6 +265,10 @@ public class MainWindow extends javax.swing.JFrame {
         wahapediaPsychicPowerImportMenuItem = new javax.swing.JMenuItem();
         exportMenu = new javax.swing.JMenu();
         pdfExportMenuItem = new javax.swing.JMenuItem();
+        sectionMenu = new javax.swing.JMenu();
+        compactAllSectionsMenuItem = new javax.swing.JMenuItem();
+        reorderTitleSectionMenuItem = new javax.swing.JMenuItem();
+        reorderNameSectionMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(620, 460));
@@ -269,6 +279,8 @@ public class MainWindow extends javax.swing.JFrame {
         sectionPanel.setLayout(new java.awt.BorderLayout());
 
         sectionList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        sectionList.setDragEnabled(true);
+        sectionList.setDropMode(javax.swing.DropMode.INSERT);
         sectionList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 sectionListValueChanged(evt);
@@ -303,7 +315,8 @@ public class MainWindow extends javax.swing.JFrame {
         cardPanel.setLayout(new java.awt.BorderLayout());
 
         cardList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        cardList.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        cardList.setDragEnabled(true);
+        cardList.setDropMode(javax.swing.DropMode.INSERT);
         cardList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 cardListValueChanged(evt);
@@ -344,11 +357,6 @@ public class MainWindow extends javax.swing.JFrame {
         dataPanel.add(titleLabel);
 
         titleTextField.setMaximumSize(new java.awt.Dimension(2147483647, 20));
-        titleTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                titleTextFieldActionPerformed(evt);
-            }
-        });
         dataPanel.add(titleTextField);
 
         nameLabel.setLabelFor(nameTextField);
@@ -471,18 +479,42 @@ public class MainWindow extends javax.swing.JFrame {
 
         jMenuBar1.add(exportMenu);
 
+        sectionMenu.setText("Section");
+
+        compactAllSectionsMenuItem.setText("Compact all sections");
+        compactAllSectionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                compactAllSectionsMenuItemActionPerformed(evt);
+            }
+        });
+        sectionMenu.add(compactAllSectionsMenuItem);
+
+        reorderTitleSectionMenuItem.setText("Reorder cards by title");
+        reorderTitleSectionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reorderTitleSectionMenuItemActionPerformed(evt);
+            }
+        });
+        sectionMenu.add(reorderTitleSectionMenuItem);
+
+        reorderNameSectionMenuItem.setText("Reorder cards by name");
+        reorderNameSectionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reorderNameSectionMenuItemActionPerformed(evt);
+            }
+        });
+        sectionMenu.add(reorderNameSectionMenuItem);
+
+        jMenuBar1.add(sectionMenu);
+
         setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void titleTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_titleTextFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_titleTextFieldActionPerformed
-
     private void addSectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSectionButtonActionPerformed
         cards.add(new ArrayList());
-        sectionList.updateUI();
+        updateListsUI();
     }//GEN-LAST:event_addSectionButtonActionPerformed
 
     private void removeSectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeSectionButtonActionPerformed
@@ -491,43 +523,44 @@ public class MainWindow extends javax.swing.JFrame {
             return;
         }
         cards.remove(section);
-        sectionList.updateUI();
+        sectionList.clearSelection();
+        updateSelectedSection(-1);
     }//GEN-LAST:event_removeSectionButtonActionPerformed
 
     private void sectionListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_sectionListValueChanged
-        cardList.setSelectedIndex(0);
-        cardList.updateUI();
-        updateCardFields();
+        updateSelectedSection(sectionList.getSelectedIndex());
     }//GEN-LAST:event_sectionListValueChanged
 
     private void cardListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_cardListValueChanged
+        int selectedCard = cardList.getSelectedIndex();
+        if (selectedCard < 0 || selectedCard >= actualSection.size()) {
+            actualCard = null;
+        } else {
+            actualCard = actualSection.get(selectedCard);
+        }
         updateCardFields();
     }//GEN-LAST:event_cardListValueChanged
 
     private void addCardButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addCardButton1ActionPerformed
-        List<CardData> section = getCurrentSection();
-        if (section == null) {
+        if (actualSection == null) {
             return;
         }
         CardData stratagemData = new CardData();
         stratagemData.setName("NEW");
-        section.add(stratagemData);
-        cardList.updateUI();
-
+        actualSection.add(stratagemData);
+        updateListsUI();
     }//GEN-LAST:event_addCardButton1ActionPerformed
 
     private void removeCardButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeCardButton1ActionPerformed
-        List<CardData> section = getCurrentSection();
-        if (section == null) {
+        if (actualSection == null) {
             return;
         }
         int card = cardList.getSelectedIndex();
-        if (card < 0 || card > section.size()) {
+        if (card < 0 || card > actualSection.size()) {
             return;
         }
-        section.remove(card);
-        cardList.updateUI();
-        updateCardFields();
+        actualSection.remove(card);
+        updateListsUI();
     }//GEN-LAST:event_removeCardButton1ActionPerformed
 
     private void loadMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadMenuItemActionPerformed
@@ -545,7 +578,7 @@ public class MainWindow extends javax.swing.JFrame {
             if (returnVal != JFileChooser.APPROVE_OPTION) {
                 return;
             }
-            actualFile = getChooserSelectedFile(chooser);
+            actualFile = getChooserSelectedFile(chooser, "xml");
         }
         saveCards(actualFile);
 
@@ -558,7 +591,7 @@ public class MainWindow extends javax.swing.JFrame {
         if (returnVal != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        actualFile = getChooserSelectedFile(chooser);
+        actualFile = getChooserSelectedFile(chooser, "xml");
         saveCards(actualFile);
 
     }//GEN-LAST:event_saveAsMenuItemActionPerformed
@@ -566,8 +599,8 @@ public class MainWindow extends javax.swing.JFrame {
     private void newMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newMenuItemActionPerformed
         actualFile = null;
         cards.clear();
-        sectionList.updateUI();
-        cardList.updateUI();
+        updateSelectedSection(-1);
+        updateListsUI();
     }//GEN-LAST:event_newMenuItemActionPerformed
 
     private void wahapediaStratagemImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaStratagemImportMenuItemActionPerformed
@@ -577,9 +610,8 @@ public class MainWindow extends javax.swing.JFrame {
         }
         Callable<Void> callable = () -> {
             WahapediaStratagemCardBuilder builder = new WahapediaStratagemCardBuilder(1, false, true);
-            cards = builder.build(new URL(urlString).openStream());
-            sectionList.updateUI();
-            cardList.updateUI();
+            cards.addAll(builder.build(new URL(urlString).openStream()));
+            updateListsUI();
             return null;
         };
         WaitingDialog.show(this, "Loading stratagems from Wahapedia...", callable);
@@ -593,7 +625,7 @@ public class MainWindow extends javax.swing.JFrame {
         if (returnVal != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        File file = getChooserSelectedFile(chooser);
+        File file = getChooserSelectedFile(chooser, "pdf");
         Callable<Void> callable = () -> {
             PdfOutput builder = new PdfOutput(3, 3);
             builder.build(new FileOutputStream(file), cards);
@@ -611,9 +643,8 @@ public class MainWindow extends javax.swing.JFrame {
         }
         Callable<Void> callable = () -> {
             WahapediaWarlordTraitCardBuilder builder = new WahapediaWarlordTraitCardBuilder(1, false, true);
-            cards = builder.build(new URL(urlString).openStream());
-            sectionList.updateUI();
-            cardList.updateUI();
+            cards.addAll(builder.build(new URL(urlString).openStream()));
+            updateListsUI();
             return null;
         };
         WaitingDialog.show(this, "Loading warlord traits from Wahapedia...", callable);    }//GEN-LAST:event_wahapediaWarlordTraitImportMenuItemActionPerformed
@@ -625,13 +656,43 @@ public class MainWindow extends javax.swing.JFrame {
         }
         Callable<Void> callable = () -> {
             WahapediaPsychicPowerCardBuilder builder = new WahapediaPsychicPowerCardBuilder(1, false, true);
-            cards = builder.build(new URL(urlString).openStream());
-            sectionList.updateUI();
-            cardList.updateUI();
+            cards.addAll(builder.build(new URL(urlString).openStream()));
+            updateListsUI();
             return null;
         };
         WaitingDialog.show(this, "Loading psychic powers from Wahapedia...", callable);
     }//GEN-LAST:event_wahapediaPsychicPowerImportMenuItemActionPerformed
+
+    private void compactAllSectionsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compactAllSectionsMenuItemActionPerformed
+        ArrayList<CardData> singleSection = new ArrayList<>();
+        for (List<CardData> section : cards) {
+            singleSection.addAll(section);
+        }
+        cards.clear();
+        cards.add(singleSection);
+        sectionList.setSelectedIndex(0);
+        updateSelectedSection(0);
+    }//GEN-LAST:event_compactAllSectionsMenuItemActionPerformed
+
+    private void reorderNameSectionMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reorderNameSectionMenuItemActionPerformed
+        if (actualSection == null) {
+            return;
+        }
+        Collections.sort(actualSection, Comparator.comparing(CardData::getName));
+        actualCard = null;
+        cardList.clearSelection();
+        updateListsUI();
+    }//GEN-LAST:event_reorderNameSectionMenuItemActionPerformed
+
+    private void reorderTitleSectionMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reorderTitleSectionMenuItemActionPerformed
+        if (actualSection == null) {
+            return;
+        }
+        Collections.sort(actualSection, Comparator.comparing(CardData::getTitle));
+        actualCard = null;
+        cardList.clearSelection();
+        updateListsUI();
+    }//GEN-LAST:event_reorderTitleSectionMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
@@ -656,6 +717,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel cardPanel;
     private javax.swing.JScrollPane cardlPane;
     private javax.swing.JPanel cardsButtonsPanel;
+    private javax.swing.JMenuItem compactAllSectionsMenuItem;
     private javax.swing.JLabel costLabel;
     private javax.swing.JTextField costTextField;
     private javax.swing.JPanel dataPanel;
@@ -674,6 +736,8 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem pdfExportMenuItem;
     private javax.swing.JButton removeCardButton1;
     private javax.swing.JButton removeSectionButton;
+    private javax.swing.JMenuItem reorderNameSectionMenuItem;
+    private javax.swing.JMenuItem reorderTitleSectionMenuItem;
     private javax.swing.JLabel rulesLabel;
     private javax.swing.JScrollPane rulesScrollPane;
     private javax.swing.JTextArea rulesTextArea;
@@ -681,6 +745,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem saveMenuItem;
     private javax.swing.JPanel sectionButtonsPanel;
     private javax.swing.JList<String> sectionList;
+    private javax.swing.JMenu sectionMenu;
     private javax.swing.JPanel sectionPanel;
     private javax.swing.JScrollPane sectionScrollPane;
     private javax.swing.JLabel titleLabel;
@@ -690,51 +755,16 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem wahapediaWarlordTraitImportMenuItem;
     // End of variables declaration//GEN-END:variables
 
-    private List<CardData> getCurrentSection() {
-        int section = sectionList.getSelectedIndex();
-        if (section < 0 || section >= cards.size()) {
-            return null;
-        }
-        return cards.get(section);
-    }
-
-    private CardData getCurrentCard() {
-        List<CardData> section = getCurrentSection();
-        if (section == null) {
-            return null;
-        }
-        int card = cardList.getSelectedIndex();
-        if (card < 0 || card >= section.size()) {
-            return null;
-        }
-        return section.get(card);
-    }
-
-    private void updateCardFields() {
-        CardData card = getCurrentCard();
-        if (card == null) {
-            titleTextField.setText("");
-            nameTextField.setText("");
-            legendTextArea.setText("");
-            rulesTextArea.setText("");
-            costTextField.setText("");
-        } else {
-            titleTextField.setText(card.getTitle());
-            nameTextField.setText(card.getName());
-            legendTextArea.setText(card.getLegend());
-            rulesTextArea.setText(card.getRules());
-            costTextField.setText(card.getCost());
-        }
-    }
-
     private void loadCards(File file) {
         Callable<Void> callable = () -> {
             FileInputStream fis = new FileInputStream(file);
             XmlCardInput input = new XmlCardInput();
-            // XmlStratagemBuilder input = new XmlStratagemBuilder();
-            cards = input.build(fis);
-            sectionList.updateUI();
-            cardList.updateUI();
+
+            List<List<CardData>> newCards = input.build(fis);
+
+            cards.clear();
+            cards.addAll(newCards);
+            updateSelectedSection(0);
             actualFile = file;
             return null;
         };
@@ -754,8 +784,14 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private JFileChooser createXmlFileChooser() {
-        File dir = (actualFile != null) ? actualFile.getParentFile() : null;
-        JFileChooser chooser = new JFileChooser(dir);
+        JFileChooser chooser = new JFileChooser();
+        if (actualFile != null) {
+            String filename = actualFile.getName();
+            int lio = filename.lastIndexOf('.');
+            filename = ((lio < 0) ? filename : filename.substring(0, lio)).concat(".xml");
+            File f = new File(actualFile.getParent(), filename);
+            chooser.setSelectedFile(f);
+        }
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                 "Card XML file", "xml");
         chooser.setFileFilter(filter);
@@ -763,20 +799,63 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private JFileChooser createPdfFileChooser() {
-        File dir = (actualFile != null) ? actualFile.getParentFile() : null;
-        JFileChooser chooser = new JFileChooser(dir);
+
+        JFileChooser chooser = new JFileChooser();
+        if (actualFile != null) {
+            String filename = actualFile.getName();
+            int lio = filename.lastIndexOf('.');
+            filename = ((lio < 0) ? filename : filename.substring(0, lio)).concat(".pdf");
+            File f = new File(actualFile.getParent(), filename);
+            chooser.setSelectedFile(f);
+        }
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
                 "PDF file", "pdf");
         chooser.setFileFilter(filter);
         return chooser;
     }
 
-    private File getChooserSelectedFile(JFileChooser chooser) {
+    private File getChooserSelectedFile(JFileChooser chooser, String extension) {
         File file = chooser.getSelectedFile();
         if (file.getName().indexOf('.') < 0) {
-            file = new File(file.getAbsolutePath() + ".pdf");
+            file = new File(file.getAbsolutePath() + "." + extension);
         }
         return file;
     }
 
+    private void updateCardFields() {
+        if (actualCard == null) {
+            titleTextField.setText("");
+            nameTextField.setText("");
+            legendTextArea.setText("");
+            rulesTextArea.setText("");
+            costTextField.setText("");
+        } else {
+            titleTextField.setText(actualCard.getTitle());
+            nameTextField.setText(actualCard.getName());
+            legendTextArea.setText(actualCard.getLegend());
+            rulesTextArea.setText(actualCard.getRules());
+            costTextField.setText(actualCard.getCost());
+        }
+    }
+
+    private void updateListsUI() {
+        java.awt.EventQueue.invokeLater(() -> {
+            sectionList.updateUI();
+            cardList.updateUI();
+            updateCardFields();
+        });
+    }
+
+    private void updateSelectedSection(int selectedSection) {
+        if (selectedSection < 0 || selectedSection >= cards.size()) {
+            actualSection = null;
+            actualCard = null;
+        } else {
+            actualSection = cards.get(selectedSection);
+            actualCard = null;
+        }
+        cardList.clearSelection();
+
+        updateListsUI();
+    }
 }
