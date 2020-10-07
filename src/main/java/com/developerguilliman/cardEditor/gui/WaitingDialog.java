@@ -71,29 +71,40 @@ public class WaitingDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
         loadingLabel = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setAutoRequestFocus(false);
         setMinimumSize(new java.awt.Dimension(280, 30));
         setUndecorated(true);
+        setPreferredSize(new java.awt.Dimension(180, 35));
         setResizable(false);
-        setSize(new java.awt.Dimension(180, 30));
-        getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.Y_AXIS));
+        setSize(new java.awt.Dimension(180, 35));
+        getContentPane().setLayout(new java.awt.BorderLayout(1, 0));
 
-        loadingLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        loadingLabel.setText(" ");
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.setLayout(new java.awt.GridLayout(0, 1));
+
+        loadingLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        loadingLabel.setText("Loading");
         loadingLabel.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
-        getContentPane().add(loadingLabel);
+        jPanel1.add(loadingLabel);
 
         progressBar.setIndeterminate(true);
-        getContentPane().add(progressBar);
+        progressBar.setOpaque(true);
+        progressBar.setString("");
+        jPanel1.add(progressBar);
+
+        getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel loadingLabel;
     private javax.swing.JProgressBar progressBar;
     // End of variables declaration//GEN-END:variables

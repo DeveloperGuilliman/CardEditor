@@ -17,7 +17,6 @@
 package com.developerguilliman.cardEditor.data;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 /**
  *
@@ -25,112 +24,83 @@ import java.util.Objects;
  */
 public class CardData implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	private String title;
+    private String title;
 
-	private String name;
+    private String name;
 
-	private String legend;
+    private String legend;
 
-	private String rules;
+    private String rules;
 
-	private String cost;
+    private String cost;
 
-	public CardData() {
-	}
+    public CardData() {
+    }
 
-	public CardData(String title, String name, String legend, String rules, String cost) {
-		this.title = title.trim();
-		this.name = name.trim();
-		this.legend = legend.trim();
-		this.rules = rules.trim();
-		this.cost = cost.trim();
-	}
+    public CardData(String title, String name, String legend, String rules, String cost) {
+        this.title = title;
+        this.name = name;
+        this.legend = legend;
+        this.rules = rules;
+        this.cost = cost;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getLegend() {
-		return legend;
-	}
+    public String getLegend() {
+        return legend;
+    }
 
-	public void setLegend(String legend) {
-		this.legend = legend;
-	}
+    public void setLegend(String legend) {
+        this.legend = legend;
+    }
 
-	public String getRules() {
-		return rules;
-	}
+    public String getRules() {
+        return rules;
+    }
 
-	public void setRules(String rules) {
-		this.rules = rules;
-	}
+    public void setRules(String rules) {
+        this.rules = rules;
+    }
 
-	public String getCost() {
-		return cost;
-	}
+    public String getCost() {
+        return cost;
+    }
 
-	public void setCost(String cost) {
-		this.cost = cost;
-	}
+    public void setCost(String cost) {
+        this.cost = cost;
+    }
 
-	@Override
-	public int hashCode() {
-		int hash = 7;
-		return hash;
-	}
+    public void trimStrings() {
+        this.title = title.trim();
+        this.name = name.trim();
+        this.legend = legend.trim();
+        this.rules = rules.trim();
+        this.cost = cost.trim();
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final CardData other = (CardData) obj;
-		if (!Objects.equals(this.title, other.title)) {
-			return false;
-		}
-		if (!Objects.equals(this.name, other.name)) {
-			return false;
-		}
-		if (!Objects.equals(this.legend, other.legend)) {
-			return false;
-		}
-		if (!Objects.equals(this.rules, other.rules)) {
-			return false;
-		}
-		if (!Objects.equals(this.cost, other.cost)) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "StratagemData{" + "title=" + title + ", name=" + name + ", legend=" + legend + ", rules="
-				+ rules + ", cost=" + cost + '}';
-	}
+    @Override
+    public String toString() {
+        return "CardData{" + "title=" + title + ", name=" + name + ", legend=" + legend + ", rules=" + rules + ", cost=" + cost + '}';
+    }
 
 }

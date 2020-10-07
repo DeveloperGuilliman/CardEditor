@@ -20,6 +20,8 @@ import com.developerguilliman.cardEditor.data.CardData;
 import com.developerguilliman.cardEditor.gui.CardNode;
 import com.developerguilliman.cardEditor.gui.SectionNode;
 import com.developerguilliman.cardEditor.gui.WaitingDialog;
+import com.developerguilliman.cardEditor.input.ICardInput;
+import com.developerguilliman.cardEditor.input.WahapediaAllCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaPsychicPowerCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaStratagemCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaWarlordTraitCardBuilder;
@@ -193,7 +195,7 @@ public class MainWindow extends javax.swing.JFrame {
                 actualCard.setCost(costTextField.getText());
             }
         });
-        updateCardFields();
+        updateButtonsFields();
     }
 
     /**
@@ -209,9 +211,9 @@ public class MainWindow extends javax.swing.JFrame {
         sectionButtonsPanel = new javax.swing.JPanel();
         addSectionButton = new javax.swing.JButton();
         removeSectionButton = new javax.swing.JButton();
-        addCardButton1 = new javax.swing.JButton();
-        removeCardButton1 = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        addCardButton = new javax.swing.JButton();
+        removeCardButton = new javax.swing.JButton();
+        cardTreeScrollPane = new javax.swing.JScrollPane();
         cardTree = new javax.swing.JTree();
         dataPanel = new javax.swing.JPanel();
         titleLabel = new javax.swing.JLabel();
@@ -226,22 +228,25 @@ public class MainWindow extends javax.swing.JFrame {
         rulesTextArea = new javax.swing.JTextArea();
         costLabel = new javax.swing.JLabel();
         costTextField = new javax.swing.JTextField();
-        jMenuBar1 = new javax.swing.JMenuBar();
+        mainMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         newMenuItem = new javax.swing.JMenuItem();
         loadMenuItem = new javax.swing.JMenuItem();
         saveMenuItem = new javax.swing.JMenuItem();
         saveAsMenuItem = new javax.swing.JMenuItem();
         importMenu = new javax.swing.JMenu();
+        cardsXmlImportMenuItem = new javax.swing.JMenuItem();
         wahapediaStratagemImportMenuItem = new javax.swing.JMenuItem();
         wahapediaWarlordTraitImportMenuItem = new javax.swing.JMenuItem();
         wahapediaPsychicPowerImportMenuItem = new javax.swing.JMenuItem();
+        wahapediaAllImportMenuItem = new javax.swing.JMenuItem();
         exportMenu = new javax.swing.JMenu();
         pdfExportMenuItem = new javax.swing.JMenuItem();
         sectionMenu = new javax.swing.JMenu();
         compactAllSectionsMenuItem = new javax.swing.JMenuItem();
         reorderTitleSectionMenuItem = new javax.swing.JMenuItem();
         reorderNameSectionMenuItem = new javax.swing.JMenuItem();
+        deduplicateMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(620, 460));
@@ -269,35 +274,38 @@ public class MainWindow extends javax.swing.JFrame {
         });
         sectionButtonsPanel.add(removeSectionButton);
 
-        addCardButton1.setText("Add Card");
-        addCardButton1.addActionListener(new java.awt.event.ActionListener() {
+        addCardButton.setText("Add Card");
+        addCardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addCardButton1ActionPerformed(evt);
+                addCardButtonActionPerformed(evt);
             }
         });
-        sectionButtonsPanel.add(addCardButton1);
+        sectionButtonsPanel.add(addCardButton);
 
-        removeCardButton1.setText("Remove Card");
-        removeCardButton1.addActionListener(new java.awt.event.ActionListener() {
+        removeCardButton.setText("Remove Card");
+        removeCardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                removeCardButton1ActionPerformed(evt);
+                removeCardButtonActionPerformed(evt);
             }
         });
-        sectionButtonsPanel.add(removeCardButton1);
+        sectionButtonsPanel.add(removeCardButton);
 
         treePanel.add(sectionButtonsPanel, java.awt.BorderLayout.NORTH);
 
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
         cardTree.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        cardTree.setAutoscrolls(true);
+        cardTree.setDragEnabled(true);
         cardTree.setRootVisible(false);
+        cardTree.setShowsRootHandles(true);
         cardTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 cardTreeValueChanged(evt);
             }
         });
-        jScrollPane1.setViewportView(cardTree);
+        cardTreeScrollPane.setViewportView(cardTree);
 
-        treePanel.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+        treePanel.add(cardTreeScrollPane, java.awt.BorderLayout.CENTER);
 
         getContentPane().add(treePanel, java.awt.BorderLayout.WEST);
 
@@ -389,9 +397,17 @@ public class MainWindow extends javax.swing.JFrame {
         });
         fileMenu.add(saveAsMenuItem);
 
-        jMenuBar1.add(fileMenu);
+        mainMenuBar1.add(fileMenu);
 
         importMenu.setText("Import");
+
+        cardsXmlImportMenuItem.setText("Cards XML...");
+        cardsXmlImportMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cardsXmlImportMenuItemActionPerformed(evt);
+            }
+        });
+        importMenu.add(cardsXmlImportMenuItem);
 
         wahapediaStratagemImportMenuItem.setText("Wahapedia Stratagems...");
         wahapediaStratagemImportMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -417,7 +433,15 @@ public class MainWindow extends javax.swing.JFrame {
         });
         importMenu.add(wahapediaPsychicPowerImportMenuItem);
 
-        jMenuBar1.add(importMenu);
+        wahapediaAllImportMenuItem.setText("Wahapedia All Cards...");
+        wahapediaAllImportMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                wahapediaAllImportMenuItemActionPerformed(evt);
+            }
+        });
+        importMenu.add(wahapediaAllImportMenuItem);
+
+        mainMenuBar1.add(importMenu);
 
         exportMenu.setText("Export");
 
@@ -429,7 +453,7 @@ public class MainWindow extends javax.swing.JFrame {
         });
         exportMenu.add(pdfExportMenuItem);
 
-        jMenuBar1.add(exportMenu);
+        mainMenuBar1.add(exportMenu);
 
         sectionMenu.setText("Section");
 
@@ -457,9 +481,17 @@ public class MainWindow extends javax.swing.JFrame {
         });
         sectionMenu.add(reorderNameSectionMenuItem);
 
-        jMenuBar1.add(sectionMenu);
+        deduplicateMenuItem.setText("Find and remove duplicates");
+        deduplicateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deduplicateMenuItemActionPerformed(evt);
+            }
+        });
+        sectionMenu.add(deduplicateMenuItem);
 
-        setJMenuBar(jMenuBar1);
+        mainMenuBar1.add(sectionMenu);
+
+        setJMenuBar(mainMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -470,6 +502,7 @@ public class MainWindow extends javax.swing.JFrame {
         DefaultMutableTreeNode sectionNode = createSectionNode(section, cards.size());
         root.add(sectionNode);
         expandNodes(cardTree, sectionNode);
+        selectAndScroll(sectionNode);
         forceUpdateUI();
     }//GEN-LAST:event_addSectionButtonActionPerformed
 
@@ -483,21 +516,25 @@ public class MainWindow extends javax.swing.JFrame {
         actualCardNode = null;
         actualSection = null;
         actualSectionNode = null;
+        cardTree.clearSelection();
         forceUpdateUI();
     }//GEN-LAST:event_removeSectionButtonActionPerformed
 
-    private void addCardButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addCardButton1ActionPerformed
+    private void addCardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addCardButtonActionPerformed
         if (actualSection == null) {
             return;
         }
         CardData card = new CardData();
         card.setName("NEW");
         actualSection.add(card);
-        actualSectionNode.add(createCardNode(card));
+        DefaultMutableTreeNode cardNode = createCardNode(card);
+        actualSectionNode.add(cardNode);
+        actualCardNode = cardNode;
+        selectAndScroll(cardNode);
         forceUpdateUI();
-    }//GEN-LAST:event_addCardButton1ActionPerformed
+    }//GEN-LAST:event_addCardButtonActionPerformed
 
-    private void removeCardButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeCardButton1ActionPerformed
+    private void removeCardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeCardButtonActionPerformed
         if (actualSection == null && actualCard != null) {
             return;
         }
@@ -505,14 +542,15 @@ public class MainWindow extends javax.swing.JFrame {
         actualSectionNode.remove(actualCardNode);
         actualCard = null;
         actualCardNode = null;
+        selectAndScroll(actualSectionNode);
         forceUpdateUI();
-    }//GEN-LAST:event_removeCardButton1ActionPerformed
+    }//GEN-LAST:event_removeCardButtonActionPerformed
 
     private void loadMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadMenuItemActionPerformed
         JFileChooser chooser = createXmlFileChooser();
         int returnVal = chooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            loadCards(chooser.getSelectedFile());
+            loadCards(chooser.getSelectedFile(), "Loading...", true);
         }
     }//GEN-LAST:event_loadMenuItemActionPerformed
 
@@ -552,7 +590,7 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_newMenuItemActionPerformed
 
     private void wahapediaStratagemImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaStratagemImportMenuItemActionPerformed
-        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import stratagems for", "Wahapedia Stratagem import", JOptionPane.QUESTION_MESSAGE);
+        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import Stratagems for", "Wahapedia Stratagems import", JOptionPane.QUESTION_MESSAGE);
         if (urlString == null) {
             return;
         }
@@ -585,7 +623,7 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_pdfExportMenuItemActionPerformed
 
     private void wahapediaWarlordTraitImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaWarlordTraitImportMenuItemActionPerformed
-        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import stratagems for", "Wahapedia Stratagem import", JOptionPane.QUESTION_MESSAGE);
+        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import Warlord Traits for", "Wahapedia Warlord Traits Simport", JOptionPane.QUESTION_MESSAGE);
         if (urlString == null) {
             return;
         }
@@ -598,7 +636,7 @@ public class MainWindow extends javax.swing.JFrame {
         WaitingDialog.show(this, "Loading warlord traits from Wahapedia...", callable);    }//GEN-LAST:event_wahapediaWarlordTraitImportMenuItemActionPerformed
 
     private void wahapediaPsychicPowerImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaPsychicPowerImportMenuItemActionPerformed
-        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import stratagems for", "Wahapedia Stratagem import", JOptionPane.QUESTION_MESSAGE);
+        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import psychic powers for", "Wahapedia Psychic Powers import", JOptionPane.QUESTION_MESSAGE);
         if (urlString == null) {
             return;
         }
@@ -666,6 +704,37 @@ public class MainWindow extends javax.swing.JFrame {
         forceUpdateUI();
     }//GEN-LAST:event_cardTreeValueChanged
 
+    private void wahapediaAllImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaAllImportMenuItemActionPerformed
+        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import all cards for", "Wahapedia all cards import", JOptionPane.QUESTION_MESSAGE);
+        if (urlString == null) {
+            return;
+        }
+        Callable<Void> callable = () -> {
+            WahapediaAllCardBuilder builder = new WahapediaAllCardBuilder(1, false, true);
+            cards.addAll(builder.build(new URL(urlString).openStream()));
+            updateTree();
+            return null;
+        };
+        WaitingDialog.show(this, "Loading all cards from Wahapedia...", callable);
+    }//GEN-LAST:event_wahapediaAllImportMenuItemActionPerformed
+
+    private void cardsXmlImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardsXmlImportMenuItemActionPerformed
+        JFileChooser chooser = createXmlFileChooser();
+        int returnVal = chooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            loadCards(chooser.getSelectedFile(), "Importing...", false);
+        }
+    }//GEN-LAST:event_cardsXmlImportMenuItemActionPerformed
+
+    private void deduplicateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deduplicateMenuItemActionPerformed
+
+        ArrayList<CardData> deduplicated = new ArrayList<>(ICardInput.createSectionsDeduplicator(cards));
+        for (List<CardData> list : cards) {
+            list.retainAll(deduplicated);
+        }
+        updateTree();
+    }//GEN-LAST:event_deduplicateMenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -683,27 +752,29 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addCardButton1;
+    private javax.swing.JButton addCardButton;
     private javax.swing.JButton addSectionButton;
     private javax.swing.JTree cardTree;
+    private javax.swing.JScrollPane cardTreeScrollPane;
+    private javax.swing.JMenuItem cardsXmlImportMenuItem;
     private javax.swing.JMenuItem compactAllSectionsMenuItem;
     private javax.swing.JLabel costLabel;
     private javax.swing.JTextField costTextField;
     private javax.swing.JPanel dataPanel;
+    private javax.swing.JMenuItem deduplicateMenuItem;
     private javax.swing.JMenu exportMenu;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu importMenu;
-    private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel legendLabel;
     private javax.swing.JScrollPane legendScrollPane;
     private javax.swing.JTextArea legendTextArea;
     private javax.swing.JMenuItem loadMenuItem;
+    private javax.swing.JMenuBar mainMenuBar1;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JTextField nameTextField;
     private javax.swing.JMenuItem newMenuItem;
     private javax.swing.JMenuItem pdfExportMenuItem;
-    private javax.swing.JButton removeCardButton1;
+    private javax.swing.JButton removeCardButton;
     private javax.swing.JButton removeSectionButton;
     private javax.swing.JMenuItem reorderNameSectionMenuItem;
     private javax.swing.JMenuItem reorderTitleSectionMenuItem;
@@ -717,25 +788,28 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel titleLabel;
     private javax.swing.JTextField titleTextField;
     private javax.swing.JPanel treePanel;
+    private javax.swing.JMenuItem wahapediaAllImportMenuItem;
     private javax.swing.JMenuItem wahapediaPsychicPowerImportMenuItem;
     private javax.swing.JMenuItem wahapediaStratagemImportMenuItem;
     private javax.swing.JMenuItem wahapediaWarlordTraitImportMenuItem;
     // End of variables declaration//GEN-END:variables
 
-    private void loadCards(File file) {
+    private void loadCards(File file, String waitTitle, boolean clear) {
         Callable<Void> callable = () -> {
             FileInputStream fis = new FileInputStream(file);
             XmlCardInput input = new XmlCardInput();
 
             List<List<CardData>> newCards = input.build(fis);
 
-            cards.clear();
+            if (clear) {
+                cards.clear();
+            }
             cards.addAll(newCards);
             updateTree();
             actualFile = file;
             return null;
         };
-        WaitingDialog.show(MainWindow.this, "Loading...", callable);
+        WaitingDialog.show(MainWindow.this, waitTitle, callable);
     }
 
     private void saveCards(File file) {
@@ -789,30 +863,42 @@ public class MainWindow extends javax.swing.JFrame {
         return file;
     }
 
-    private void updateCardFields() {
-        if (actualCard == null) {
-            titleTextField.setText("");
-            nameTextField.setText("");
-            legendTextArea.setText("");
-            rulesTextArea.setText("");
-            costTextField.setText("");
-            titleTextField.setEnabled(false);
-            nameTextField.setEnabled(false);
-            legendTextArea.setEnabled(false);
-            rulesTextArea.setEnabled(false);
-            costTextField.setEnabled(false);
-        } else {
+    private void updateButtonsFields() {
+
+        boolean hasActualSection = (actualSection != null);
+        addCardButton.setEnabled(hasActualSection);
+        removeSectionButton.setEnabled(hasActualSection);
+        reorderTitleSectionMenuItem.setEnabled(hasActualSection);
+        reorderNameSectionMenuItem.setEnabled(hasActualSection);
+
+        boolean hasActualCard = (actualCard != null);
+
+        removeCardButton.setEnabled(hasActualCard);
+        titleTextField.setEnabled(hasActualCard);
+        nameTextField.setEnabled(hasActualCard);
+        legendTextArea.setEnabled(hasActualCard);
+        rulesTextArea.setEnabled(hasActualCard);
+        costTextField.setEnabled(hasActualCard);
+
+        if (hasActualCard) {
             titleTextField.setText(actualCard.getTitle());
             nameTextField.setText(actualCard.getName());
             legendTextArea.setText(actualCard.getLegend());
             rulesTextArea.setText(actualCard.getRules());
             costTextField.setText(actualCard.getCost());
-            titleTextField.setEnabled(true);
-            nameTextField.setEnabled(true);
-            legendTextArea.setEnabled(true);
-            rulesTextArea.setEnabled(true);
-            costTextField.setEnabled(true);
+        } else {
+            titleTextField.setText("");
+            nameTextField.setText("");
+            legendTextArea.setText("");
+            rulesTextArea.setText("");
+            costTextField.setText("");
         }
+    }
+
+    private void selectAndScroll(DefaultMutableTreeNode node) {
+        TreePath path = createPath(node);
+        cardTree.setSelectionPath(path);
+        cardTree.scrollPathToVisible(path);
     }
 
     private void updateTree() {
@@ -845,7 +931,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void forceUpdateUI() {
         java.awt.EventQueue.invokeLater(() -> {
             cardTree.updateUI();
-            updateCardFields();
+            updateButtonsFields();
         });
     }
 
@@ -863,9 +949,13 @@ public class MainWindow extends javax.swing.JFrame {
             expandNodes(tree, treeNode);
         }
         if (!node.isRoot()) {
-            TreePath path = new TreePath(node.getPath());
+            TreePath path = createPath(node);
             tree.expandPath(path);
         }
+    }
+
+    private static TreePath createPath(DefaultMutableTreeNode node) {
+        return new TreePath(node.getPath());
     }
 
 }

@@ -16,28 +16,22 @@
  */
 package com.developerguilliman.cardEditor.input;
 
+import com.developerguilliman.cardEditor.data.CardData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.developerguilliman.cardEditor.data.CardData;
-
 /**
  *
  * @author DeveloperGuilliman
  */
-public class WahapediaPsychicPowerCardBuilder implements ICardInput {
+public class WahapediaPsychicPowerCardBuilder implements IWahapediaCardInput {
 
     private final int maxToGroup;
     private final boolean reorderByName;
@@ -55,33 +49,19 @@ public class WahapediaPsychicPowerCardBuilder implements ICardInput {
         try {
             Document doc = Jsoup.parse(source, null, "");
             //Elements cardElements = doc.select("div.Columns2 div.BreakInsideAvoid p.impact18, div.Columns2 div.BreakInsideAvoid>h3");
-            Elements cardElements = doc.select("div.Columns2 div.BreakInsideAvoid p.impact18");
-
             List<CardData> list = new ArrayList<>();
-            for (Element cardElement : cardElements) {
-                CardData card = buildTrait(cardElement);
-                if (card != null) {
-                    list.add(card);
-                }
-            }
+            buildFromHtml(doc, list);
             System.out.println("Found " + list.size() + " cards");
 
-            Collections.sort(list, getComparator());
+            Collections.sort(list, ICardInput.getComparator(reorderByName));
 
             if (deduplicate) {
-
-                TreeSet<CardData> deduplicator = new TreeSet<>(
-                        Comparator.comparing(CardData::getTitle).thenComparing(CardData::getName)
-                                .thenComparing(CardData::getLegend).thenComparing(CardData::getRules)
-                                .thenComparing(CardData::getCost));
-
-                deduplicator.addAll(list);
-                list.retainAll(deduplicator);
+                list.retainAll(ICardInput.createListDeduplicator(list));
                 System.out.println("Found " + list.size() + " deduplicated cards");
 
             }
-            List<List<CardData>> cardSections = divideSections(list);
-            regroupSections(cardSections);
+            List<List<CardData>> cardSections = ICardInput.divideSections(list);
+            ICardInput.regroupSections(cardSections, maxToGroup);
             System.out.println("Organized in " + cardSections.size() + " sections");
             return cardSections;
         } catch (IOException ex) {
@@ -89,48 +69,19 @@ public class WahapediaPsychicPowerCardBuilder implements ICardInput {
         }
     }
 
-    private Comparator<? super CardData> getComparator() {
-        Comparator<CardData> comparatorBase = Comparator.comparing(CardData::getTitle);
-        return reorderByName ? comparatorBase.thenComparing(CardData::getName) : comparatorBase;
-    }
+    @Override
+    public void buildFromHtml(Document doc, List<CardData> list) {
+        Elements cardElements = doc.select("div.Columns2 div.BreakInsideAvoid p.impact18");
 
-    private List<List<CardData>> divideSections(Collection<CardData> cards) {
-
-        List<List<CardData>> cardSections = new ArrayList<>();
-        String lastFaction = null;
-        ArrayList<CardData> lastStratagemSection = null;
-
-        for (CardData card : cards) {
-            String currentFaction = card.getTitle();
-            if (!currentFaction.equals(lastFaction)) {
-                lastFaction = currentFaction;
-                lastStratagemSection = new ArrayList<CardData>();
-                cardSections.add(lastStratagemSection);
-            }
-            lastStratagemSection.add(card);
-        }
-
-        return cardSections;
-    }
-
-    private void regroupSections(List<List<CardData>> cardSections) {
-        List<CardData> singletons = null;
-        Iterator<List<CardData>> compactsingletons = cardSections.iterator();
-        while (compactsingletons.hasNext()) {
-            List<CardData> cardSection = compactsingletons.next();
-            if (cardSection.size() <= maxToGroup) {
-                if (singletons == null) {
-                    singletons = new ArrayList<>();
-                }
-                singletons.addAll(cardSection);
-                compactsingletons.remove();
+        for (Element cardElement : cardElements) {
+            CardData card = buildTrait(cardElement);
+            if (card != null) {
+                list.add(card);
             }
         }
-        if (singletons != null) {
-            cardSections.add(singletons);
-        }
     }
- private CardData buildTrait(Element cardElement) {
+
+    private CardData buildTrait(Element cardElement) {
 
         try {
             Elements warlordElements = warlordElements(cardElement);
@@ -171,7 +122,7 @@ public class WahapediaPsychicPowerCardBuilder implements ICardInput {
             }
             String cost = "";
 
-            return new CardData(title, name.toUpperCase(), description, rules, cost);
+            return IWahapediaCardInput.createCard(title, name, description, rules, cost);
         } catch (Exception e) {
             System.err.println("Error at element " + cardElement.html());
             e.printStackTrace();

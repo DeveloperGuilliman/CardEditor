@@ -21,27 +21,32 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeSet;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 /**
  *
  * @author DeveloperGuilliman
  */
-public class WahapediaStratagemCardBuilder implements IWahapediaCardInput {
+public class WahapediaAllCardBuilder implements ICardInput {
 
     private final int maxToGroup;
     private final boolean reorderByName;
     private final boolean deduplicate;
+    private final IWahapediaCardInput[] wahapediaBuilders;
 
-    public WahapediaStratagemCardBuilder(int maxToGroup, boolean reorderByName, boolean deduplicate) {
+    public WahapediaAllCardBuilder(int maxToGroup, boolean reorderByName, boolean deduplicate) {
 
         this.maxToGroup = maxToGroup;
         this.reorderByName = reorderByName;
         this.deduplicate = deduplicate;
+        this.wahapediaBuilders = new IWahapediaCardInput[]{
+            new WahapediaStratagemCardBuilder(maxToGroup, reorderByName, deduplicate),
+            new WahapediaWarlordTraitCardBuilder(maxToGroup, reorderByName, deduplicate),
+            new WahapediaPsychicPowerCardBuilder(maxToGroup, reorderByName, deduplicate),};
     }
 
     @Override
@@ -50,13 +55,22 @@ public class WahapediaStratagemCardBuilder implements IWahapediaCardInput {
             Document doc = Jsoup.parse(source, null, "");
 
             List<CardData> list = new ArrayList<>();
-            buildFromHtml(doc, list);
+            for (IWahapediaCardInput builder : wahapediaBuilders) {
+                builder.buildFromHtml(doc, list);
+            }
             System.out.println("Found " + list.size() + " cards");
 
             Collections.sort(list, ICardInput.getComparator(reorderByName));
 
             if (deduplicate) {
-                list.retainAll(ICardInput.createListDeduplicator(list));
+
+                TreeSet<CardData> deduplicator = new TreeSet<>(
+                        Comparator.comparing(CardData::getTitle).thenComparing(CardData::getName)
+                                .thenComparing(CardData::getLegend).thenComparing(CardData::getRules)
+                                .thenComparing(CardData::getCost));
+
+                deduplicator.addAll(list);
+                list.retainAll(deduplicator);
                 System.out.println("Found " + list.size() + " deduplicated cards");
 
             }
@@ -66,54 +80,6 @@ public class WahapediaStratagemCardBuilder implements IWahapediaCardInput {
             return cardSections;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
-        }
-    }
-
-    @Override
-    public void buildFromHtml(Document doc, List<CardData> list) {
-
-        Elements cardElements = doc.select("div.Columns2 div.BreakInsideAvoid.Corner7");
-        for (Element cardElement : cardElements) {
-            CardData card = buildStratagem(cardElement);
-            if (card != null) {
-                list.add(card);
-            }
-        }
-    }
-
-    private CardData buildStratagem(Element cardElement) {
-
-        try {
-            String lastText = "";
-
-            Elements nameElement = cardElement.select("p.stratName");
-            String name = nameElement.text();
-            if (!name.isEmpty()) {
-                lastText = name;
-            }
-
-            String faction = cardElement.select("p.stratFaction").text();
-            if (!faction.isEmpty()) {
-                lastText = faction;
-            }
-
-            String description = cardElement.select("p.stratLegend").text();
-            if (!description.isEmpty()) {
-                lastText = description;
-            }
-
-            Element rulesElement = nameElement.parents().first();
-            String rules = rulesElement.text();
-            int io = rules.indexOf(lastText) + lastText.length();
-            rules = rules.substring(io);
-
-            Elements siblings = cardElement.siblingElements();
-            String cost = siblings.select("div.stratPts").text();
-
-            return IWahapediaCardInput.createCard(faction, name, description, rules, cost);
-        } catch (Exception e) {
-            System.err.println("Error " + e + " at element " + cardElement.html());
-            return null;
         }
     }
 
