@@ -45,8 +45,8 @@ public class WahapediaAllCardBuilder implements ICardInput {
         this.deduplicate = deduplicate;
         this.wahapediaBuilders = new IWahapediaCardInput[]{
             new WahapediaStratagemCardBuilder(maxToGroup, reorderByName, deduplicate),
-            new WahapediaWarlordTraitCardBuilder(maxToGroup, reorderByName, deduplicate),
-            new WahapediaPsychicPowerCardBuilder(maxToGroup, reorderByName, deduplicate),};
+            new WahapediaMiscCardBuilder(maxToGroup, reorderByName, deduplicate),
+        };
     }
 
     @Override

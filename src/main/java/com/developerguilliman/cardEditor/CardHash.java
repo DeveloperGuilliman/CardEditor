@@ -26,6 +26,10 @@ import java.security.NoSuchAlgorithmException;
  */
 public class CardHash {
 
+    // Base32 alphabet with only vocal E, to minimize the chance to printing
+    // a word meanwhile all characters have the same height in the pdf
+    private static final char[] BASE32_ALPHABET = "BCDEFGHJKLMNPQRSTVWXYZ1234567890".toCharArray();
+
     private final MessageDigest messageDigest;
 
     public CardHash() {
@@ -57,8 +61,6 @@ public class CardHash {
         return base32Encode(digest, 4).substring(0, 5);
     }
 
-    private static final char[] BASE32_ALPHABET = "BCDEFGHJKLMNPQRSTVWXYZ1234567890".toCharArray();
-
     private static StringBuilder base32Encode(byte[] bytes, int len) {
         int i = 0;
         int index = 0;
@@ -71,8 +73,7 @@ public class CardHash {
             int digit;
             if (index > 3) {
                 if (ni < len) {
-                    nextByte = (bytes[ni] >= 0)
-                            ? bytes[ni] : (bytes[ni] + 256);
+                    nextByte = (bytes[ni] >= 0) ? bytes[ni] : (bytes[ni] + 256);
                 } else {
                     nextByte = 0;
                 }
@@ -85,9 +86,7 @@ public class CardHash {
             } else {
                 digit = (currByte >> (8 - (index + 5))) & 0x1F;
                 index = (index + 5) & 0x7;
-                if (index == 0) {
-                    i = ni;
-                }
+                i = (index == 0) ? ni : i;
             }
             base32.append(BASE32_ALPHABET[digit]);
         }

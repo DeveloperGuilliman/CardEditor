@@ -58,7 +58,7 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="wahapediaStratagemImportMenuItem">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Wahapedia Stratagems..."/>
+                <Property name="text" type="java.lang.String" value="Wahapedia Stratagem Cards..."/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="wahapediaStratagemImportMenuItemActionPerformed"/>
@@ -66,18 +66,10 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="wahapediaWarlordTraitImportMenuItem">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Wahapedia Warlord traits..."/>
+                <Property name="text" type="java.lang.String" value="Wahapedia Misc Cards..."/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="wahapediaWarlordTraitImportMenuItemActionPerformed"/>
-              </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="wahapediaPsychicPowerImportMenuItem">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Wahapedia Pyschic powers..."/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="wahapediaPsychicPowerImportMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="wahapediaAllImportMenuItem">
@@ -149,6 +141,7 @@
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
+    <Property name="title" type="java.lang.String" value="Card editor"/>
     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
       <Dimension value="[620, 460]"/>
     </Property>

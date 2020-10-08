@@ -77,6 +77,8 @@ public class PdfOutput implements ICardOutput {
     private void buildDocument(PDDocument document, PDImageXObject backgroundImage,
             List<List<CardData>> cards) throws IOException {
 
+        StringBuilder printedTextBuffer = new StringBuilder();
+
         for (List<CardData> cardPage : cards) {
             Iterator<CardData> cardIterator = cardPage.iterator();
             while (cardIterator.hasNext()) {
@@ -98,15 +100,14 @@ public class PdfOutput implements ICardOutput {
 
                 try (PDPageContentStream cont = new PDPageContentStream(document, page)) {
 
-                    buildPage(cont, backgroundImage, cardIterator, marginX, marginY, rectangleWidth,
-                            rectangleHeight);
+                    buildPage(cont, backgroundImage, cardIterator, marginX, marginY, rectangleWidth, rectangleHeight, printedTextBuffer);
                 }
             }
         }
     }
 
     private void buildPage(PDPageContentStream cont, PDImageXObject backgroundImage,
-            Iterator<CardData> cardIterator, float marginX, float marginY, float width, float height)
+            Iterator<CardData> cardIterator, float marginX, float marginY, float width, float height, StringBuilder printedTextBuffer)
             throws IOException {
         // Up to Down
         for (int y = perY - 1; y >= 0; y--) {
@@ -118,14 +119,13 @@ public class PdfOutput implements ICardOutput {
 
                 CardData card = cardIterator.next();
 
-                printCard(cont, backgroundImage, card, width * x + marginX, height * y + marginY, width,
-                        height);
+                printCard(cont, backgroundImage, card, width * x + marginX, height * y + marginY, width, height, printedTextBuffer);
             }
         }
     }
 
     private void printCard(PDPageContentStream cont, PDImageXObject backgroundImage, CardData card,
-            float x, float y, float width, float height) throws IOException {
+            float x, float y, float width, float height, StringBuilder printedTextBuffer) throws IOException {
 
         String title = card.getTitle().trim();
         String name = card.getName().trim();
@@ -133,7 +133,7 @@ public class PdfOutput implements ICardOutput {
         String rules = card.getRules().trim();
         String cost = card.getCost().trim();
 
-        String hash = cardHash.getStringsHash(title, name, legend, rules, cost);
+        printedTextBuffer.setLength(0);
 
         drawRectangleOutside(cont, x, y, width, height);
 
@@ -153,29 +153,26 @@ public class PdfOutput implements ICardOutput {
         float minY = y + 0.04f * height;
 
         nextY -= 2;
-        nextY -= printCenteredText(title, x + factionTextMarginX, nextY, factionTextWidth,
-                PDType1Font.HELVETICA_BOLD, FACTION_SIZE, cont);
+        nextY -= printCenteredText(title, x + factionTextMarginX, nextY, factionTextWidth, PDType1Font.HELVETICA_BOLD, FACTION_SIZE, cont, printedTextBuffer);
         nextY -= 2;
 
         drawNameLines(cont, x, width, nextY + NAME_SIZE + 3);
 
-        nextY -= printCenteredText(name, x + normalTextMarginX, nextY, normalTextWidth,
-                PDType1Font.HELVETICA_BOLD, NAME_SIZE, cont);
+        nextY -= printCenteredText(name, x + normalTextMarginX, nextY, normalTextWidth, PDType1Font.HELVETICA_BOLD, NAME_SIZE, cont, printedTextBuffer);
 
         drawNameLines(cont, x, width, nextY + 2 * NAME_SIZE - 3);
 
-        nextY -= printBreakingText(legend, x + normalTextMarginX, nextY, normalTextWidth,
-                nextY - minY - NORMAL_SIZE, PDType1Font.TIMES_ITALIC, NORMAL_SIZE, cont);
+        nextY -= printBreakingText(legend, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY - NORMAL_SIZE, PDType1Font.TIMES_ITALIC, NORMAL_SIZE, cont, printedTextBuffer);
 
-        nextY -= printBreakingText(rules, x + normalTextMarginX, nextY, normalTextWidth,
-                nextY - minY - NORMAL_SIZE, PDType1Font.TIMES_ROMAN, NORMAL_SIZE, cont);
+        nextY -= printBreakingText(rules, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY - NORMAL_SIZE, PDType1Font.TIMES_ROMAN, NORMAL_SIZE, cont, printedTextBuffer);
 
-        printCenteredText(cost, x + normalTextMarginX, minY, normalTextWidth,
-                PDType1Font.HELVETICA_BOLD, NAME_SIZE, cont);
+        printCenteredText(cost, x + normalTextMarginX, minY, normalTextWidth, PDType1Font.HELVETICA_BOLD, NAME_SIZE, cont, printedTextBuffer);
+
+        String printedText = printedTextBuffer.toString();
+        //System.out.println(printedText);
 
         cont.setNonStrokingColor(Color.GRAY);
-        printCenteredText(hash, x + width - (4.5f * normalTextMarginX), minY, normalTextWidth,
-                PDType1Font.HELVETICA, HASH_SIZE, cont, normalTextWidth);
+        printCenteredText(cardHash.getStringsHash(printedText), x + width - (4.5f * normalTextMarginX), minY, normalTextWidth, PDType1Font.HELVETICA, HASH_SIZE, cont, normalTextWidth, printedTextBuffer);
         cont.setNonStrokingColor(Color.BLACK);
 
     }
@@ -228,7 +225,7 @@ public class PdfOutput implements ICardOutput {
     }
 
     private float printCenteredText(String text, float x, float y, float maxWidth, PDFont font, float fontSize,
-            PDPageContentStream cont) throws IOException {
+            PDPageContentStream cont, StringBuilder printedTextBuffer) throws IOException {
 
         if (text.isEmpty()) {
             return 0;
@@ -245,27 +242,27 @@ public class PdfOutput implements ICardOutput {
             if (center > 0) {
                 String pre = text.substring(0, center);
                 String post = text.substring(center + 1);
-                printCenteredText(pre, x, y, maxWidth, font, fontSize, cont,
-                        fontSize * font.getStringWidth(pre) / 1000);
-                printCenteredText(post, x, y - leading, maxWidth, font, fontSize, cont,
-                        fontSize * font.getStringWidth(post) / 1000);
+                printCenteredText(pre, x, y, maxWidth, font, fontSize, cont, fontSize * font.getStringWidth(pre) / 1000, printedTextBuffer);
+                printCenteredText(post, x, y - leading, maxWidth, font, fontSize, cont, fontSize * font.getStringWidth(post) / 1000, printedTextBuffer);
                 return ((LEADING_INTERTEXT_FACTOR + 2) * leading);
             }
         }
 
-        printCenteredText(text, x, y, maxWidth, font, fontSize, cont, size);
+        printCenteredText(text, x, y, maxWidth, font, fontSize, cont, size, printedTextBuffer);
         return ((LEADING_INTERTEXT_FACTOR + 1) * leading);
 
     }
 
     private void printCenteredText(String text, float x, float y, float maxWidth, PDFont font, float fontSize,
-            PDPageContentStream cont, float size) throws IOException {
+            PDPageContentStream cont, float size, StringBuilder printedTextBuffer) throws IOException {
 
         float xDisp = (maxWidth - size) / 2;
         cont.setFont(font, fontSize);
         cont.beginText();
         cont.newLineAtOffset(x + xDisp, y);
         cont.showText(text);
+        printedTextBuffer.append(text);
+        printedTextBuffer.append("\n");
         cont.endText();
     }
 
@@ -284,7 +281,7 @@ public class PdfOutput implements ICardOutput {
     }
 
     private float printBreakingText(String text, float x, float y, float maxWidth, float maxHeight, PDFont font,
-            float fontSize, PDPageContentStream cont) throws IOException {
+            float fontSize, PDPageContentStream cont, StringBuilder printedTextBuffer) throws IOException {
 
         if (text.isEmpty()) {
             return 0;
@@ -299,7 +296,8 @@ public class PdfOutput implements ICardOutput {
 
         int currentLineStart = 0;
         while (currentLineStart < text.length() && yDiff < maxHeight) {
-            currentLineStart = printLine(text, currentLineStart, maxWidth, font, fontSize, cont);
+            currentLineStart = printLine(text, currentLineStart, maxWidth, font, fontSize, cont, printedTextBuffer);
+            printedTextBuffer.append("\n");
             yDiff += leading;
         }
         cont.endText();
@@ -307,13 +305,15 @@ public class PdfOutput implements ICardOutput {
     }
 
     private int printLine(String text, int currentLineStart, float maxWidth, PDFont font, float fontSize,
-            PDPageContentStream cont) throws IOException {
+            PDPageContentStream cont, StringBuilder printedTextBuffer) throws IOException {
 
         int len = text.length();
 
         int currentLineEnd = text.indexOf(' ', currentLineStart + 1);
         if (currentLineEnd < 0) {
-            cont.showText(text.substring(currentLineStart));
+            String currentLine = text.substring(currentLineStart);
+            cont.showText(currentLine);
+            printedTextBuffer.append(currentLine);
             return len;
         }
         String currentLine = text.substring(currentLineStart, currentLineEnd);
@@ -334,6 +334,7 @@ public class PdfOutput implements ICardOutput {
             currentLineEnd = nextLineEnd;
         }
         cont.showText(currentLine);
+        printedTextBuffer.append(currentLine);
         cont.newLine();
         return currentLineEnd + 1;
     }
