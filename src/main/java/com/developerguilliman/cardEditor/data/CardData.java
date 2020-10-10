@@ -40,6 +40,7 @@ public class CardData implements Serializable {
     private String cost;
 
     public CardData() {
+        this("", "", "", "", "");
     }
 
     public CardData(String title, String name, String legend, String rules, String cost) {
