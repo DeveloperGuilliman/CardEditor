@@ -254,6 +254,10 @@
                 </Property>
                 <Property name="autoscrolls" type="boolean" value="true"/>
                 <Property name="dragEnabled" type="boolean" value="true"/>
+                <Property name="dropMode" type="javax.swing.DropMode" editor="org.netbeans.modules.form.editors.EnumEditor">
+                  <Value id="INSERT"/>
+                </Property>
+                <Property name="editable" type="boolean" value="true"/>
                 <Property name="rootVisible" type="boolean" value="false"/>
                 <Property name="showsRootHandles" type="boolean" value="true"/>
               </Properties>
