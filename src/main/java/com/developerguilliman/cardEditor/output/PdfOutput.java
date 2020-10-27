@@ -36,24 +36,86 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
  */
 public class PdfOutput implements ICardOutput {
 
-    private static final float FACTION_SIZE = 9;
-    private static final float NAME_SIZE = 11;
-    private static final float NORMAL_SIZE = 7;
-    private static final float HASH_SIZE = 6;
-    private static final float LEADING_FACTOR = 1.125f;
-    private static final float LEADING_INTERTEXT_FACTOR = 0.5f;
+    public static final int DEFAULT_CARDS_PER_X = 3;
+    public static final int DEFAULT_CARDS_PER_Y = 3;
+
+    public static final float DEFAULT_TITLE_FONT_SIZE = 9;
+    public static final float DEFAULT_NAME_FONT_SIZE = 11;
+    public static final float DEFAULT_LEGEND_FONT_SIZE = 7;
+    public static final float DEFAULT_RULES_FONT_SIZE = 7;
+    public static final float DEFAULT_COST_FONT_SIZE = 11;
+
+    public static final PDType1Font DEFAULT_TITLE_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
+    public static final PDType1Font DEFAULT_NAME_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
+    public static final PDType1Font DEFAULT_LEGEND_FONT_TYPE = PDType1Font.TIMES_ITALIC;
+    public static final PDType1Font DEFAULT_RULES_FONT_TYPE = PDType1Font.TIMES_ROMAN;
+    public static final PDType1Font DEFAULT_COST_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
+
+    private final float LEADING_FACTOR = 1.125f;
+    private final float LEADING_INTERTEXT_FACTOR = 0.5f;
 
     private static final Color VERY_LIGHT_GRAY = new Color(0xe7, 0xe7, 0xe7);
 
     private final int perX;
     private final int perY;
 
-    private final CardHash cardHash;
+    private final float titleFontSize;
+    private final float nameFontSize;
+    private final float legendFontSize;
+    private final float rulesFontSize;
+    private final float costFontSize;
+    private final float hashFontSize = 6;
 
-    public PdfOutput(int perX, int perY) {
+    private final PDFont titleFontType;
+    private final PDFont nameFontType;
+    private final PDFont legendFontType;
+    private final PDFont rulesFontType;
+    private final PDFont costFontType;
+    private final PDFont hashFontType = PDType1Font.HELVETICA;
+
+    private final CardHash cardHash;
+    private final StringBuilder printedTextBuffer;
+
+    public PdfOutput() {
+
+        this.perX = DEFAULT_CARDS_PER_X;
+        this.perY = DEFAULT_CARDS_PER_Y;
+
+        this.titleFontSize = DEFAULT_TITLE_FONT_SIZE;
+        this.nameFontSize = DEFAULT_NAME_FONT_SIZE;
+        this.legendFontSize = DEFAULT_LEGEND_FONT_SIZE;
+        this.rulesFontSize = DEFAULT_RULES_FONT_SIZE;
+        this.costFontSize = DEFAULT_COST_FONT_SIZE;
+
+        this.titleFontType = DEFAULT_TITLE_FONT_TYPE;
+        this.nameFontType = DEFAULT_NAME_FONT_TYPE;
+        this.legendFontType = DEFAULT_LEGEND_FONT_TYPE;
+        this.rulesFontType = DEFAULT_RULES_FONT_TYPE;
+        this.costFontType = DEFAULT_COST_FONT_TYPE;
+
+        this.cardHash = new CardHash();
+        this.printedTextBuffer = new StringBuilder();
+    }
+
+    public PdfOutput(int perX, int perY, float titleFontSize, float nameFontSize, float legendFontSize, float rulesFontSize, float costFontSize, PDFont titleFontType, PDFont nameFontType, PDFont legendFontType, PDFont rulesFontType, PDFont costFontType) {
+
         this.perX = perX;
         this.perY = perY;
+
+        this.titleFontSize = titleFontSize;
+        this.nameFontSize = nameFontSize;
+        this.legendFontSize = legendFontSize;
+        this.rulesFontSize = rulesFontSize;
+        this.costFontSize = costFontSize;
+
+        this.titleFontType = titleFontType;
+        this.nameFontType = nameFontType;
+        this.legendFontType = legendFontType;
+        this.rulesFontType = rulesFontType;
+        this.costFontType = costFontType;
+
         this.cardHash = new CardHash();
+        this.printedTextBuffer = new StringBuilder();
     }
 
     @Override
@@ -77,8 +139,6 @@ public class PdfOutput implements ICardOutput {
     private void buildDocument(PDDocument document, PDImageXObject backgroundImage,
             List<List<CardData>> cards) throws IOException {
 
-        StringBuilder printedTextBuffer = new StringBuilder();
-
         for (List<CardData> cardPage : cards) {
             Iterator<CardData> cardIterator = cardPage.iterator();
             while (cardIterator.hasNext()) {
@@ -100,14 +160,14 @@ public class PdfOutput implements ICardOutput {
 
                 try (PDPageContentStream cont = new PDPageContentStream(document, page)) {
 
-                    buildPage(cont, backgroundImage, cardIterator, marginX, marginY, rectangleWidth, rectangleHeight, printedTextBuffer);
+                    buildPage(cont, backgroundImage, cardIterator, marginX, marginY, rectangleWidth, rectangleHeight);
                 }
             }
         }
     }
 
     private void buildPage(PDPageContentStream cont, PDImageXObject backgroundImage,
-            Iterator<CardData> cardIterator, float marginX, float marginY, float width, float height, StringBuilder printedTextBuffer)
+            Iterator<CardData> cardIterator, float marginX, float marginY, float width, float height)
             throws IOException {
         // Up to Down
         for (int y = perY - 1; y >= 0; y--) {
@@ -119,13 +179,13 @@ public class PdfOutput implements ICardOutput {
 
                 CardData card = cardIterator.next();
 
-                printCard(cont, backgroundImage, card, width * x + marginX, height * y + marginY, width, height, printedTextBuffer);
+                printCard(cont, backgroundImage, card, width * x + marginX, height * y + marginY, width, height);
             }
         }
     }
 
     private void printCard(PDPageContentStream cont, PDImageXObject backgroundImage, CardData card,
-            float x, float y, float width, float height, StringBuilder printedTextBuffer) throws IOException {
+            float x, float y, float width, float height) throws IOException {
 
         String title = card.getTitle().trim();
         String name = card.getName().trim();
@@ -153,26 +213,26 @@ public class PdfOutput implements ICardOutput {
         float minY = y + 0.04f * height;
 
         nextY -= 2;
-        nextY -= printCenteredText(title, x + factionTextMarginX, nextY, factionTextWidth, PDType1Font.HELVETICA_BOLD, FACTION_SIZE, cont, printedTextBuffer);
+        nextY -= printCenteredText(title, x + factionTextMarginX, nextY, factionTextWidth, titleFontType, titleFontSize, cont, printedTextBuffer);
         nextY -= 2;
 
-        drawNameLines(cont, x, width, nextY + NAME_SIZE + 3);
+        drawNameLines(cont, x, width, nextY + nameFontSize + 3);
 
-        nextY -= printCenteredText(name, x + normalTextMarginX, nextY, normalTextWidth, PDType1Font.HELVETICA_BOLD, NAME_SIZE, cont, printedTextBuffer);
+        nextY -= printCenteredText(name, x + normalTextMarginX, nextY, normalTextWidth, nameFontType, nameFontSize, cont, printedTextBuffer);
 
-        drawNameLines(cont, x, width, nextY + 2 * NAME_SIZE - 3);
+        drawNameLines(cont, x, width, nextY + 2 * nameFontSize - 3);
 
-        nextY -= printBreakingText(legend, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY - NORMAL_SIZE, PDType1Font.TIMES_ITALIC, NORMAL_SIZE, cont, printedTextBuffer);
+        nextY -= printBreakingText(legend, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY - legendFontSize, legendFontType, legendFontSize, cont, printedTextBuffer);
 
-        nextY -= printBreakingText(rules, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY - NORMAL_SIZE, PDType1Font.TIMES_ROMAN, NORMAL_SIZE, cont, printedTextBuffer);
+        nextY -= printBreakingText(rules, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY - rulesFontSize, rulesFontType, rulesFontSize, cont, printedTextBuffer);
 
-        printCenteredText(cost, x + normalTextMarginX, minY, normalTextWidth, PDType1Font.HELVETICA_BOLD, NAME_SIZE, cont, printedTextBuffer);
+        printCenteredText(cost, x + normalTextMarginX, minY, normalTextWidth, costFontType, costFontSize, cont, printedTextBuffer);
 
         String printedText = printedTextBuffer.toString();
         //System.out.println(printedText);
 
         cont.setNonStrokingColor(Color.GRAY);
-        printCenteredText(cardHash.getStringsHash(printedText), x + width - (4.5f * normalTextMarginX), minY, normalTextWidth, PDType1Font.HELVETICA, HASH_SIZE, cont, normalTextWidth, printedTextBuffer);
+        printRightText(cardHash.getStringsHash(printedText), x - normalTextMarginX, minY, normalTextWidth, hashFontType, hashFontSize, cont);
         cont.setNonStrokingColor(Color.BLACK);
 
     }
@@ -266,18 +326,18 @@ public class PdfOutput implements ICardOutput {
         cont.endText();
     }
 
-    private int findNearestCenterSpace(String text) {
-        int middle = text.length() / 2;
-        int left = text.lastIndexOf(' ', middle);
-        left = left < 0 ? 0 : left;
+    private void printRightText(String text, float x, float y, float maxWidth, PDFont font, float fontSize,
+            PDPageContentStream cont) throws IOException {
 
-        int right = text.indexOf(' ', middle);
-        right = right < 0 ? text.length() : right;
-
-        int diffLeft = middle - left;
-        int diffRight = right - middle;
-
-        return (diffLeft < diffRight) ? left : right;
+        float size = fontSize * font.getStringWidth(text) / 1000;
+        float xDisp = maxWidth - size;
+        cont.setFont(font, fontSize);
+        cont.beginText();
+        cont.newLineAtOffset(x + xDisp, y);
+        cont.showText(text);
+        printedTextBuffer.append(text);
+        printedTextBuffer.append("\n");
+        cont.endText();
     }
 
     private float printBreakingText(String text, float x, float y, float maxWidth, float maxHeight, PDFont font,
@@ -337,6 +397,121 @@ public class PdfOutput implements ICardOutput {
         printedTextBuffer.append(currentLine);
         cont.newLine();
         return currentLineEnd + 1;
+    }
+
+    private static int findNearestCenterSpace(String text) {
+        int middle = text.length() / 2;
+        int left = text.lastIndexOf(' ', middle);
+        left = left < 0 ? 0 : left;
+
+        int right = text.indexOf(' ', middle);
+        right = right < 0 ? text.length() : right;
+
+        int diffLeft = middle - left;
+        int diffRight = right - middle;
+
+        return (diffLeft < diffRight) ? left : right;
+    }
+
+    public static class Builder {
+
+        private int perX;
+        private int perY;
+
+        private float titleFontSize;
+        private float nameFontSize;
+        private float legendFontSize;
+        private float rulesFontSize;
+        private float costFontSize;
+
+        private PDFont titleFontType;
+        private PDFont nameFontType;
+        private PDFont legendFontType;
+        private PDFont rulesFontType;
+        private PDFont costFontType;
+
+        public Builder() {
+
+            this.perX = DEFAULT_CARDS_PER_X;
+            this.perY = DEFAULT_CARDS_PER_Y;
+
+            this.titleFontSize = DEFAULT_TITLE_FONT_SIZE;
+            this.nameFontSize = DEFAULT_NAME_FONT_SIZE;
+            this.legendFontSize = DEFAULT_LEGEND_FONT_SIZE;
+            this.rulesFontSize = DEFAULT_RULES_FONT_SIZE;
+            this.costFontSize = DEFAULT_COST_FONT_SIZE;
+
+            this.titleFontType = DEFAULT_TITLE_FONT_TYPE;
+            this.nameFontType = DEFAULT_NAME_FONT_TYPE;
+            this.legendFontType = DEFAULT_LEGEND_FONT_TYPE;
+            this.rulesFontType = DEFAULT_RULES_FONT_TYPE;
+            this.costFontType = DEFAULT_COST_FONT_TYPE;
+        }
+
+        public Builder setPerX(int perX) {
+            this.perX = perX;
+            return this;
+        }
+
+        public Builder setPerY(int perY) {
+            this.perY = perY;
+            return this;
+        }
+
+        public Builder setTitleFontSize(float titleFontSize) {
+            this.titleFontSize = titleFontSize;
+            return this;
+        }
+
+        public Builder setNameFontSize(float nameFontSize) {
+            this.nameFontSize = nameFontSize;
+            return this;
+        }
+
+        public Builder setLegendFontSize(float legendFontSize) {
+            this.legendFontSize = legendFontSize;
+            return this;
+        }
+
+        public Builder setRulesFontSize(float rulesFontSize) {
+            this.rulesFontSize = rulesFontSize;
+            return this;
+        }
+
+        public Builder setCostFontSize(float costFontSize) {
+            this.costFontSize = costFontSize;
+            return this;
+        }
+
+        public Builder setTitleFontType(PDFont titleFontType) {
+            this.titleFontType = titleFontType;
+            return this;
+        }
+
+        public Builder setNameFontType(PDFont nameFontType) {
+            this.nameFontType = nameFontType;
+            return this;
+        }
+
+        public Builder setLegendFontType(PDFont legendFontType) {
+            this.legendFontType = legendFontType;
+            return this;
+        }
+
+        public Builder setRulesFontType(PDFont rulesFontType) {
+            this.rulesFontType = rulesFontType;
+            return this;
+        }
+
+        public Builder setCostFontType(PDFont costFontType) {
+            this.costFontType = costFontType;
+            return this;
+        }
+
+        public PdfOutput build() {
+            return new PdfOutput(perX, perY, titleFontSize, nameFontSize, legendFontSize, rulesFontSize, costFontSize, titleFontType, nameFontType, legendFontType, rulesFontType, costFontType);
+        }
+
     }
 
 }

@@ -16,7 +16,6 @@
  */
 package com.developerguilliman.cardEditor.gui;
 
-import com.developerguilliman.cardEditor.MainWindow;
 import com.developerguilliman.cardEditor.data.CardData;
 import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;

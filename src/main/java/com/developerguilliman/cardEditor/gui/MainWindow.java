@@ -14,17 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.developerguilliman.cardEditor;
+package com.developerguilliman.cardEditor.gui;
 
 import com.developerguilliman.cardEditor.data.CardData;
-import com.developerguilliman.cardEditor.gui.TreeTransferHandler;
-import com.developerguilliman.cardEditor.gui.WaitingDialog;
 import com.developerguilliman.cardEditor.input.ICardInput;
 import com.developerguilliman.cardEditor.input.WahapediaAllCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaMiscCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaStratagemCardBuilder;
 import com.developerguilliman.cardEditor.input.XmlCardInput;
-import com.developerguilliman.cardEditor.output.PdfOutput;
 import com.developerguilliman.cardEditor.output.XmlCardOutput;
 import java.awt.Component;
 import java.io.File;
@@ -39,7 +36,6 @@ import java.util.concurrent.Callable;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
-import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -254,8 +250,8 @@ public class MainWindow extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Card editor");
-        setMinimumSize(new java.awt.Dimension(620, 460));
-        setPreferredSize(new java.awt.Dimension(1000, 750));
+        setMinimumSize(new java.awt.Dimension(600, 460));
+        setPreferredSize(new java.awt.Dimension(780, 580));
 
         treePanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3));
         treePanel.setLayout(new java.awt.BorderLayout());
@@ -500,7 +496,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         setJMenuBar(mainMenuBar1);
 
-        pack();
+        setBounds(0, 0, 796, 618);
     }// </editor-fold>//GEN-END:initComponents
 
     private void addSectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSectionButtonActionPerformed
@@ -630,19 +626,9 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void pdfExportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pdfExportMenuItemActionPerformed
 
-        JFileChooser chooser = createPdfFileChooser();
-        int returnVal = chooser.showSaveDialog(this);
-        if (returnVal != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
-        File file = getChooserSelectedFile(chooser, "pdf");
-        Callable<Void> callable = () -> {
-            PdfOutput builder = new PdfOutput(3, 3);
-            builder.build(new FileOutputStream(file), cards);
-            return null;
-        };
-        WaitingDialog.show(this, "Creating pdf...", callable);
-
+//        java.awt.EventQueue.invokeLater(() -> {
+        new PdfCreateOptionsDialog(this, actualFile, cards).setVisible(true);
+//        });
 
     }//GEN-LAST:event_pdfExportMenuItemActionPerformed
 
@@ -752,22 +738,6 @@ public class MainWindow extends javax.swing.JFrame {
         dispose();
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            ex.printStackTrace();
-        }
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> {
-            new MainWindow().setVisible(true);
-        });
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addCardButton;
     private javax.swing.JButton addSectionButton;
@@ -811,7 +781,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem wahapediaWarlordTraitImportMenuItem;
     // End of variables declaration//GEN-END:variables
 
-    private void loadCards(File file, String waitTitle, boolean clear) {
+    public void loadCards(File file, String waitTitle, boolean clear) {
         Callable<Void> callable = () -> {
             FileInputStream fis = new FileInputStream(file);
             XmlCardInput input = new XmlCardInput();
@@ -823,7 +793,9 @@ public class MainWindow extends javax.swing.JFrame {
             }
             cards.addAll(newCards);
             updateTree();
-            actualFile = file;
+            if (clear) {
+                actualFile = file;
+            }
             return null;
         };
         WaitingDialog.show(MainWindow.this, waitTitle, callable);
@@ -856,23 +828,7 @@ public class MainWindow extends javax.swing.JFrame {
         return chooser;
     }
 
-    private JFileChooser createPdfFileChooser() {
-
-        JFileChooser chooser = new JFileChooser();
-        if (actualFile != null) {
-            String filename = actualFile.getName();
-            int lio = filename.lastIndexOf('.');
-            filename = ((lio < 0) ? filename : filename.substring(0, lio)).concat(".pdf");
-            File f = new File(actualFile.getParent(), filename);
-            chooser.setSelectedFile(f);
-        }
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "PDF file", "pdf");
-        chooser.setFileFilter(filter);
-        return chooser;
-    }
-
-    private File getChooserSelectedFile(JFileChooser chooser, String extension) {
+    public static File getChooserSelectedFile(JFileChooser chooser, String extension) {
         File file = chooser.getSelectedFile();
         if (file.getName().indexOf('.') < 0) {
             file = new File(file.getAbsolutePath() + "." + extension);
