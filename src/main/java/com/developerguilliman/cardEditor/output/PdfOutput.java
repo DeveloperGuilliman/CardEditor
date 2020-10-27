@@ -39,6 +39,9 @@ public class PdfOutput implements ICardOutput {
     public static final int DEFAULT_CARDS_PER_X = 3;
     public static final int DEFAULT_CARDS_PER_Y = 3;
 
+    public static final int DEFAULT_MARGIN_X = 3;
+    public static final int DEFAULT_MARGIN_Y = 3;
+
     public static final float DEFAULT_TITLE_FONT_SIZE = 9;
     public static final float DEFAULT_NAME_FONT_SIZE = 11;
     public static final float DEFAULT_LEGEND_FONT_SIZE = 7;
@@ -59,6 +62,9 @@ public class PdfOutput implements ICardOutput {
     private final int perX;
     private final int perY;
 
+    private final float marginPercentX;
+    private final float marginPercentY;
+
     private final float titleFontSize;
     private final float nameFontSize;
     private final float legendFontSize;
@@ -73,13 +79,19 @@ public class PdfOutput implements ICardOutput {
     private final PDFont costFontType;
     private final PDFont hashFontType = PDType1Font.HELVETICA;
 
+    private final boolean titleBars;
+    private final boolean cardBorders;
+
     private final CardHash cardHash;
     private final StringBuilder printedTextBuffer;
 
     public PdfOutput() {
 
-        this.perX = DEFAULT_CARDS_PER_X;
-        this.perY = DEFAULT_CARDS_PER_Y;
+        this.perX = DEFAULT_MARGIN_X;
+        this.perY = DEFAULT_MARGIN_Y;
+
+        this.marginPercentX = DEFAULT_MARGIN_X;
+        this.marginPercentY = DEFAULT_MARGIN_Y;
 
         this.titleFontSize = DEFAULT_TITLE_FONT_SIZE;
         this.nameFontSize = DEFAULT_NAME_FONT_SIZE;
@@ -92,15 +104,23 @@ public class PdfOutput implements ICardOutput {
         this.legendFontType = DEFAULT_LEGEND_FONT_TYPE;
         this.rulesFontType = DEFAULT_RULES_FONT_TYPE;
         this.costFontType = DEFAULT_COST_FONT_TYPE;
+        this.titleBars = true;
+        this.cardBorders = true;
 
         this.cardHash = new CardHash();
         this.printedTextBuffer = new StringBuilder();
     }
 
-    public PdfOutput(int perX, int perY, float titleFontSize, float nameFontSize, float legendFontSize, float rulesFontSize, float costFontSize, PDFont titleFontType, PDFont nameFontType, PDFont legendFontType, PDFont rulesFontType, PDFont costFontType) {
-
+    public PdfOutput(
+            int perX, int perY, float marginPercentX, float marginPercentY,
+            float titleFontSize, float nameFontSize, float legendFontSize, float rulesFontSize, float costFontSize,
+            PDFont titleFontType, PDFont nameFontType, PDFont legendFontType, PDFont rulesFontType, PDFont costFontType,
+            boolean titleBars, boolean cardBorders
+    ) {
         this.perX = perX;
         this.perY = perY;
+        this.marginPercentX = marginPercentX;
+        this.marginPercentY = marginPercentY;
 
         this.titleFontSize = titleFontSize;
         this.nameFontSize = nameFontSize;
@@ -113,6 +133,8 @@ public class PdfOutput implements ICardOutput {
         this.legendFontType = legendFontType;
         this.rulesFontType = rulesFontType;
         this.costFontType = costFontType;
+        this.titleBars = titleBars;
+        this.cardBorders = cardBorders;
 
         this.cardHash = new CardHash();
         this.printedTextBuffer = new StringBuilder();
@@ -149,8 +171,8 @@ public class PdfOutput implements ICardOutput {
                 final float pageWidth = page.getBBox().getWidth();
                 final float pageHeight = page.getBBox().getHeight();
 
-                final float printableWidth = 0.9f * pageWidth;
-                final float printableHeight = 0.9f * pageHeight;
+                final float printableWidth = pageWidth * (100 - marginPercentX) / 100;
+                final float printableHeight = pageHeight * (100 - marginPercentY) / 100;
 
                 final float marginX = (pageWidth - printableWidth) / 2;
                 final float marginY = (pageHeight - printableHeight) / 2;
@@ -199,7 +221,8 @@ public class PdfOutput implements ICardOutput {
 
         if (backgroundImage != null) {
             cont.drawImage(backgroundImage, x, y, width, height);
-        } else {
+        }
+        if (cardBorders) {
             drawPoligonOutside(cont, x, y, width, height);
         }
 
@@ -209,18 +232,24 @@ public class PdfOutput implements ICardOutput {
         final float factionTextWidth = width * 0.8125f;
         final float factionTextMarginX = (width - factionTextWidth) / 2;
 
-        float nextY = y + 0.95f * height;
-        float minY = y + 0.04f * height;
+        float nextY = y + 0.98f * height;
+        float minY = y + 0.03f * height + costFontSize;
 
-        nextY -= 2;
         nextY -= printCenteredText(title, x + factionTextMarginX, nextY, factionTextWidth, titleFontType, titleFontSize, cont, printedTextBuffer);
         nextY -= 2;
 
-        drawNameLines(cont, x, width, nextY + nameFontSize + 3);
+        if (titleBars) {
+            nextY -= 3;
+            drawNameLines(cont, x, width, nextY + 1);
+        }
 
         nextY -= printCenteredText(name, x + normalTextMarginX, nextY, normalTextWidth, nameFontType, nameFontSize, cont, printedTextBuffer);
 
-        drawNameLines(cont, x, width, nextY + 2 * nameFontSize - 3);
+        if (titleBars) {
+            drawNameLines(cont, x, width, nextY - 2);
+            nextY -= 4;
+        }
+        nextY -= 2;
 
         nextY -= printBreakingText(legend, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY - legendFontSize, legendFontType, legendFontSize, cont, printedTextBuffer);
 
@@ -232,7 +261,7 @@ public class PdfOutput implements ICardOutput {
         //System.out.println(printedText);
 
         cont.setNonStrokingColor(Color.GRAY);
-        printRightText(cardHash.getStringsHash(printedText), x - normalTextMarginX, minY, normalTextWidth, hashFontType, hashFontSize, cont);
+        printRightText(cardHash.getStringsHash(printedText), x - (normalTextMarginX / 2), minY - (1.5f * hashFontSize), normalTextWidth, hashFontType, hashFontSize, cont);
         cont.setNonStrokingColor(Color.BLACK);
 
     }
@@ -249,8 +278,8 @@ public class PdfOutput implements ICardOutput {
         float lineX1 = x + width * 0.9f;
         cont.setStrokingColor(Color.BLACK);
 
-        cont.moveTo(lineX0, nextY - 3);
-        cont.lineTo(lineX1, nextY - 3);
+        cont.moveTo(lineX0, nextY);
+        cont.lineTo(lineX1, nextY);
         cont.stroke();
     }
 
@@ -290,26 +319,27 @@ public class PdfOutput implements ICardOutput {
         if (text.isEmpty()) {
             return 0;
         }
+        y -= fontSize;
 
         float leading = fontSize * LEADING_FACTOR;
 
         cont.setLeading(leading);
 
-        float size = fontSize * font.getStringWidth(text) / 1000;
+        float size = getTextSize(fontSize, font, text);
 
         if (size > maxWidth) {
             int center = findNearestCenterSpace(text);
-            if (center > 0) {
+            if (center > 0 && center < text.length()) {
                 String pre = text.substring(0, center);
                 String post = text.substring(center + 1);
-                printCenteredText(pre, x, y, maxWidth, font, fontSize, cont, fontSize * font.getStringWidth(pre) / 1000, printedTextBuffer);
-                printCenteredText(post, x, y - leading, maxWidth, font, fontSize, cont, fontSize * font.getStringWidth(post) / 1000, printedTextBuffer);
-                return ((LEADING_INTERTEXT_FACTOR + 2) * leading);
+                printCenteredText(pre, x, y, maxWidth, font, fontSize, cont, getTextSize(fontSize, font, pre), printedTextBuffer);
+                printCenteredText(post, x, y - leading, maxWidth, font, fontSize, cont, getTextSize(fontSize, font, post), printedTextBuffer);
+                return (2 * leading);
             }
         }
 
         printCenteredText(text, x, y, maxWidth, font, fontSize, cont, size, printedTextBuffer);
-        return ((LEADING_INTERTEXT_FACTOR + 1) * leading);
+        return leading;
 
     }
 
@@ -329,8 +359,7 @@ public class PdfOutput implements ICardOutput {
     private void printRightText(String text, float x, float y, float maxWidth, PDFont font, float fontSize,
             PDPageContentStream cont) throws IOException {
 
-        float size = fontSize * font.getStringWidth(text) / 1000;
-        float xDisp = maxWidth - size;
+        float xDisp = maxWidth - getTextSize(fontSize, font, text);
         cont.setFont(font, fontSize);
         cont.beginText();
         cont.newLineAtOffset(x + xDisp, y);
@@ -346,6 +375,7 @@ public class PdfOutput implements ICardOutput {
         if (text.isEmpty()) {
             return 0;
         }
+        y -= fontSize;
 
         float leading = fontSize * LEADING_FACTOR;
         float yDiff = 0;
@@ -386,8 +416,7 @@ public class PdfOutput implements ICardOutput {
                 nextLineEnd = len;
             }
             nextLine = text.substring(currentLineStart, nextLineEnd);
-            float size = fontSize * font.getStringWidth(nextLine) / 1000;
-            if (size > maxWidth) {
+            if (getTextSize(fontSize, font, nextLine) > maxWidth) {
                 break;
             }
             currentLine = nextLine;
@@ -413,10 +442,17 @@ public class PdfOutput implements ICardOutput {
         return (diffLeft < diffRight) ? left : right;
     }
 
+    private static float getTextSize(float fontSize, PDFont font, String text) throws IOException {
+        return fontSize * font.getStringWidth(text) / 1000;
+    }
+
     public static class Builder {
 
         private int perX;
         private int perY;
+
+        private float marginPercentX;
+        private float marginPercentY;
 
         private float titleFontSize;
         private float nameFontSize;
@@ -430,10 +466,16 @@ public class PdfOutput implements ICardOutput {
         private PDFont rulesFontType;
         private PDFont costFontType;
 
+        private boolean titleBars;
+        private boolean cardBorders;
+
         public Builder() {
 
-            this.perX = DEFAULT_CARDS_PER_X;
-            this.perY = DEFAULT_CARDS_PER_Y;
+            this.perX = DEFAULT_MARGIN_X;
+            this.perY = DEFAULT_MARGIN_Y;
+
+            this.marginPercentX = DEFAULT_MARGIN_X;
+            this.marginPercentY = DEFAULT_MARGIN_Y;
 
             this.titleFontSize = DEFAULT_TITLE_FONT_SIZE;
             this.nameFontSize = DEFAULT_NAME_FONT_SIZE;
@@ -446,6 +488,8 @@ public class PdfOutput implements ICardOutput {
             this.legendFontType = DEFAULT_LEGEND_FONT_TYPE;
             this.rulesFontType = DEFAULT_RULES_FONT_TYPE;
             this.costFontType = DEFAULT_COST_FONT_TYPE;
+
+            this.titleBars = true;
         }
 
         public Builder setPerX(int perX) {
@@ -455,6 +499,16 @@ public class PdfOutput implements ICardOutput {
 
         public Builder setPerY(int perY) {
             this.perY = perY;
+            return this;
+        }
+
+        public Builder setMarginPercentX(float marginX) {
+            this.marginPercentX = marginX;
+            return this;
+        }
+
+        public Builder setMarginPercentY(float marginY) {
+            this.marginPercentY = marginY;
             return this;
         }
 
@@ -508,8 +562,23 @@ public class PdfOutput implements ICardOutput {
             return this;
         }
 
+        public Builder setTitleBars(boolean titleBars) {
+            this.titleBars = titleBars;
+            return this;
+        }
+
+        public Builder setCardBorders(boolean cardBorders) {
+            this.cardBorders = cardBorders;
+            return this;
+        }
+
         public PdfOutput build() {
-            return new PdfOutput(perX, perY, titleFontSize, nameFontSize, legendFontSize, rulesFontSize, costFontSize, titleFontType, nameFontType, legendFontType, rulesFontType, costFontType);
+            return new PdfOutput(
+                    perX, perY, marginPercentX, marginPercentY,
+                    titleFontSize, nameFontSize, legendFontSize, rulesFontSize, costFontSize,
+                    titleFontType, nameFontType, legendFontType, rulesFontType, costFontType,
+                    titleBars, cardBorders
+            );
         }
 
     }

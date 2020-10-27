@@ -74,14 +74,22 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         return null;
     }
 
-    private static PDFont getFontForKey(String font) {
+    private static PDFont getFontForKey(Object o) {
 
         for (int i = 0; i < FONT_NAMES.length; i++) {
-            if (FONT_NAMES[i].equals(font)) {
+            if (FONT_NAMES[i].equals(o)) {
                 return FONT_TYPES[i];
             }
         }
         return null;
+    }
+
+    private static int toInt(Object o) {
+        return ((Number) o).intValue();
+    }
+
+    private static float toFloat(Object o) {
+        return ((Number) o).floatValue();
     }
 
     private final File actualFile;
@@ -89,6 +97,7 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
 
     /**
      * Creates new form PdfCreateOptionsDialog
+     *
      * @param parent
      * @param actualFile
      * @param cards
@@ -109,147 +118,169 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
         pagePanel = new javax.swing.JPanel();
+        pageFieldPanel = new javax.swing.JPanel();
         cardsPerXLabel = new javax.swing.JLabel();
         cardsPerXSpinner = new javax.swing.JSpinner();
         cardsPerYLabel = new javax.swing.JLabel();
         cardsPerYSpinner = new javax.swing.JSpinner();
-        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
-        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
+        marginXLabel = new javax.swing.JLabel();
+        marginXSpinner = new javax.swing.JSpinner();
+        marginYLabel = new javax.swing.JLabel();
+        marginYSpinner = new javax.swing.JSpinner();
+        centralPanel = new javax.swing.JPanel();
         fontsPanel = new javax.swing.JPanel();
-        titleFontPanel = new javax.swing.JPanel();
+        fontsFieldPanel = new javax.swing.JPanel();
         titleLabel = new javax.swing.JLabel();
         titlefontSizeSpinner = new javax.swing.JSpinner();
         titleFontTypeCombo = new javax.swing.JComboBox<>();
-        nameFontPanel = new javax.swing.JPanel();
         nameLabel = new javax.swing.JLabel();
         namefontSizeSpinner = new javax.swing.JSpinner();
         nameFontTypeCombo = new javax.swing.JComboBox<>();
-        legendFontPanel = new javax.swing.JPanel();
         legendLabel = new javax.swing.JLabel();
         legendfontSizeSpinner = new javax.swing.JSpinner();
         legendFontTypeCombo = new javax.swing.JComboBox<>();
-        rulesFontPanel = new javax.swing.JPanel();
         rulesLabel = new javax.swing.JLabel();
         rulesfontSizeSpinner = new javax.swing.JSpinner();
         rulesFontTypeCombo = new javax.swing.JComboBox<>();
-        costFontPanel = new javax.swing.JPanel();
         costLabel = new javax.swing.JLabel();
         costfontSizeSpinner = new javax.swing.JSpinner();
         costFontTypeCombo = new javax.swing.JComboBox<>();
-        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
+        cardSettingsPanel = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        cardBorderCheckBox = new javax.swing.JCheckBox();
+        titleBarsCheckBox = new javax.swing.JCheckBox();
         savePanel = new javax.swing.JPanel();
         filler4 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
-        savejButton = new javax.swing.JButton();
+        saveButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Create PDF");
 
-        pagePanel.setLayout(new java.awt.GridLayout(0, 2));
+        pagePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Page settings"));
+
+        pageFieldPanel.setLayout(new java.awt.GridLayout(4, 2, 3, 1));
 
         cardsPerXLabel.setLabelFor(cardsPerXSpinner);
         cardsPerXLabel.setText("Cards X");
-        pagePanel.add(cardsPerXLabel);
+        pageFieldPanel.add(cardsPerXLabel);
 
-        cardsPerXSpinner.setValue(3);
-        pagePanel.add(cardsPerXSpinner);
+        cardsPerXSpinner.setModel(new javax.swing.SpinnerNumberModel(3, 1, null, 1));
+        pageFieldPanel.add(cardsPerXSpinner);
 
         cardsPerYLabel.setLabelFor(cardsPerYSpinner);
         cardsPerYLabel.setText("Cards Y");
-        pagePanel.add(cardsPerYLabel);
+        pageFieldPanel.add(cardsPerYLabel);
 
-        cardsPerYSpinner.setValue(3);
-        pagePanel.add(cardsPerYSpinner);
-        pagePanel.add(filler2);
-        pagePanel.add(filler3);
+        cardsPerYSpinner.setModel(new javax.swing.SpinnerNumberModel(3, 1, null, 1));
+        pageFieldPanel.add(cardsPerYSpinner);
+
+        marginXLabel.setText("Margin X %");
+        pageFieldPanel.add(marginXLabel);
+
+        marginXSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(10.0f), Float.valueOf(0.0f), Float.valueOf(50.0f), Float.valueOf(0.25f)));
+        pageFieldPanel.add(marginXSpinner);
+
+        marginYLabel.setText("Margin Y %");
+        pageFieldPanel.add(marginYLabel);
+
+        marginYSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(10.0f), Float.valueOf(0.0f), Float.valueOf(50.0f), Float.valueOf(0.25f)));
+        pageFieldPanel.add(marginYSpinner);
+
+        pagePanel.add(pageFieldPanel);
 
         getContentPane().add(pagePanel, java.awt.BorderLayout.WEST);
 
-        fontsPanel.setLayout(new javax.swing.BoxLayout(fontsPanel, javax.swing.BoxLayout.Y_AXIS));
+        centralPanel.setLayout(new javax.swing.BoxLayout(centralPanel, javax.swing.BoxLayout.Y_AXIS));
 
-        titleFontPanel.setLayout(new javax.swing.BoxLayout(titleFontPanel, javax.swing.BoxLayout.X_AXIS));
+        fontsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Texts fonts"));
+
+        fontsFieldPanel.setLayout(new java.awt.GridLayout(5, 3, 3, 1));
 
         titleLabel.setText("Title Font");
-        titleFontPanel.add(titleLabel);
+        fontsFieldPanel.add(titleLabel);
 
         titlefontSizeSpinner.setValue(PdfOutput.DEFAULT_TITLE_FONT_SIZE);
-        titleFontPanel.add(titlefontSizeSpinner);
+        fontsFieldPanel.add(titlefontSizeSpinner);
 
         titleFontTypeCombo.setModel(new javax.swing.DefaultComboBoxModel(FONT_NAMES));
         titleFontTypeCombo.setSelectedItem(getKeyForFont(PdfOutput.DEFAULT_TITLE_FONT_TYPE));
-        titleFontPanel.add(titleFontTypeCombo);
+        fontsFieldPanel.add(titleFontTypeCombo);
 
-        fontsPanel.add(titleFontPanel);
-
-        nameFontPanel.setLayout(new javax.swing.BoxLayout(nameFontPanel, javax.swing.BoxLayout.X_AXIS));
-
-        nameLabel.setText("name Font");
-        nameFontPanel.add(nameLabel);
+        nameLabel.setText("Name Font");
+        fontsFieldPanel.add(nameLabel);
 
         namefontSizeSpinner.setValue(PdfOutput.DEFAULT_NAME_FONT_SIZE);
-        nameFontPanel.add(namefontSizeSpinner);
+        fontsFieldPanel.add(namefontSizeSpinner);
 
         nameFontTypeCombo.setModel(new javax.swing.DefaultComboBoxModel(FONT_NAMES));
         nameFontTypeCombo.setSelectedItem(getKeyForFont(PdfOutput.DEFAULT_NAME_FONT_TYPE));
-        nameFontPanel.add(nameFontTypeCombo);
+        fontsFieldPanel.add(nameFontTypeCombo);
 
-        fontsPanel.add(nameFontPanel);
-
-        legendFontPanel.setLayout(new javax.swing.BoxLayout(legendFontPanel, javax.swing.BoxLayout.X_AXIS));
-
-        legendLabel.setText("legend Font");
-        legendFontPanel.add(legendLabel);
+        legendLabel.setText("Legend Font");
+        fontsFieldPanel.add(legendLabel);
 
         legendfontSizeSpinner.setValue(PdfOutput.DEFAULT_LEGEND_FONT_SIZE);
-        legendFontPanel.add(legendfontSizeSpinner);
+        fontsFieldPanel.add(legendfontSizeSpinner);
 
         legendFontTypeCombo.setModel(new javax.swing.DefaultComboBoxModel(FONT_NAMES));
         legendFontTypeCombo.setSelectedItem(getKeyForFont(PdfOutput.DEFAULT_LEGEND_FONT_TYPE));
-        legendFontPanel.add(legendFontTypeCombo);
+        fontsFieldPanel.add(legendFontTypeCombo);
 
-        fontsPanel.add(legendFontPanel);
-
-        rulesFontPanel.setLayout(new javax.swing.BoxLayout(rulesFontPanel, javax.swing.BoxLayout.X_AXIS));
-
-        rulesLabel.setText("rules Font");
-        rulesFontPanel.add(rulesLabel);
+        rulesLabel.setText("Rules Font");
+        fontsFieldPanel.add(rulesLabel);
 
         rulesfontSizeSpinner.setValue(PdfOutput.DEFAULT_RULES_FONT_SIZE);
-        rulesFontPanel.add(rulesfontSizeSpinner);
+        fontsFieldPanel.add(rulesfontSizeSpinner);
 
         rulesFontTypeCombo.setModel(new javax.swing.DefaultComboBoxModel(FONT_NAMES));
         rulesFontTypeCombo.setSelectedItem(getKeyForFont(PdfOutput.DEFAULT_RULES_FONT_TYPE));
-        rulesFontPanel.add(rulesFontTypeCombo);
+        fontsFieldPanel.add(rulesFontTypeCombo);
 
-        fontsPanel.add(rulesFontPanel);
-
-        costFontPanel.setLayout(new javax.swing.BoxLayout(costFontPanel, javax.swing.BoxLayout.X_AXIS));
-
-        costLabel.setText("cost Font");
-        costFontPanel.add(costLabel);
+        costLabel.setText("Cost Font");
+        fontsFieldPanel.add(costLabel);
 
         costfontSizeSpinner.setValue(PdfOutput.DEFAULT_COST_FONT_SIZE);
-        costFontPanel.add(costfontSizeSpinner);
+        fontsFieldPanel.add(costfontSizeSpinner);
 
         costFontTypeCombo.setModel(new javax.swing.DefaultComboBoxModel(FONT_NAMES));
         costFontTypeCombo.setSelectedItem(getKeyForFont(PdfOutput.DEFAULT_COST_FONT_TYPE));
-        costFontPanel.add(costFontTypeCombo);
+        fontsFieldPanel.add(costFontTypeCombo);
 
-        fontsPanel.add(costFontPanel);
-        fontsPanel.add(filler1);
+        fontsPanel.add(fontsFieldPanel);
 
-        getContentPane().add(fontsPanel, java.awt.BorderLayout.CENTER);
+        centralPanel.add(fontsPanel);
+
+        cardSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Card settings"));
+
+        jPanel4.setLayout(new java.awt.GridLayout(2, 1, 3, 1));
+
+        cardBorderCheckBox.setSelected(true);
+        cardBorderCheckBox.setText("Card Outer Border");
+        jPanel4.add(cardBorderCheckBox);
+
+        titleBarsCheckBox.setSelected(true);
+        titleBarsCheckBox.setText("Title Bars");
+        jPanel4.add(titleBarsCheckBox);
+
+        cardSettingsPanel.add(jPanel4);
+
+        centralPanel.add(cardSettingsPanel);
+
+        getContentPane().add(centralPanel, java.awt.BorderLayout.CENTER);
 
         savePanel.setLayout(new javax.swing.BoxLayout(savePanel, javax.swing.BoxLayout.LINE_AXIS));
         savePanel.add(filler4);
 
-        savejButton.setText("Create PDF");
-        savejButton.addActionListener(new java.awt.event.ActionListener() {
+        saveButton.setText("Create PDF");
+        saveButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                savejButtonActionPerformed(evt);
+                saveButtonActionPerformed(evt);
             }
         });
-        savePanel.add(savejButton);
+        savePanel.add(saveButton);
 
         cancelButton.setText("Cancel");
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
@@ -264,7 +295,7 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void savejButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savejButtonActionPerformed
+    private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         JFileChooser chooser = createPdfFileChooser();
         int returnVal = chooser.showSaveDialog(this);
         if (returnVal != JFileChooser.APPROVE_OPTION) {
@@ -272,26 +303,30 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         }
         File file = MainWindow.getChooserSelectedFile(chooser, "pdf");
         Callable<Void> callable = () -> {
-            PdfOutput.Builder builder = new PdfOutput.Builder();
-            builder.setPerX(((Number) cardsPerXSpinner.getValue()).intValue());
-            builder.setPerY(((Number) cardsPerYSpinner.getValue()).intValue());
-            builder.setTitleFontSize(((Number) titlefontSizeSpinner.getValue()).floatValue());
-            builder.setNameFontSize(((Number) namefontSizeSpinner.getValue()).floatValue());
-            builder.setLegendFontSize(((Number) legendfontSizeSpinner.getValue()).floatValue());
-            builder.setRulesFontSize(((Number) rulesfontSizeSpinner.getValue()).floatValue());
-            builder.setCostFontSize(((Number) costfontSizeSpinner.getValue()).floatValue());
-            builder.setTitleFontType(getFontForKey((String) titleFontTypeCombo.getSelectedItem()));
-            builder.setNameFontType(getFontForKey((String) nameFontTypeCombo.getSelectedItem()));
-            builder.setLegendFontType(getFontForKey((String) legendFontTypeCombo.getSelectedItem()));
-            builder.setRulesFontType(getFontForKey((String) rulesFontTypeCombo.getSelectedItem()));
-            builder.setCostFontType(getFontForKey((String) costFontTypeCombo.getSelectedItem()));
-            PdfOutput output = builder.build();
+            PdfOutput output = new PdfOutput.Builder()
+                    .setPerX(toInt(cardsPerXSpinner.getValue()))
+                    .setPerY(toInt(cardsPerYSpinner.getValue()))
+                    .setMarginPercentX(toFloat(marginXSpinner.getValue()))
+                    .setMarginPercentY(toFloat(marginYSpinner.getValue()))
+                    .setTitleFontSize(toFloat(titlefontSizeSpinner.getValue()))
+                    .setNameFontSize(toFloat(namefontSizeSpinner.getValue()))
+                    .setLegendFontSize(toFloat(legendfontSizeSpinner.getValue()))
+                    .setRulesFontSize(toFloat(rulesfontSizeSpinner.getValue()))
+                    .setCostFontSize(toFloat(costfontSizeSpinner.getValue()))
+                    .setTitleFontType(getFontForKey(titleFontTypeCombo.getSelectedItem()))
+                    .setNameFontType(getFontForKey(nameFontTypeCombo.getSelectedItem()))
+                    .setLegendFontType(getFontForKey(legendFontTypeCombo.getSelectedItem()))
+                    .setRulesFontType(getFontForKey(rulesFontTypeCombo.getSelectedItem()))
+                    .setCostFontType(getFontForKey(costFontTypeCombo.getSelectedItem()))
+                    .setCardBorders(cardBorderCheckBox.isSelected())
+                    .setTitleBars(titleBarsCheckBox.isSelected())
+                    .build();
             output.build(new FileOutputStream(file), cards);
             dispose();
             return null;
         };
         WaitingDialog.show((Frame) getParent(), "Creating pdf...", callable);
-    }//GEN-LAST:event_savejButtonActionPerformed
+    }//GEN-LAST:event_saveButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         dispose();
@@ -315,35 +350,39 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
+    private javax.swing.JCheckBox cardBorderCheckBox;
+    private javax.swing.JPanel cardSettingsPanel;
     private javax.swing.JLabel cardsPerXLabel;
     private javax.swing.JSpinner cardsPerXSpinner;
     private javax.swing.JLabel cardsPerYLabel;
     private javax.swing.JSpinner cardsPerYSpinner;
-    private javax.swing.JPanel costFontPanel;
+    private javax.swing.JPanel centralPanel;
     private javax.swing.JComboBox<String> costFontTypeCombo;
     private javax.swing.JLabel costLabel;
     private javax.swing.JSpinner costfontSizeSpinner;
-    private javax.swing.Box.Filler filler1;
-    private javax.swing.Box.Filler filler2;
-    private javax.swing.Box.Filler filler3;
     private javax.swing.Box.Filler filler4;
+    private javax.swing.JPanel fontsFieldPanel;
     private javax.swing.JPanel fontsPanel;
-    private javax.swing.JPanel legendFontPanel;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JComboBox<String> legendFontTypeCombo;
     private javax.swing.JLabel legendLabel;
     private javax.swing.JSpinner legendfontSizeSpinner;
-    private javax.swing.JPanel nameFontPanel;
+    private javax.swing.JLabel marginXLabel;
+    private javax.swing.JSpinner marginXSpinner;
+    private javax.swing.JLabel marginYLabel;
+    private javax.swing.JSpinner marginYSpinner;
     private javax.swing.JComboBox<String> nameFontTypeCombo;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JSpinner namefontSizeSpinner;
+    private javax.swing.JPanel pageFieldPanel;
     private javax.swing.JPanel pagePanel;
-    private javax.swing.JPanel rulesFontPanel;
     private javax.swing.JComboBox<String> rulesFontTypeCombo;
     private javax.swing.JLabel rulesLabel;
     private javax.swing.JSpinner rulesfontSizeSpinner;
+    private javax.swing.JButton saveButton;
     private javax.swing.JPanel savePanel;
-    private javax.swing.JButton savejButton;
-    private javax.swing.JPanel titleFontPanel;
+    private javax.swing.JCheckBox titleBarsCheckBox;
     private javax.swing.JComboBox<String> titleFontTypeCombo;
     private javax.swing.JLabel titleLabel;
     private javax.swing.JSpinner titlefontSizeSpinner;
