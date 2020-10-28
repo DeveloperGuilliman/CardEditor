@@ -132,21 +132,30 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         centralPanel = new javax.swing.JPanel();
         fontsPanel = new javax.swing.JPanel();
         fontsFieldPanel = new javax.swing.JPanel();
+        elementsHeaderLabel = new javax.swing.JLabel();
+        fontSizeHeaderLabel = new javax.swing.JLabel();
+        fontTypeHeaderLabel = new javax.swing.JLabel();
+        fontColorHeaderLabel = new javax.swing.JLabel();
         titleLabel = new javax.swing.JLabel();
         titlefontSizeSpinner = new javax.swing.JSpinner();
         titleFontTypeCombo = new javax.swing.JComboBox<>();
+        titleColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
         nameLabel = new javax.swing.JLabel();
         namefontSizeSpinner = new javax.swing.JSpinner();
         nameFontTypeCombo = new javax.swing.JComboBox<>();
+        nameColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
         legendLabel = new javax.swing.JLabel();
         legendfontSizeSpinner = new javax.swing.JSpinner();
         legendFontTypeCombo = new javax.swing.JComboBox<>();
+        legendColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
         rulesLabel = new javax.swing.JLabel();
         rulesfontSizeSpinner = new javax.swing.JSpinner();
         rulesFontTypeCombo = new javax.swing.JComboBox<>();
+        rulesColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
         costLabel = new javax.swing.JLabel();
         costfontSizeSpinner = new javax.swing.JSpinner();
         costFontTypeCombo = new javax.swing.JComboBox<>();
+        costColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
         cardSettingsPanel = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         cardBorderCheckBox = new javax.swing.JCheckBox();
@@ -158,8 +167,10 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Create PDF");
+        setResizable(false);
 
         pagePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Page settings"));
+        pagePanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
         pageFieldPanel.setLayout(new java.awt.GridLayout(4, 2, 3, 1));
 
@@ -196,10 +207,23 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         centralPanel.setLayout(new javax.swing.BoxLayout(centralPanel, javax.swing.BoxLayout.Y_AXIS));
 
         fontsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Texts fonts"));
+        fontsPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
-        fontsFieldPanel.setLayout(new java.awt.GridLayout(5, 3, 3, 1));
+        fontsFieldPanel.setLayout(new java.awt.GridLayout(6, 4, 3, 1));
 
-        titleLabel.setText("Title Font");
+        elementsHeaderLabel.setText("Element:");
+        fontsFieldPanel.add(elementsHeaderLabel);
+
+        fontSizeHeaderLabel.setText("Font size:");
+        fontsFieldPanel.add(fontSizeHeaderLabel);
+
+        fontTypeHeaderLabel.setText("Font type:");
+        fontsFieldPanel.add(fontTypeHeaderLabel);
+
+        fontColorHeaderLabel.setText("Font color:");
+        fontsFieldPanel.add(fontColorHeaderLabel);
+
+        titleLabel.setText("Title");
         fontsFieldPanel.add(titleLabel);
 
         titlefontSizeSpinner.setValue(PdfOutput.DEFAULT_TITLE_FONT_SIZE);
@@ -209,7 +233,15 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         titleFontTypeCombo.setSelectedItem(getKeyForFont(PdfOutput.DEFAULT_TITLE_FONT_TYPE));
         fontsFieldPanel.add(titleFontTypeCombo);
 
-        nameLabel.setText("Name Font");
+        titleColorChooserButton.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        titleColorChooserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                titleColorChooserButtonActionPerformed(evt);
+            }
+        });
+        fontsFieldPanel.add(titleColorChooserButton);
+
+        nameLabel.setText("Name");
         fontsFieldPanel.add(nameLabel);
 
         namefontSizeSpinner.setValue(PdfOutput.DEFAULT_NAME_FONT_SIZE);
@@ -219,7 +251,15 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         nameFontTypeCombo.setSelectedItem(getKeyForFont(PdfOutput.DEFAULT_NAME_FONT_TYPE));
         fontsFieldPanel.add(nameFontTypeCombo);
 
-        legendLabel.setText("Legend Font");
+        nameColorChooserButton.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        nameColorChooserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nameColorChooserButtonActionPerformed(evt);
+            }
+        });
+        fontsFieldPanel.add(nameColorChooserButton);
+
+        legendLabel.setText("Legend");
         fontsFieldPanel.add(legendLabel);
 
         legendfontSizeSpinner.setValue(PdfOutput.DEFAULT_LEGEND_FONT_SIZE);
@@ -229,7 +269,15 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         legendFontTypeCombo.setSelectedItem(getKeyForFont(PdfOutput.DEFAULT_LEGEND_FONT_TYPE));
         fontsFieldPanel.add(legendFontTypeCombo);
 
-        rulesLabel.setText("Rules Font");
+        legendColorChooserButton.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        legendColorChooserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                legendColorChooserButtonActionPerformed(evt);
+            }
+        });
+        fontsFieldPanel.add(legendColorChooserButton);
+
+        rulesLabel.setText("Rules");
         fontsFieldPanel.add(rulesLabel);
 
         rulesfontSizeSpinner.setValue(PdfOutput.DEFAULT_RULES_FONT_SIZE);
@@ -239,7 +287,15 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         rulesFontTypeCombo.setSelectedItem(getKeyForFont(PdfOutput.DEFAULT_RULES_FONT_TYPE));
         fontsFieldPanel.add(rulesFontTypeCombo);
 
-        costLabel.setText("Cost Font");
+        rulesColorChooserButton.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        rulesColorChooserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rulesColorChooserButtonActionPerformed(evt);
+            }
+        });
+        fontsFieldPanel.add(rulesColorChooserButton);
+
+        costLabel.setText("Cost");
         fontsFieldPanel.add(costLabel);
 
         costfontSizeSpinner.setValue(PdfOutput.DEFAULT_COST_FONT_SIZE);
@@ -249,11 +305,20 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         costFontTypeCombo.setSelectedItem(getKeyForFont(PdfOutput.DEFAULT_COST_FONT_TYPE));
         fontsFieldPanel.add(costFontTypeCombo);
 
+        costColorChooserButton.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        costColorChooserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                costColorChooserButtonActionPerformed(evt);
+            }
+        });
+        fontsFieldPanel.add(costColorChooserButton);
+
         fontsPanel.add(fontsFieldPanel);
 
         centralPanel.add(fontsPanel);
 
         cardSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Card settings"));
+        cardSettingsPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
 
         jPanel4.setLayout(new java.awt.GridLayout(2, 1, 3, 1));
 
@@ -318,6 +383,11 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
                     .setLegendFontType(getFontForKey(legendFontTypeCombo.getSelectedItem()))
                     .setRulesFontType(getFontForKey(rulesFontTypeCombo.getSelectedItem()))
                     .setCostFontType(getFontForKey(costFontTypeCombo.getSelectedItem()))
+                    .setTitleFontColor(titleColorChooserButton.getSelectedColor())
+                    .setNameFontColor(nameColorChooserButton.getSelectedColor())
+                    .setLegendFontColor(legendColorChooserButton.getSelectedColor())
+                    .setRulesFontColor(rulesColorChooserButton.getSelectedColor())
+                    .setCostFontColor(costColorChooserButton.getSelectedColor())
                     .setCardBorders(cardBorderCheckBox.isSelected())
                     .setTitleBars(titleBarsCheckBox.isSelected())
                     .build();
@@ -331,6 +401,26 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
+
+    private void titleColorChooserButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_titleColorChooserButtonActionPerformed
+        titleColorChooserButton.openSelectColorDialog(this, "Select title font color...");
+    }//GEN-LAST:event_titleColorChooserButtonActionPerformed
+
+    private void nameColorChooserButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameColorChooserButtonActionPerformed
+        nameColorChooserButton.openSelectColorDialog(this, "Select name font color...");
+    }//GEN-LAST:event_nameColorChooserButtonActionPerformed
+
+    private void legendColorChooserButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_legendColorChooserButtonActionPerformed
+        legendColorChooserButton.openSelectColorDialog(this, "Select legend font color...");
+    }//GEN-LAST:event_legendColorChooserButtonActionPerformed
+
+    private void rulesColorChooserButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rulesColorChooserButtonActionPerformed
+        rulesColorChooserButton.openSelectColorDialog(this, "Select rules font color...");
+    }//GEN-LAST:event_rulesColorChooserButtonActionPerformed
+
+    private void costColorChooserButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_costColorChooserButtonActionPerformed
+        costColorChooserButton.openSelectColorDialog(this, "Select cost font color...");
+    }//GEN-LAST:event_costColorChooserButtonActionPerformed
 
     public JFileChooser createPdfFileChooser() {
 
@@ -357,14 +447,20 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
     private javax.swing.JLabel cardsPerYLabel;
     private javax.swing.JSpinner cardsPerYSpinner;
     private javax.swing.JPanel centralPanel;
+    private com.developerguilliman.cardEditor.gui.JColorChooserButton costColorChooserButton;
     private javax.swing.JComboBox<String> costFontTypeCombo;
     private javax.swing.JLabel costLabel;
     private javax.swing.JSpinner costfontSizeSpinner;
+    private javax.swing.JLabel elementsHeaderLabel;
     private javax.swing.Box.Filler filler4;
+    private javax.swing.JLabel fontColorHeaderLabel;
+    private javax.swing.JLabel fontSizeHeaderLabel;
+    private javax.swing.JLabel fontTypeHeaderLabel;
     private javax.swing.JPanel fontsFieldPanel;
     private javax.swing.JPanel fontsPanel;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel4;
+    private com.developerguilliman.cardEditor.gui.JColorChooserButton legendColorChooserButton;
     private javax.swing.JComboBox<String> legendFontTypeCombo;
     private javax.swing.JLabel legendLabel;
     private javax.swing.JSpinner legendfontSizeSpinner;
@@ -372,17 +468,20 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
     private javax.swing.JSpinner marginXSpinner;
     private javax.swing.JLabel marginYLabel;
     private javax.swing.JSpinner marginYSpinner;
+    private com.developerguilliman.cardEditor.gui.JColorChooserButton nameColorChooserButton;
     private javax.swing.JComboBox<String> nameFontTypeCombo;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JSpinner namefontSizeSpinner;
     private javax.swing.JPanel pageFieldPanel;
     private javax.swing.JPanel pagePanel;
+    private com.developerguilliman.cardEditor.gui.JColorChooserButton rulesColorChooserButton;
     private javax.swing.JComboBox<String> rulesFontTypeCombo;
     private javax.swing.JLabel rulesLabel;
     private javax.swing.JSpinner rulesfontSizeSpinner;
     private javax.swing.JButton saveButton;
     private javax.swing.JPanel savePanel;
     private javax.swing.JCheckBox titleBarsCheckBox;
+    private com.developerguilliman.cardEditor.gui.JColorChooserButton titleColorChooserButton;
     private javax.swing.JComboBox<String> titleFontTypeCombo;
     private javax.swing.JLabel titleLabel;
     private javax.swing.JSpinner titlefontSizeSpinner;
