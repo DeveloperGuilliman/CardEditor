@@ -286,11 +286,11 @@ public class PdfOutput implements ICardOutput {
     private void printCardForeground(PDPageContentStream cs, CardData card, float x, float y,
             float width, float height) throws IOException {
 
-        String title = card.getTitle().trim();
-        String name = card.getName().trim();
+        String title = card.getTitle().replace('\n', ' ').trim();
+        String name = card.getName().replace('\n', ' ').trim();
         String legend = card.getLegend().trim();
         String rules = card.getRules().trim();
-        String cost = card.getCost().trim();
+        String cost = card.getCost().replace('\n', ' ').trim();
 
         printedTextBuffer.setLength(0);
 
@@ -436,7 +436,7 @@ public class PdfOutput implements ICardOutput {
         cs.newLineAtOffset(x + xDisp, y);
         cs.showText(text);
         printedTextBuffer.append(text);
-        printedTextBuffer.append("\n");
+        printedTextBuffer.append('\n');
         cs.endText();
     }
 
@@ -450,7 +450,7 @@ public class PdfOutput implements ICardOutput {
         cs.newLineAtOffset(x + xDisp, y);
         cs.showText(text);
         printedTextBuffer.append(text);
-        printedTextBuffer.append("\n");
+        printedTextBuffer.append('\n');
         cs.endText();
     }
 
@@ -470,12 +470,26 @@ public class PdfOutput implements ICardOutput {
         cs.beginText();
         cs.newLineAtOffset(x, y);
 
-        int currentLineStart = 0;
-        while (currentLineStart < text.length() && yDiff < maxHeight) {
-            currentLineStart = printLine(text, currentLineStart, maxWidth, font, cs, printedTextBuffer);
-            printedTextBuffer.append("\n");
-            yDiff += leading;
-        }
+        int prevNewlineIndexOf = 0;
+        int newlineIndexOf = text.indexOf('\n');
+        do {
+            newlineIndexOf = (newlineIndexOf < 0) ? text.length() : newlineIndexOf;
+            if (prevNewlineIndexOf == newlineIndexOf) {
+                cs.newLine();
+                printedTextBuffer.append('\n');
+                yDiff += leading;
+            } else {
+                String line = text.substring(prevNewlineIndexOf, newlineIndexOf);
+                int currentLineStart = 0;
+                while (currentLineStart < line.length() && yDiff < maxHeight) {
+                    currentLineStart = printLine(line, currentLineStart, maxWidth, font, cs, printedTextBuffer);
+                    printedTextBuffer.append('\n');
+                    yDiff += leading;
+                }
+            }
+            prevNewlineIndexOf = newlineIndexOf + 1;
+            newlineIndexOf = text.indexOf('\n', prevNewlineIndexOf);
+        } while (newlineIndexOf >= 0);
         cs.endText();
         return (yDiff + (leading * LEADING_INTERTEXT_FACTOR));
     }
@@ -489,6 +503,7 @@ public class PdfOutput implements ICardOutput {
         if (currentLineEnd < 0) {
             String currentLine = text.substring(currentLineStart);
             cs.showText(currentLine);
+            cs.newLine();
             printedTextBuffer.append(currentLine);
             return len;
         }
@@ -498,9 +513,8 @@ public class PdfOutput implements ICardOutput {
         while (nextLineEnd < len) {
 
             nextLineEnd = text.indexOf(' ', currentLineEnd + 1);
-            if (nextLineEnd < 0) {
-                nextLineEnd = len;
-            }
+            nextLineEnd = (nextLineEnd < 0) ? len : nextLineEnd;
+
             nextLine = text.substring(currentLineStart, nextLineEnd);
             if (getTextSize(font, nextLine) > maxWidth) {
                 break;
@@ -509,8 +523,8 @@ public class PdfOutput implements ICardOutput {
             currentLineEnd = nextLineEnd;
         }
         cs.showText(currentLine);
-        printedTextBuffer.append(currentLine);
         cs.newLine();
+        printedTextBuffer.append(currentLine);
         return currentLineEnd + 1;
     }
 
