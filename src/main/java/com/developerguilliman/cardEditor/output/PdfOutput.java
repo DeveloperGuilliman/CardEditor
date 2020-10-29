@@ -28,7 +28,6 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 /**
  *
@@ -36,7 +35,10 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
  */
 public class PdfOutput implements ICardOutput {
 
+    private static final float LEADING_FACTOR = 1.125f;
+    private static final float LEADING_INTERTEXT_FACTOR = 0.5f;
     private static final Color VERY_LIGHT_GRAY = new Color(0xe7, 0xe7, 0xe7);
+    private static final float EXTRA_GRID = 5;
 
     public static final int DEFAULT_CARDS_PER_X = 3;
     public static final int DEFAULT_CARDS_PER_Y = 3;
@@ -56,8 +58,19 @@ public class PdfOutput implements ICardOutput {
     public static final PDType1Font DEFAULT_RULES_FONT_TYPE = PDType1Font.TIMES_ROMAN;
     public static final PDType1Font DEFAULT_COST_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
 
-    private final float LEADING_FACTOR = 1.125f;
-    private final float LEADING_INTERTEXT_FACTOR = 0.5f;
+    public static final Color DEFAULT_TITLE_FONT_COLOR = Color.BLACK;
+    public static final Color DEFAULT_NAME_FONT_COLOR = Color.BLACK;
+    public static final Color DEFAULT_LEGEND_FONT_COLOR = Color.BLACK;
+    public static final Color DEFAULT_RULES_FONT_COLOR = Color.BLACK;
+    public static final Color DEFAULT_COST_FONT_COLOR = Color.BLACK;
+
+    public static final Color DEFAULT_TITLE_BAR_COLOR = Color.BLACK;
+    public static final Color DEFAULT_CARD_BORDER_COLOR = Color.BLACK;
+    public static final Color DEFAULT_CARD_FILL_COLOR = Color.WHITE;
+    public static final Color DEFAULT_FOREGROUND_GRID_COLOR = VERY_LIGHT_GRAY;
+    public static final Color DEFAULT_BACKGROUND_GRID_COLOR = VERY_LIGHT_GRAY;
+
+    public static final boolean DEFAULT_BACKGROUND_PAGES = false;
 
     private final int perX;
     private final int perY;
@@ -72,34 +85,47 @@ public class PdfOutput implements ICardOutput {
     private final FontData costFont;
     private final FontData hashFont = new FontData(PDType1Font.HELVETICA, 6, Color.GRAY);
 
-    private final boolean titleBars;
-    private final boolean cardBorders;
+    private final Color titleBarsColor;
+    private final Color cardBordersColor;
+    private final Color cardFillColor;
+    private final Color foregroundGridColor;
+    private final Color backgroundGridColor;
+    private final boolean backgroundPages;
 
     private final CardHash cardHash;
     private final StringBuilder printedTextBuffer;
 
     public PdfOutput() {
 
-        this.perX = DEFAULT_MARGIN_X;
-        this.perY = DEFAULT_MARGIN_Y;
+        this.perX = DEFAULT_CARDS_PER_X;
+        this.perY = DEFAULT_CARDS_PER_Y;
 
         this.marginPercentX = DEFAULT_MARGIN_X;
         this.marginPercentY = DEFAULT_MARGIN_Y;
 
-        this.titleFont = new FontData(DEFAULT_TITLE_FONT_TYPE, DEFAULT_TITLE_FONT_SIZE);
-        this.nameFont = new FontData(DEFAULT_NAME_FONT_TYPE, DEFAULT_NAME_FONT_SIZE);
-        this.legendFont = new FontData(DEFAULT_LEGEND_FONT_TYPE, DEFAULT_LEGEND_FONT_SIZE);
-        this.rulesFont = new FontData(DEFAULT_RULES_FONT_TYPE, DEFAULT_RULES_FONT_SIZE);
-        this.costFont = new FontData(DEFAULT_COST_FONT_TYPE, DEFAULT_COST_FONT_SIZE);
+        this.titleFont = new FontData(DEFAULT_TITLE_FONT_TYPE, DEFAULT_TITLE_FONT_SIZE, DEFAULT_TITLE_FONT_COLOR);
+        this.nameFont = new FontData(DEFAULT_NAME_FONT_TYPE, DEFAULT_NAME_FONT_SIZE, DEFAULT_NAME_FONT_COLOR);
+        this.legendFont = new FontData(DEFAULT_LEGEND_FONT_TYPE, DEFAULT_LEGEND_FONT_SIZE, DEFAULT_LEGEND_FONT_COLOR);
+        this.rulesFont = new FontData(DEFAULT_RULES_FONT_TYPE, DEFAULT_RULES_FONT_SIZE, DEFAULT_RULES_FONT_COLOR);
+        this.costFont = new FontData(DEFAULT_COST_FONT_TYPE, DEFAULT_COST_FONT_SIZE, DEFAULT_COST_FONT_COLOR);
 
-        this.titleBars = true;
-        this.cardBorders = true;
+        this.titleBarsColor = DEFAULT_TITLE_BAR_COLOR;
+        this.cardBordersColor = DEFAULT_CARD_BORDER_COLOR;
+        this.cardFillColor = DEFAULT_CARD_FILL_COLOR;
+        this.foregroundGridColor = DEFAULT_FOREGROUND_GRID_COLOR;
+        this.backgroundGridColor = DEFAULT_BACKGROUND_GRID_COLOR;
+
+        this.backgroundPages = DEFAULT_BACKGROUND_PAGES;
 
         this.cardHash = new CardHash();
         this.printedTextBuffer = new StringBuilder();
     }
 
-    private PdfOutput(int perX, int perY, float marginPercentX, float marginPercentY, FontData titleFont, FontData nameFont, FontData legendFont, FontData rulesFont, FontData costFont, boolean titleBars, boolean cardBorders) {
+    private PdfOutput(int perX, int perY, float marginPercentX, float marginPercentY,
+            FontData titleFont, FontData nameFont, FontData legendFont, FontData rulesFont, FontData costFont,
+            Color titleBarsColor, Color cardBordersColor, Color cardFillColor,
+            Color foregroundGridColor, Color backgroundGridColor, boolean backgroundPages) {
+
         this.perX = perX;
         this.perY = perY;
 
@@ -112,8 +138,14 @@ public class PdfOutput implements ICardOutput {
         this.rulesFont = rulesFont;
         this.costFont = costFont;
 
-        this.titleBars = titleBars;
-        this.cardBorders = cardBorders;
+        this.titleBarsColor = titleBarsColor;
+        this.cardBordersColor = cardBordersColor;
+        this.cardFillColor = cardFillColor;
+
+        this.foregroundGridColor = foregroundGridColor;
+        this.backgroundGridColor = backgroundGridColor;
+
+        this.backgroundPages = backgroundPages;
 
         this.cardHash = new CardHash();
         this.printedTextBuffer = new StringBuilder();
@@ -136,49 +168,123 @@ public class PdfOutput implements ICardOutput {
             Iterator<CardData> cardIterator = cardPage.iterator();
             while (cardIterator.hasNext()) {
 
-                PDPage page = new PDPage();
-                document.addPage(page);
-
-                final float pageWidth = page.getBBox().getWidth();
-                final float pageHeight = page.getBBox().getHeight();
-
-                final float printableWidth = pageWidth * (100 - marginPercentX) / 100;
-                final float printableHeight = pageHeight * (100 - marginPercentY) / 100;
-
-                final float marginX = (pageWidth - printableWidth) / 2;
-                final float marginY = (pageHeight - printableHeight) / 2;
-
-                final float cardWidth = printableWidth / perX;
-                final float cardHeight = printableHeight / perY;
-
-                try (PDPageContentStream cont = new PDPageContentStream(document, page)) {
-
-                    buildPage(cont, cardIterator, marginX, marginY, cardWidth, cardHeight);
+                int printedCards = buildForegroundPage(document, cardIterator);
+                if (backgroundPages) {
+                    buildBackgroundPage(document, printedCards);
                 }
             }
         }
     }
 
-    private void buildPage(PDPageContentStream cont, Iterator<CardData> cardIterator,
-            float marginX, float marginY, float width, float height) throws IOException {
+    private int buildForegroundPage(PDDocument document, Iterator<CardData> cardIterator) throws IOException {
+        PDPage page = new PDPage();
+        document.addPage(page);
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+
+            final float pageWidth = page.getBBox().getWidth();
+            final float pageHeight = page.getBBox().getHeight();
+
+            final float printableWidth = pageWidth * (100 - marginPercentX) / 100;
+            final float printableHeight = pageHeight * (100 - marginPercentY) / 100;
+
+            final float marginX = (pageWidth - printableWidth) / 2;
+            final float marginY = (pageHeight - printableHeight) / 2;
+
+            final float cardWidth = printableWidth / perX;
+            final float cardHeight = printableHeight / perY;
+
+            int printedCards = buildCardsContentPage(cs, cardIterator, marginX, marginY, cardWidth, cardHeight);
+            buildPageGrid(cs, marginX, marginY, printableWidth, printableHeight, cardWidth, cardHeight, foregroundGridColor);
+            return printedCards;
+
+        }
+    }
+
+    private void buildBackgroundPage(PDDocument document, int printedCards) throws IOException {
+        PDPage page = new PDPage();
+        document.addPage(page);
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+            final float pageWidth = page.getBBox().getWidth();
+            final float pageHeight = page.getBBox().getHeight();
+
+            final float printableWidth = pageWidth * (100 - marginPercentX) / 100;
+            final float printableHeight = pageHeight * (100 - marginPercentY) / 100;
+
+            final float marginX = (pageWidth - printableWidth) / 2;
+            final float marginY = (pageHeight - printableHeight) / 2;
+
+            final float cardWidth = printableWidth / perX;
+            final float cardHeight = printableHeight / perY;
+
+            buildCardsBackgroundPage(cs, printedCards, marginX, marginY, cardWidth, cardHeight);
+            buildPageGrid(cs, marginX, marginY, printableWidth, printableHeight, cardWidth, cardHeight, backgroundGridColor);
+        }
+    }
+
+    private int buildCardsContentPage(PDPageContentStream cs, Iterator<CardData> cardIterator,
+            float marginX, float marginY, float cardWidth, float cardHeight) throws IOException {
+
+        int printedCards = 0;
+
         // Up to Down
-        for (int y = perY - 1; y >= 0; y--) {
+        for (int numY = perY - 1; numY >= 0; numY--) {
             // Left to Right
-            for (int x = 0; x < perX; x++) {
+            for (int numX = 0; numX < perX; numX++) {
                 if (!cardIterator.hasNext()) {
+                    return printedCards;
+                }
+                CardData card = cardIterator.next();
+                float x = cardWidth * numX + marginX;
+                float y = cardHeight * numY + marginY;
+                printCardForeground(cs, card, x, y, cardWidth, cardHeight);
+                printedCards++;
+            }
+        }
+        return printedCards;
+    }
+
+    private void buildCardsBackgroundPage(PDPageContentStream cs, int printedCards,
+            float marginX, float marginY, float width, float height) throws IOException {
+
+        // Up to Down
+        for (int numY = perY - 1; numY >= 0; numY--) {
+            // Left to Right
+            for (int numX = 0; numX < perX; numX++) {
+                if (printedCards == 0) {
                     return;
                 }
-
-                CardData card = cardIterator.next();
-                float x0 = width * x + marginX;
-                float y0 = height * y + marginY;
-                printCard(cont, null, card, x0, y0, width, height);
+                float x = width * numX + marginX;
+                float y = height * numY + marginY;
+                printCardBackground(cs, x, y, width, height);
+                printedCards--;
             }
         }
     }
 
-    private void printCard(PDPageContentStream cont, PDImageXObject backgroundImage, CardData card,
-            float x, float y, float width, float height) throws IOException {
+    private void buildPageGrid(PDPageContentStream cs, float marginX, float marginY, float printableWidth,
+            float printableHeight, float width, float height, Color gridColor) throws IOException {
+
+        if (gridColor == null) {
+            return;
+        }
+        cs.setStrokingColor(gridColor);
+
+        // Up to Down
+        for (int y = perY; y >= 0; y--) {
+            cs.moveTo(marginX - EXTRA_GRID, height * y + marginY);
+            cs.lineTo(marginX + printableWidth + EXTRA_GRID, height * y + marginY);
+            cs.stroke();
+        }
+        // Left to Right
+        for (int x = 0; x <= perX; x++) {
+            cs.moveTo(width * x + marginX, marginY - EXTRA_GRID);
+            cs.lineTo(width * x + marginX, marginY + printableHeight + EXTRA_GRID);
+            cs.stroke();
+        }
+    }
+
+    private void printCardForeground(PDPageContentStream cs, CardData card, float x, float y,
+            float width, float height) throws IOException {
 
         String title = card.getTitle().trim();
         String name = card.getName().trim();
@@ -188,13 +294,11 @@ public class PdfOutput implements ICardOutput {
 
         printedTextBuffer.setLength(0);
 
-        drawRectangleOutside(cont, x, y, width, height);
-
-        if (backgroundImage != null) {
-            cont.drawImage(backgroundImage, x, y, width, height);
-        }
-        if (cardBorders) {
-            drawPoligonOutside(cont, x, y, width, height);
+//        if (foregroundImage != null) {
+//            cs.drawImage(foregroundImage, x, y, width, height);
+//        }
+        if (cardBordersColor != null || cardFillColor != null) {
+            drawCardPoligon(cs, x, y, width, height, cardBordersColor, cardFillColor);
         }
 
         final float normalTextWidth = width * 0.9f;
@@ -206,55 +310,54 @@ public class PdfOutput implements ICardOutput {
         float nextY = y + 0.98f * height;
         float minY = y + 0.03f * height + costFont.size;
 
-        nextY -= printCenteredText(title, x + factionTextMarginX, nextY, factionTextWidth, titleFont, cont, printedTextBuffer);
+        nextY -= printCenteredText(cs, title, x + factionTextMarginX, nextY, factionTextWidth, titleFont, printedTextBuffer);
         nextY -= 2;
 
-        if (titleBars) {
+        if (titleBarsColor != null) {
             nextY -= 3;
-            drawNameLines(cont, x, width, nextY + 1);
+            drawNameLines(cs, x, width, nextY + 1, titleBarsColor);
         }
 
-        nextY -= printCenteredText(name, x + normalTextMarginX, nextY, normalTextWidth, nameFont, cont, printedTextBuffer);
+        nextY -= printCenteredText(cs, name, x + normalTextMarginX, nextY, normalTextWidth, nameFont, printedTextBuffer);
 
-        if (titleBars) {
-            drawNameLines(cont, x, width, nextY - 2);
+        if (titleBarsColor != null) {
+            drawNameLines(cs, x, width, nextY - 2, titleBarsColor);
             nextY -= 4;
         }
         nextY -= 2;
 
-        nextY -= printBreakingText(legend, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY - legendFont.size, legendFont, cont, printedTextBuffer);
+        nextY -= printBreakingText(legend, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY, legendFont, cs, printedTextBuffer);
 
-        nextY -= printBreakingText(rules, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY - rulesFont.size, rulesFont, cont, printedTextBuffer);
+        nextY -= printBreakingText(rules, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY, rulesFont, cs, printedTextBuffer);
 
-        printCenteredText(cost, x + normalTextMarginX, minY, normalTextWidth, costFont, cont, printedTextBuffer);
+        nextY -= printCenteredText(cs, cost, x + normalTextMarginX, minY, normalTextWidth, costFont, printedTextBuffer);
 
         String printedText = printedTextBuffer.toString();
         //System.out.println(printedText);
 
-        printRightText(cardHash.getStringsHash(printedText), x - (normalTextMarginX / 2), minY - (1.5f * hashFont.size), normalTextWidth, hashFont, cont);
-        cont.setNonStrokingColor(Color.BLACK);
+        printRightText(cs, cardHash.getStringsHash(printedText), x - (normalTextMarginX / 2), minY - (1.5f * hashFont.size), normalTextWidth, hashFont, printedTextBuffer);
 
     }
 
-    private void drawRectangleOutside(PDPageContentStream cont, float x, float y, float width, float height)
-            throws IOException {
-        cont.addRect(x, y, width, height);
-        cont.setStrokingColor(VERY_LIGHT_GRAY);
-        cont.stroke();
-    }
-
-    private void drawNameLines(PDPageContentStream cont, float x, float width, float nextY) throws IOException {
+    private static void drawNameLines(PDPageContentStream cs, float x, float width, float nextY, Color color) throws IOException {
         float lineX0 = x + width * 0.1f;
         float lineX1 = x + width * 0.9f;
-        cont.setStrokingColor(Color.BLACK);
+        cs.setStrokingColor(color);
 
-        cont.moveTo(lineX0, nextY);
-        cont.lineTo(lineX1, nextY);
-        cont.stroke();
+        cs.moveTo(lineX0, nextY);
+        cs.lineTo(lineX1, nextY);
+        cs.stroke();
     }
 
-    private void drawPoligonOutside(PDPageContentStream cont, float x, float y, float width, float height)
-            throws IOException {
+    private void printCardBackground(PDPageContentStream cs, float x, float y, float width, float height) throws IOException {
+
+        if (cardBordersColor != null || cardFillColor != null) {
+            drawCardPoligon(cs, x, y, width, height, cardBordersColor, cardFillColor);
+        }
+    }
+
+    private static void drawCardPoligon(PDPageContentStream cs, float x, float y, float width, float height,
+            Color outerColor, Color fillColor) throws IOException {
 
         width -= 2;
         height -= 2;
@@ -268,23 +371,33 @@ public class PdfOutput implements ICardOutput {
         float y2 = y0 + height - blankSpace;
         float y3 = y0 + height;
 
-        cont.moveTo(x1, y0);
-        cont.lineTo(x2, y0);
-        cont.lineTo(x3, y1);
-        cont.lineTo(x3, y2);
-        cont.lineTo(x2, y3);
-        cont.lineTo(x1, y3);
-        cont.lineTo(x0, y2);
-        cont.lineTo(x0, y1);
-        cont.lineTo(x1, y0);
+        cs.moveTo(x1, y0);
+        cs.lineTo(x2, y0);
+        cs.lineTo(x3, y1);
+        cs.lineTo(x3, y2);
+        cs.lineTo(x2, y3);
+        cs.lineTo(x1, y3);
+        cs.lineTo(x0, y2);
+        cs.lineTo(x0, y1);
+        cs.closePath();
 
-        cont.setStrokingColor(Color.BLACK);
-        cont.stroke();
+        if (outerColor != null) {
+            cs.setStrokingColor(outerColor);
+            if (fillColor != null) {
+                cs.setNonStrokingColor(fillColor);
+                cs.fillAndStroke();
+            } else {
+                cs.stroke();
+            }
+        } else if (fillColor != null) {
+            cs.setNonStrokingColor(fillColor);
+            cs.fill();
+        }
 
     }
 
-    private float printCenteredText(String text, float x, float y, float maxWidth, FontData font,
-            PDPageContentStream cont, StringBuilder printedTextBuffer) throws IOException {
+    private static float printCenteredText(PDPageContentStream cs, String text, float x, float y,
+            float maxWidth, FontData font, StringBuilder printedTextBuffer) throws IOException {
 
         if (text.isEmpty()) {
             return 0;
@@ -293,7 +406,7 @@ public class PdfOutput implements ICardOutput {
 
         float leading = font.size * LEADING_FACTOR;
 
-        cont.setLeading(leading);
+        cs.setLeading(leading);
 
         float size = getTextSize(font, text);
 
@@ -302,47 +415,47 @@ public class PdfOutput implements ICardOutput {
             if (center > 0 && center < text.length()) {
                 String pre = text.substring(0, center);
                 String post = text.substring(center + 1);
-                printCenteredText(pre, x, y, maxWidth, font, cont, getTextSize(font, pre), printedTextBuffer);
-                printCenteredText(post, x, y - leading, maxWidth, font, cont, getTextSize(font, post), printedTextBuffer);
+                printCenteredText(pre, x, y, maxWidth, font, cs, getTextSize(font, pre), printedTextBuffer);
+                printCenteredText(post, x, y - leading, maxWidth, font, cs, getTextSize(font, post), printedTextBuffer);
                 return (2 * leading);
             }
         }
 
-        printCenteredText(text, x, y, maxWidth, font, cont, size, printedTextBuffer);
+        printCenteredText(text, x, y, maxWidth, font, cs, size, printedTextBuffer);
         return leading;
 
     }
 
-    private void printCenteredText(String text, float x, float y, float maxWidth, FontData font,
-            PDPageContentStream cont, float size, StringBuilder printedTextBuffer) throws IOException {
+    private static void printCenteredText(String text, float x, float y, float maxWidth, FontData font,
+            PDPageContentStream cs, float size, StringBuilder printedTextBuffer) throws IOException {
 
         float xDisp = (maxWidth - size) / 2;
-        cont.setFont(font.font, font.size);
-        cont.setNonStrokingColor(font.color);
-        cont.beginText();
-        cont.newLineAtOffset(x + xDisp, y);
-        cont.showText(text);
+        cs.setFont(font.font, font.size);
+        cs.setNonStrokingColor(font.color);
+        cs.beginText();
+        cs.newLineAtOffset(x + xDisp, y);
+        cs.showText(text);
         printedTextBuffer.append(text);
         printedTextBuffer.append("\n");
-        cont.endText();
+        cs.endText();
     }
 
-    private void printRightText(String text, float x, float y, float maxWidth, FontData font,
-            PDPageContentStream cont) throws IOException {
+    private static void printRightText(PDPageContentStream cs, String text, float x, float y,
+            float maxWidth, FontData font, StringBuilder printedTextBuffer) throws IOException {
 
         float xDisp = maxWidth - getTextSize(font, text);
-        cont.setFont(font.font, font.size);
-        cont.setNonStrokingColor(font.color);
-        cont.beginText();
-        cont.newLineAtOffset(x + xDisp, y);
-        cont.showText(text);
+        cs.setFont(font.font, font.size);
+        cs.setNonStrokingColor(font.color);
+        cs.beginText();
+        cs.newLineAtOffset(x + xDisp, y);
+        cs.showText(text);
         printedTextBuffer.append(text);
         printedTextBuffer.append("\n");
-        cont.endText();
+        cs.endText();
     }
 
-    private float printBreakingText(String text, float x, float y, float maxWidth, float maxHeight, FontData font,
-            PDPageContentStream cont, StringBuilder printedTextBuffer) throws IOException {
+    private static float printBreakingText(String text, float x, float y, float maxWidth, float maxHeight, FontData font,
+            PDPageContentStream cs, StringBuilder printedTextBuffer) throws IOException {
 
         if (text.isEmpty()) {
             return 0;
@@ -350,32 +463,32 @@ public class PdfOutput implements ICardOutput {
         y -= font.size;
 
         float leading = font.size * LEADING_FACTOR;
-        float yDiff = 0;
-        cont.setFont(font.font, font.size);
-        cont.setNonStrokingColor(font.color);
-        cont.setLeading(leading);
-        cont.beginText();
-        cont.newLineAtOffset(x, y);
+        float yDiff = leading;
+        cs.setFont(font.font, font.size);
+        cs.setNonStrokingColor(font.color);
+        cs.setLeading(leading);
+        cs.beginText();
+        cs.newLineAtOffset(x, y);
 
         int currentLineStart = 0;
         while (currentLineStart < text.length() && yDiff < maxHeight) {
-            currentLineStart = printLine(text, currentLineStart, maxWidth, font, cont, printedTextBuffer);
+            currentLineStart = printLine(text, currentLineStart, maxWidth, font, cs, printedTextBuffer);
             printedTextBuffer.append("\n");
             yDiff += leading;
         }
-        cont.endText();
+        cs.endText();
         return (yDiff + (leading * LEADING_INTERTEXT_FACTOR));
     }
 
-    private int printLine(String text, int currentLineStart, float maxWidth, FontData font,
-            PDPageContentStream cont, StringBuilder printedTextBuffer) throws IOException {
+    private static int printLine(String text, int currentLineStart, float maxWidth, FontData font,
+            PDPageContentStream cs, StringBuilder printedTextBuffer) throws IOException {
 
         int len = text.length();
 
         int currentLineEnd = text.indexOf(' ', currentLineStart + 1);
         if (currentLineEnd < 0) {
             String currentLine = text.substring(currentLineStart);
-            cont.showText(currentLine);
+            cs.showText(currentLine);
             printedTextBuffer.append(currentLine);
             return len;
         }
@@ -395,9 +508,9 @@ public class PdfOutput implements ICardOutput {
             currentLine = nextLine;
             currentLineEnd = nextLineEnd;
         }
-        cont.showText(currentLine);
+        cs.showText(currentLine);
         printedTextBuffer.append(currentLine);
-        cont.newLine();
+        cs.newLine();
         return currentLineEnd + 1;
     }
 
@@ -445,8 +558,13 @@ public class PdfOutput implements ICardOutput {
         private Color rulesFontColor;
         private Color costFontColor;
 
-        private boolean titleBars;
-        private boolean cardBorders;
+        private Color titleBarsColor;
+        private Color cardBordersColor;
+        private Color cardFillColor;
+        private Color foregroundGridColor;
+        private Color backgroundGridColor;
+
+        private boolean backgroundPages;
 
         public Builder() {
 
@@ -468,7 +586,13 @@ public class PdfOutput implements ICardOutput {
             this.rulesFontType = DEFAULT_RULES_FONT_TYPE;
             this.costFontType = DEFAULT_COST_FONT_TYPE;
 
-            this.titleBars = true;
+            this.titleBarsColor = DEFAULT_TITLE_BAR_COLOR;
+            this.cardBordersColor = DEFAULT_CARD_BORDER_COLOR;
+            this.cardFillColor = DEFAULT_CARD_FILL_COLOR;
+            this.foregroundGridColor = DEFAULT_FOREGROUND_GRID_COLOR;
+            this.backgroundGridColor = DEFAULT_BACKGROUND_GRID_COLOR;
+
+            this.backgroundPages = DEFAULT_BACKGROUND_PAGES;
         }
 
         public Builder setPerX(int perX) {
@@ -546,13 +670,18 @@ public class PdfOutput implements ICardOutput {
             return this;
         }
 
-        public Builder setTitleBars(boolean titleBars) {
-            this.titleBars = titleBars;
+        public Builder setTitleBarsColor(Color titleBarsColor) {
+            this.titleBarsColor = titleBarsColor;
             return this;
         }
 
-        public Builder setCardBorders(boolean cardBorders) {
-            this.cardBorders = cardBorders;
+        public Builder setCardBordersColor(Color cardBordersColor) {
+            this.cardBordersColor = cardBordersColor;
+            return this;
+        }
+
+        public Builder setCardFillColor(Color cardFillColor) {
+            this.cardFillColor = cardFillColor;
             return this;
         }
 
@@ -581,6 +710,21 @@ public class PdfOutput implements ICardOutput {
             return this;
         }
 
+        public Builder setForegroundGridColor(Color foregroundGridColor) {
+            this.foregroundGridColor = foregroundGridColor;
+            return this;
+        }
+
+        public Builder setBackgroundGridColor(Color backgroundGridColor) {
+            this.backgroundGridColor = backgroundGridColor;
+            return this;
+        }
+
+        public Builder setBackgroundPages(boolean backgroundPages) {
+            this.backgroundPages = backgroundPages;
+            return this;
+        }
+
         public PdfOutput build() {
             return new PdfOutput(
                     perX, perY, marginPercentX, marginPercentY,
@@ -589,7 +733,8 @@ public class PdfOutput implements ICardOutput {
                     new FontData(legendFontType, legendFontSize, legendFontColor),
                     new FontData(rulesFontType, rulesFontSize, rulesFontColor),
                     new FontData(costFontType, costFontSize, costFontColor),
-                    titleBars, cardBorders
+                    titleBarsColor, cardBordersColor, cardFillColor,
+                    foregroundGridColor, backgroundGridColor, backgroundPages
             );
         }
 
@@ -605,10 +750,6 @@ public class PdfOutput implements ICardOutput {
             this.font = font;
             this.size = size;
             this.color = color;
-        }
-
-        public FontData(PDFont font, float size) {
-            this(font, size, Color.BLACK);
         }
 
     }

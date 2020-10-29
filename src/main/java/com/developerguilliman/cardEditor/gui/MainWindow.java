@@ -789,6 +789,7 @@ public class MainWindow extends javax.swing.JFrame {
             List<List<CardData>> newCards = input.build(fis);
 
             if (clear) {
+                cardTree.clearSelection();
                 cards.clear();
             }
             cards.addAll(newCards);

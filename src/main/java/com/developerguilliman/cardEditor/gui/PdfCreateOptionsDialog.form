@@ -54,7 +54,7 @@
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
             <Property name="columns" type="int" value="2"/>
             <Property name="horizontalGap" type="int" value="3"/>
-            <Property name="rows" type="int" value="4"/>
+            <Property name="rows" type="int" value="7"/>
             <Property name="verticalGap" type="int" value="1"/>
           </Layout>
           <SubComponents>
@@ -69,7 +69,7 @@
             <Component class="javax.swing.JSpinner" name="cardsPerXSpinner">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="3" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                  <SpinnerModel initial="3" maximum="12" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                 </Property>
               </Properties>
             </Component>
@@ -84,7 +84,7 @@
             <Component class="javax.swing.JSpinner" name="cardsPerYSpinner">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="3" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                  <SpinnerModel initial="3" maximum="12" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                 </Property>
               </Properties>
             </Component>
@@ -96,7 +96,7 @@
             <Component class="javax.swing.JSpinner" name="marginXSpinner">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="10.0" maximum="50.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.25" type="number"/>
+                  <SpinnerModel initial="10.0" maximum="50.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.1" type="number"/>
                 </Property>
               </Properties>
             </Component>
@@ -108,9 +108,59 @@
             <Component class="javax.swing.JSpinner" name="marginYSpinner">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="10.0" maximum="50.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.25" type="number"/>
+                  <SpinnerModel initial="10.0" maximum="50.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.1" type="number"/>
                 </Property>
               </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="backgroundPagesCheckBox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Background pages"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="backgroundPagesCheckBoxActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.Box$Filler" name="filler1">
+              <Properties>
+                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[32767, 32767]"/>
+                </Property>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.Glue"/>
+              </AuxValues>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="foregroundGridCheckBox">
+              <Properties>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" value="Foreground Grid"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="backgroundGridCheckBox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Background Grid"/>
+                <Property name="enabled" type="boolean" value="false"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="jLabel1">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Grid color"/>
+              </Properties>
+            </Component>
+            <Component class="com.developerguilliman.cardEditor.gui.JColorChooserButton" name="gridColorChooserButton">
+              <Properties>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.BevelBorderInfo">
+                    <BevelBorder/>
+                  </Border>
+                </Property>
+                <Property name="selectedColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="e7" green="e7" red="e7" type="rgb"/>
+                </Property>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="gridColorChooserButtonActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
@@ -131,7 +181,7 @@
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                <TitledBorder title="Texts fonts"/>
+                <TitledBorder title="Text settings"/>
               </Border>
             </Property>
           </Properties>
@@ -176,6 +226,9 @@
                 </Component>
                 <Component class="javax.swing.JSpinner" name="titlefontSizeSpinner">
                   <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                      <SpinnerModel initial="1.0" minimum="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
+                    </Property>
                     <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="PdfOutput.DEFAULT_TITLE_FONT_SIZE" type="code"/>
                     </Property>
@@ -213,6 +266,9 @@
                 </Component>
                 <Component class="javax.swing.JSpinner" name="namefontSizeSpinner">
                   <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                      <SpinnerModel initial="1.0" minimum="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
+                    </Property>
                     <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="PdfOutput.DEFAULT_NAME_FONT_SIZE" type="code"/>
                     </Property>
@@ -250,6 +306,9 @@
                 </Component>
                 <Component class="javax.swing.JSpinner" name="legendfontSizeSpinner">
                   <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                      <SpinnerModel initial="1.0" minimum="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
+                    </Property>
                     <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="PdfOutput.DEFAULT_LEGEND_FONT_SIZE" type="code"/>
                     </Property>
@@ -287,6 +346,9 @@
                 </Component>
                 <Component class="javax.swing.JSpinner" name="rulesfontSizeSpinner">
                   <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                      <SpinnerModel initial="1.0" minimum="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
+                    </Property>
                     <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="PdfOutput.DEFAULT_RULES_FONT_SIZE" type="code"/>
                     </Property>
@@ -324,6 +386,9 @@
                 </Component>
                 <Component class="javax.swing.JSpinner" name="costfontSizeSpinner">
                   <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                      <SpinnerModel initial="1.0" minimum="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
+                    </Property>
                     <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="PdfOutput.DEFAULT_COST_FONT_SIZE" type="code"/>
                     </Property>
@@ -374,23 +439,82 @@
             <Container class="javax.swing.JPanel" name="jPanel4">
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
-                <Property name="columns" type="int" value="1"/>
+                <Property name="columns" type="int" value="3"/>
                 <Property name="horizontalGap" type="int" value="3"/>
-                <Property name="rows" type="int" value="2"/>
+                <Property name="rows" type="int" value="3"/>
                 <Property name="verticalGap" type="int" value="1"/>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JCheckBox" name="cardBorderCheckBox">
-                  <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
-                    <Property name="text" type="java.lang.String" value="Card Outer Border"/>
-                  </Properties>
-                </Component>
                 <Component class="javax.swing.JCheckBox" name="titleBarsCheckBox">
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Title Bars"/>
                   </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="titleBarsColorLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Title bars color"/>
+                  </Properties>
+                </Component>
+                <Component class="com.developerguilliman.cardEditor.gui.JColorChooserButton" name="titleBarsColorChooserButton">
+                  <Properties>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.BevelBorderInfo">
+                        <BevelBorder/>
+                      </Border>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="titleBarsColorChooserButtonActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="outerBorderCheckBox">
+                  <Properties>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="text" type="java.lang.String" value="Outer Border"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="outerBorderColorLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Outer Border color"/>
+                  </Properties>
+                </Component>
+                <Component class="com.developerguilliman.cardEditor.gui.JColorChooserButton" name="outerBorderColorChooserButton">
+                  <Properties>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.BevelBorderInfo">
+                        <BevelBorder/>
+                      </Border>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="outerBorderColorChooserButtonActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="fillCheckBox">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Fill Card"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="fillColorLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Fill color"/>
+                  </Properties>
+                </Component>
+                <Component class="com.developerguilliman.cardEditor.gui.JColorChooserButton" name="fillColorChooserButton">
+                  <Properties>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.BevelBorderInfo">
+                        <BevelBorder/>
+                      </Border>
+                    </Property>
+                    <Property name="selectedColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fillColorChooserButtonActionPerformed"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>
