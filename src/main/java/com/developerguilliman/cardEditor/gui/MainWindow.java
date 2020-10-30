@@ -24,6 +24,7 @@ import com.developerguilliman.cardEditor.input.WahapediaStratagemCardBuilder;
 import com.developerguilliman.cardEditor.input.XmlCardInput;
 import com.developerguilliman.cardEditor.output.XmlCardOutput;
 import java.awt.Component;
+import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
+import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
@@ -250,6 +252,7 @@ public class MainWindow extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Card editor");
+        setIconImage(createIcon("images/cards.png"));
         setMinimumSize(new java.awt.Dimension(600, 460));
         setPreferredSize(new java.awt.Dimension(780, 580));
 
@@ -935,6 +938,16 @@ public class MainWindow extends javax.swing.JFrame {
         return true;
     }
 
+    private Image createIcon(String resourceName) {
+        try {
+            ClassLoader ccl = Thread.currentThread().getContextClassLoader();
+            return ImageIO.read(ccl.getResourceAsStream(resourceName));
+        } catch (Exception _ignored) {
+        }
+        return null;
+
+    }
+
     private static DefaultMutableTreeNode createCardNode(CardData card) {
         return new DefaultMutableTreeNode(card, false);
     }
@@ -970,7 +983,7 @@ public class MainWindow extends javax.swing.JFrame {
         return -1;
     }
 
-    private int getBoundIndex(List<?> list, int index) {
+    private static int getBoundIndex(List<?> list, int index) {
         return Math.max(0, Math.min(list.size() - 1, index));
     }
 
