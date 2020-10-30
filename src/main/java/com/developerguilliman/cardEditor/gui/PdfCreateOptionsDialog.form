@@ -89,6 +89,9 @@
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                   <SpinnerModel initial="3" maximum="12" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                 </Property>
+                <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="PdfOutput.DEFAULT_CARDS_PER_X" type="code"/>
+                </Property>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="cardsPerYLabel">
@@ -104,6 +107,9 @@
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                   <SpinnerModel initial="3" maximum="12" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                 </Property>
+                <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="PdfOutput.DEFAULT_CARDS_PER_Y" type="code"/>
+                </Property>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="marginXLabel">
@@ -114,7 +120,10 @@
             <Component class="javax.swing.JSpinner" name="marginXSpinner">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="10.0" maximum="50.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.1" type="number"/>
+                  <SpinnerModel initial="10.0" maximum="99.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.1" type="number"/>
+                </Property>
+                <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="PdfOutput.DEFAULT_MARGIN_X" type="code"/>
                 </Property>
               </Properties>
             </Component>
@@ -126,7 +135,10 @@
             <Component class="javax.swing.JSpinner" name="marginYSpinner">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="10.0" maximum="50.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.1" type="number"/>
+                  <SpinnerModel initial="11.2" maximum="99.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.1" type="number"/>
+                </Property>
+                <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="PdfOutput.DEFAULT_MARGIN_Y" type="code"/>
                 </Property>
               </Properties>
             </Component>

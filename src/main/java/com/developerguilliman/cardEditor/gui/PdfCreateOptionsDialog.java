@@ -250,6 +250,7 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         pageFieldPanel.add(cardsPerXLabel);
 
         cardsPerXSpinner.setModel(new javax.swing.SpinnerNumberModel(3, 1, 12, 1));
+        cardsPerXSpinner.setValue(PdfOutput.DEFAULT_CARDS_PER_X);
         pageFieldPanel.add(cardsPerXSpinner);
 
         cardsPerYLabel.setLabelFor(cardsPerYSpinner);
@@ -257,18 +258,21 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         pageFieldPanel.add(cardsPerYLabel);
 
         cardsPerYSpinner.setModel(new javax.swing.SpinnerNumberModel(3, 1, 12, 1));
+        cardsPerYSpinner.setValue(PdfOutput.DEFAULT_CARDS_PER_Y);
         pageFieldPanel.add(cardsPerYSpinner);
 
         marginXLabel.setText("Margin X %");
         pageFieldPanel.add(marginXLabel);
 
-        marginXSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(10.0f), Float.valueOf(0.0f), Float.valueOf(50.0f), Float.valueOf(0.1f)));
+        marginXSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(10.0f), Float.valueOf(0.0f), Float.valueOf(99.0f), Float.valueOf(0.1f)));
+        marginXSpinner.setValue(PdfOutput.DEFAULT_MARGIN_X);
         pageFieldPanel.add(marginXSpinner);
 
         marginYLabel.setText("Margin Y %");
         pageFieldPanel.add(marginYLabel);
 
-        marginYSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(10.0f), Float.valueOf(0.0f), Float.valueOf(50.0f), Float.valueOf(0.1f)));
+        marginYSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(11.2f), Float.valueOf(0.0f), Float.valueOf(99.0f), Float.valueOf(0.1f)));
+        marginYSpinner.setValue(PdfOutput.DEFAULT_MARGIN_Y);
         pageFieldPanel.add(marginYSpinner);
 
         backgroundPagesCheckBox.setText("Background pages");

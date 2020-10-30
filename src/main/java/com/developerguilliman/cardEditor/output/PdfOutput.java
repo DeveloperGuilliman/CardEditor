@@ -47,8 +47,8 @@ public class PdfOutput implements ICardOutput {
     public static final int DEFAULT_CARDS_PER_X = 3;
     public static final int DEFAULT_CARDS_PER_Y = 3;
 
-    public static final int DEFAULT_MARGIN_X = 3;
-    public static final int DEFAULT_MARGIN_Y = 3;
+    public static final float DEFAULT_MARGIN_X = 10;
+    public static final float DEFAULT_MARGIN_Y = 11.2f;
 
     public static final float DEFAULT_TITLE_FONT_SIZE = 9;
     public static final float DEFAULT_NAME_FONT_SIZE = 11;
@@ -593,8 +593,8 @@ public class PdfOutput implements ICardOutput {
         public Builder() {
 
             this.pageSize = DEFAULT_PAGE_SIZE;
-            this.perX = DEFAULT_MARGIN_X;
-            this.perY = DEFAULT_MARGIN_Y;
+            this.perX = DEFAULT_CARDS_PER_X;
+            this.perY = DEFAULT_CARDS_PER_Y;
 
             this.marginPercentX = DEFAULT_MARGIN_X;
             this.marginPercentY = DEFAULT_MARGIN_Y;
