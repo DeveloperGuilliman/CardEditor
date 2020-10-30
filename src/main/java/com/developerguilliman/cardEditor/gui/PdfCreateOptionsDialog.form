@@ -54,10 +54,28 @@
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
             <Property name="columns" type="int" value="2"/>
             <Property name="horizontalGap" type="int" value="3"/>
-            <Property name="rows" type="int" value="7"/>
+            <Property name="rows" type="int" value="8"/>
             <Property name="verticalGap" type="int" value="1"/>
           </Layout>
           <SubComponents>
+            <Component class="javax.swing.JLabel" name="pageSizeLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Page size"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JComboBox" name="pageSizeComboBox">
+              <Properties>
+                <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="new javax.swing.DefaultComboBoxModel(PAGE_SIZE_NAMES)" type="code"/>
+                </Property>
+                <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="getPageName(PdfOutput.DEFAULT_PAGE_SIZE)" type="code"/>
+                </Property>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+              </AuxValues>
+            </Component>
             <Component class="javax.swing.JLabel" name="cardsPerXLabel">
               <Properties>
                 <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
@@ -240,7 +258,7 @@
                       <Connection code="new javax.swing.DefaultComboBoxModel(FONT_NAMES)" type="code"/>
                     </Property>
                     <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getKeyForFont(PdfOutput.DEFAULT_TITLE_FONT_TYPE)" type="code"/>
+                      <Connection code="getFontName(PdfOutput.DEFAULT_TITLE_FONT_TYPE)" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -280,7 +298,7 @@
                       <Connection code="new javax.swing.DefaultComboBoxModel(FONT_NAMES)" type="code"/>
                     </Property>
                     <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getKeyForFont(PdfOutput.DEFAULT_NAME_FONT_TYPE)" type="code"/>
+                      <Connection code="getFontName(PdfOutput.DEFAULT_NAME_FONT_TYPE)" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -320,7 +338,7 @@
                       <Connection code="new javax.swing.DefaultComboBoxModel(FONT_NAMES)" type="code"/>
                     </Property>
                     <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getKeyForFont(PdfOutput.DEFAULT_LEGEND_FONT_TYPE)" type="code"/>
+                      <Connection code="getFontName(PdfOutput.DEFAULT_LEGEND_FONT_TYPE)" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -360,7 +378,7 @@
                       <Connection code="new javax.swing.DefaultComboBoxModel(FONT_NAMES)" type="code"/>
                     </Property>
                     <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getKeyForFont(PdfOutput.DEFAULT_RULES_FONT_TYPE)" type="code"/>
+                      <Connection code="getFontName(PdfOutput.DEFAULT_RULES_FONT_TYPE)" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -400,7 +418,7 @@
                       <Connection code="new javax.swing.DefaultComboBoxModel(FONT_NAMES)" type="code"/>
                     </Property>
                     <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getKeyForFont(PdfOutput.DEFAULT_COST_FONT_TYPE)" type="code"/>
+                      <Connection code="getFontName(PdfOutput.DEFAULT_COST_FONT_TYPE)" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>

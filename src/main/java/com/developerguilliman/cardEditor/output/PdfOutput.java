@@ -27,6 +27,7 @@ import java.util.Iterator;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
@@ -40,6 +41,8 @@ public class PdfOutput implements ICardOutput {
     private static final float LEADING_INTERTEXT_FACTOR = 0.5f;
     private static final Color VERY_LIGHT_GRAY = new Color(0xe7, 0xe7, 0xe7);
     private static final float EXTRA_GRID = 5;
+
+    public static final PDRectangle DEFAULT_PAGE_SIZE = PDRectangle.A4;
 
     public static final int DEFAULT_CARDS_PER_X = 3;
     public static final int DEFAULT_CARDS_PER_Y = 3;
@@ -73,6 +76,8 @@ public class PdfOutput implements ICardOutput {
 
     public static final boolean DEFAULT_BACKGROUND_PAGES = false;
 
+    private final PDRectangle pageSize;
+
     private final int perX;
     private final int perY;
 
@@ -98,6 +103,8 @@ public class PdfOutput implements ICardOutput {
 
     public PdfOutput() {
 
+        this.pageSize = DEFAULT_PAGE_SIZE;
+
         this.perX = DEFAULT_CARDS_PER_X;
         this.perY = DEFAULT_CARDS_PER_Y;
 
@@ -122,11 +129,12 @@ public class PdfOutput implements ICardOutput {
         this.printedTextBuffer = new StringBuilder();
     }
 
-    private PdfOutput(int perX, int perY, float marginPercentX, float marginPercentY,
+    private PdfOutput(PDRectangle pageSize, int perX, int perY, float marginPercentX, float marginPercentY,
             FontData titleFont, FontData nameFont, FontData legendFont, FontData rulesFont, FontData costFont,
             Color titleBarsColor, Color cardBordersColor, Color cardFillColor,
             Color foregroundGridColor, Color backgroundGridColor, boolean backgroundPages) {
 
+        this.pageSize = pageSize;
         this.perX = perX;
         this.perY = perY;
 
@@ -155,7 +163,7 @@ public class PdfOutput implements ICardOutput {
     @Override
     public void build(OutputStream out, CardCollectionData cards) throws IOException {
 
-        try (PDDocument document = new PDDocument()) {
+        try ( PDDocument document = new PDDocument()) {
             buildDocument(document, cards);
             document.save(out);
 
@@ -178,9 +186,9 @@ public class PdfOutput implements ICardOutput {
     }
 
     private int buildForegroundPage(PDDocument document, Iterator<CardData> cardIterator) throws IOException {
-        PDPage page = new PDPage();
+        PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
 
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
@@ -202,9 +210,9 @@ public class PdfOutput implements ICardOutput {
     }
 
     private void buildBackgroundPage(PDDocument document, int printedCards) throws IOException {
-        PDPage page = new PDPage();
+        PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
 
@@ -549,6 +557,7 @@ public class PdfOutput implements ICardOutput {
 
     public static class Builder {
 
+        private PDRectangle pageSize;
         private int perX;
         private int perY;
 
@@ -583,6 +592,7 @@ public class PdfOutput implements ICardOutput {
 
         public Builder() {
 
+            this.pageSize = DEFAULT_PAGE_SIZE;
             this.perX = DEFAULT_MARGIN_X;
             this.perY = DEFAULT_MARGIN_Y;
 
@@ -608,6 +618,11 @@ public class PdfOutput implements ICardOutput {
             this.backgroundGridColor = DEFAULT_BACKGROUND_GRID_COLOR;
 
             this.backgroundPages = DEFAULT_BACKGROUND_PAGES;
+        }
+
+        public Builder setPageSize(PDRectangle pageSize) {
+            this.pageSize = pageSize;
+            return this;
         }
 
         public Builder setPerX(int perX) {
@@ -742,7 +757,7 @@ public class PdfOutput implements ICardOutput {
 
         public PdfOutput build() {
             return new PdfOutput(
-                    perX, perY, marginPercentX, marginPercentY,
+                    pageSize, perX, perY, marginPercentX, marginPercentY,
                     new FontData(titleFontType, titleFontSize, titleFontColor),
                     new FontData(nameFontType, nameFontSize, nameFontColor),
                     new FontData(legendFontType, legendFontSize, legendFontColor),
