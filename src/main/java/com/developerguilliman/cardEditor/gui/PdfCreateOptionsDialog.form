@@ -54,7 +54,7 @@
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
             <Property name="columns" type="int" value="2"/>
             <Property name="horizontalGap" type="int" value="3"/>
-            <Property name="rows" type="int" value="8"/>
+            <Property name="rows" type="int" value="10"/>
             <Property name="verticalGap" type="int" value="1"/>
           </Layout>
           <SubComponents>
@@ -72,6 +72,9 @@
                   <Connection code="getPageName(PdfOutput.DEFAULT_PAGE_SIZE)" type="code"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pageSizeComboBoxActionPerformed"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
               </AuxValues>
@@ -93,6 +96,9 @@
                   <Connection code="PdfOutput.DEFAULT_CARDS_PER_X" type="code"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="cardsPerXSpinnerPropertyChange"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="cardsPerYLabel">
               <Properties>
@@ -111,6 +117,9 @@
                   <Connection code="PdfOutput.DEFAULT_CARDS_PER_Y" type="code"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="cardsPerYSpinnerPropertyChange"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="marginXLabel">
               <Properties>
@@ -126,6 +135,9 @@
                   <Connection code="PdfOutput.DEFAULT_MARGIN_X" type="code"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="marginXSpinnerPropertyChange"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="marginYLabel">
               <Properties>
@@ -141,6 +153,9 @@
                   <Connection code="PdfOutput.DEFAULT_MARGIN_Y" type="code"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="marginYSpinnerPropertyChange"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JCheckBox" name="backgroundPagesCheckBox">
               <Properties>
@@ -172,7 +187,7 @@
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="jLabel1">
+            <Component class="javax.swing.JLabel" name="gridColorLabel">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Grid color"/>
               </Properties>
@@ -191,6 +206,26 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="gridColorChooserButtonActionPerformed"/>
               </Events>
+            </Component>
+            <Component class="javax.swing.JLabel" name="cardSizeMMLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Card Size mm:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="cardSizeMMTextField">
+              <Properties>
+                <Property name="editable" type="boolean" value="false"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="cardSizeInchLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Card Size inch:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="cardSizeInchTextField">
+              <Properties>
+                <Property name="editable" type="boolean" value="false"/>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>
