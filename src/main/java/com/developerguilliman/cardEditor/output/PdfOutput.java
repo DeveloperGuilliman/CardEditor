@@ -17,12 +17,13 @@
 package com.developerguilliman.cardEditor.output;
 
 import com.developerguilliman.cardEditor.CardHash;
+import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
-import java.util.List;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -152,7 +153,7 @@ public class PdfOutput implements ICardOutput {
     }
 
     @Override
-    public void build(OutputStream out, List<List<CardData>> cards) throws IOException {
+    public void build(OutputStream out, CardCollectionData cards) throws IOException {
 
         try (PDDocument document = new PDDocument()) {
             buildDocument(document, cards);
@@ -162,9 +163,9 @@ public class PdfOutput implements ICardOutput {
 
     }
 
-    private void buildDocument(PDDocument document, List<List<CardData>> cards) throws IOException {
+    private void buildDocument(PDDocument document, CardCollectionData cards) throws IOException {
 
-        for (List<CardData> cardPage : cards) {
+        for (SectionData cardPage : cards) {
             Iterator<CardData> cardIterator = cardPage.iterator();
             while (cardIterator.hasNext()) {
 

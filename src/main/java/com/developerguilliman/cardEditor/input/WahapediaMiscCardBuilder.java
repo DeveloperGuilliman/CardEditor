@@ -16,12 +16,12 @@
  */
 package com.developerguilliman.cardEditor.input;
 
+import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -45,10 +45,10 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
     }
 
     @Override
-    public List<List<CardData>> build(InputStream source) {
+    public CardCollectionData build(InputStream source) {
         try {
             Document doc = Jsoup.parse(source, null, "");
-            List<CardData> list = new ArrayList<>();
+            SectionData list = new SectionData();
             buildFromHtml(doc, list);
             System.out.println("Found " + list.size() + " cards");
 
@@ -60,7 +60,7 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
                 System.out.println("Found " + list.size() + " deduplicated cards");
 
             }
-            List<List<CardData>> cardSections = ICardInput.divideSections(list);
+            CardCollectionData cardSections = ICardInput.divideSections(list);
             ICardInput.regroupSections(cardSections, maxToGroup);
             System.out.println("Organized in " + cardSections.size() + " sections");
             return cardSections;
@@ -70,7 +70,7 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
     }
 
     @Override
-    public void buildFromHtml(Document doc, List<CardData> list) {
+    public void buildFromHtml(Document doc, SectionData list) {
 
         for (Element cardElement : doc.select("div.Columns2 div.BreakInsideAvoid p.impact18,div.Columns2 div.BreakInsideAvoid h3")) {
             try {

@@ -16,13 +16,13 @@
  */
 package com.developerguilliman.cardEditor.input;
 
+import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.TreeSet;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -50,11 +50,11 @@ public class WahapediaAllCardBuilder implements ICardInput {
     }
 
     @Override
-    public List<List<CardData>> build(InputStream source) {
+    public CardCollectionData build(InputStream source) {
         try {
             Document doc = Jsoup.parse(source, null, "");
 
-            List<CardData> list = new ArrayList<>();
+            SectionData list = new SectionData();
             for (IWahapediaCardInput builder : wahapediaBuilders) {
                 builder.buildFromHtml(doc, list);
             }
@@ -74,7 +74,7 @@ public class WahapediaAllCardBuilder implements ICardInput {
                 System.out.println("Found " + list.size() + " deduplicated cards");
 
             }
-            List<List<CardData>> cardSections = ICardInput.divideSections(list);
+            CardCollectionData cardSections = ICardInput.divideSections(list);
             ICardInput.regroupSections(cardSections, maxToGroup);
             System.out.println("Organized in " + cardSections.size() + " sections");
             return cardSections;

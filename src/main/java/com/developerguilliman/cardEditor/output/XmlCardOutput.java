@@ -16,10 +16,11 @@
  */
 package com.developerguilliman.cardEditor.output;
 
+import com.developerguilliman.cardEditor.data.CardCollectionData;
+import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,24 +30,21 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-import com.developerguilliman.cardEditor.data.CardData;
-
 public class XmlCardOutput implements ICardOutput {
 
 	@Override
-	public void build(OutputStream out, List<List<CardData>> cards) throws IOException {
+	public void build(OutputStream out, CardCollectionData cards) throws IOException {
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.newDocument();
 			Element root = doc.createElement("cards");
 			doc.appendChild(root);
-			for (List<CardData> section : cards) {
+			for (SectionData section : cards) {
 
 				Element sectionElement = doc.createElement("section");
 				root.appendChild(sectionElement);

@@ -16,13 +16,13 @@
  */
 package com.developerguilliman.cardEditor.input;
 
+import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 import java.util.TreeSet;
 
 /**
@@ -31,19 +31,19 @@ import java.util.TreeSet;
  */
 public interface ICardInput {
 
-    List<List<CardData>> build(InputStream source);
+    CardCollectionData build(InputStream source);
 
-    public static List<List<CardData>> divideSections(Collection<CardData> cards) {
+    public static CardCollectionData divideSections(Collection<CardData> cards) {
 
-        List<List<CardData>> cardSections = new ArrayList<>();
+        CardCollectionData cardSections = new CardCollectionData();
         String lastFaction = null;
-        ArrayList<CardData> lastCardSection = null;
+        SectionData lastCardSection = null;
 
         for (CardData card : cards) {
             String currentFaction = card.getTitle();
             if (!currentFaction.equals(lastFaction)) {
                 lastFaction = currentFaction;
-                lastCardSection = new ArrayList<>();
+                lastCardSection = new SectionData();
                 cardSections.add(lastCardSection);
             }
             lastCardSection.add(card);
@@ -52,14 +52,14 @@ public interface ICardInput {
         return cardSections;
     }
 
-    public static void regroupSections(List<List<CardData>> cardSections, int maxToGroup) {
-        List<CardData> singletons = null;
-        Iterator<List<CardData>> compactsingletons = cardSections.iterator();
+    public static void regroupSections(CardCollectionData cardSections, int maxToGroup) {
+        SectionData singletons = null;
+        Iterator<SectionData> compactsingletons = cardSections.iterator();
         while (compactsingletons.hasNext()) {
-            List<CardData> cardSection = compactsingletons.next();
+            SectionData cardSection = compactsingletons.next();
             if (cardSection.size() <= maxToGroup) {
                 if (singletons == null) {
-                    singletons = new ArrayList<>();
+                    singletons = new SectionData();
                 }
                 singletons.addAll(cardSection);
                 compactsingletons.remove();
@@ -75,7 +75,7 @@ public interface ICardInput {
         return reorderByName ? comparatorBase.thenComparing(CardData::getName) : comparatorBase;
     }
 
-    public static TreeSet<CardData> createListDeduplicator(List<CardData> list) {
+    public static TreeSet<CardData> createListDeduplicator(SectionData list) {
         TreeSet<CardData> dedup = new TreeSet<>(
                 Comparator.comparing(CardData::getTitle)
                         .thenComparing(CardData::getName)
@@ -87,7 +87,7 @@ public interface ICardInput {
         return dedup;
     }
 
-    public static TreeSet<CardData> createSectionsDeduplicator(List<List<CardData>> list) {
+    public static TreeSet<CardData> createSectionsDeduplicator(CardCollectionData list) {
         TreeSet<CardData> dedup = new TreeSet<>(
                 Comparator.comparing(CardData::getTitle)
                         .thenComparing(CardData::getName)
@@ -95,7 +95,7 @@ public interface ICardInput {
                         .thenComparing(CardData::getRules)
                         .thenComparing(CardData::getCost)
         );
-        for (List<CardData> l : list) {
+        for (SectionData l : list) {
             dedup.addAll(l);
         }
         return dedup;

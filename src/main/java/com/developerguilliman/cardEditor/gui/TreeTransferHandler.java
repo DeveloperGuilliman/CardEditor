@@ -17,13 +17,13 @@
 package com.developerguilliman.cardEditor.gui;
 
 import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
 import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
@@ -211,14 +211,14 @@ public class TreeTransferHandler extends TransferHandler {
         return null;
     }
 
-    private static List<CardData> getPathSection(TreePath path) {
+    private static SectionData getPathSection(TreePath path) {
         Object[] pathNodes = path.getPath();
 
         for (int i = pathNodes.length - 1; i >= 0; i--) {
             DefaultMutableTreeNode pathNode = (DefaultMutableTreeNode) pathNodes[i];
             Object pathObject = pathNode.getUserObject();
-            if (pathObject instanceof List) {
-                return (List<CardData>) pathObject;
+            if (pathObject instanceof SectionData) {
+                return (SectionData) pathObject;
             }
         }
         return null;

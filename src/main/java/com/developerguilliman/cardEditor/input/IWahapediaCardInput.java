@@ -17,7 +17,7 @@
 package com.developerguilliman.cardEditor.input;
 
 import com.developerguilliman.cardEditor.data.CardData;
-import java.util.List;
+import com.developerguilliman.cardEditor.data.SectionData;
 import org.jsoup.nodes.Document;
 
 /**
@@ -30,6 +30,6 @@ interface IWahapediaCardInput extends ICardInput {
         return new CardData(title.trim(), name.trim().toUpperCase(), legend.trim(), rules.trim(), cost.trim());
     }
 
-    public void buildFromHtml(Document doc, List<CardData> list);
+    public void buildFromHtml(Document doc, SectionData list);
 
 }

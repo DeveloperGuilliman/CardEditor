@@ -16,7 +16,10 @@
  */
 package com.developerguilliman.cardEditor.gui;
 
+import com.developerguilliman.cardEditor.Utils;
+import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
 import com.developerguilliman.cardEditor.input.ICardInput;
 import com.developerguilliman.cardEditor.input.WahapediaAllCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaMiscCardBuilder;
@@ -32,7 +35,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.Callable;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
@@ -54,10 +56,10 @@ import javax.swing.tree.TreePath;
  */
 public class MainWindow extends javax.swing.JFrame {
 
-    private final List<List<CardData>> cards;
+    private final CardCollectionData cards;
     private final DefaultMutableTreeNode root;
 
-    private List<CardData> actualSection;
+    private SectionData actualSection;
     private CardData actualCard;
 
     private DefaultMutableTreeNode actualSectionNode;
@@ -69,7 +71,7 @@ public class MainWindow extends javax.swing.JFrame {
      * Creates new form Main
      */
     public MainWindow() {
-        cards = new ArrayList<>();
+        cards = new CardCollectionData();
         initComponents();
 
         root = new DefaultMutableTreeNode("Cards", true);
@@ -503,7 +505,7 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addSectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSectionButtonActionPerformed
-        ArrayList section = new ArrayList();
+        SectionData section = new SectionData();
         cards.add(section);
         DefaultMutableTreeNode sectionNode = createSectionNode(section);
         root.add(sectionNode);
@@ -516,12 +518,12 @@ public class MainWindow extends javax.swing.JFrame {
         if (actualSection == null) {
             return;
         }
-        int position = getExactIndex(cards, actualSection);
+        int position = cards.getExactIndex(actualSection);
         cards.remove(position);
         root.remove(position);
         actualCard = null;
         actualCardNode = null;
-        position = getBoundIndex(cards, position);
+        position = cards.getBoundIndex(position);
         if (cards.size() > 0) {
             actualSection = cards.get(position);
             actualSectionNode = (DefaultMutableTreeNode) root.getChildAt(position);
@@ -553,10 +555,10 @@ public class MainWindow extends javax.swing.JFrame {
         if (actualSection == null && actualCard != null) {
             return;
         }
-        int position = getExactIndex(actualSection, actualCard);
+        int position = actualSection.getExactIndex(actualCard);
         actualSection.remove(position);
         actualSectionNode.remove(position);
-        position = getBoundIndex(actualSection, position);
+        position = actualSection.getBoundIndex(position);
         if (actualSection.size() > 0) {
             actualCard = actualSection.get(position);
             actualCardNode = (DefaultMutableTreeNode) actualSectionNode.getChildAt(position);
@@ -650,8 +652,8 @@ public class MainWindow extends javax.swing.JFrame {
         }//GEN-LAST:event_wahapediaWarlordTraitImportMenuItemActionPerformed
 
     private void compactAllSectionsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compactAllSectionsMenuItemActionPerformed
-        ArrayList<CardData> singleSection = new ArrayList<>();
-        for (List<CardData> section : cards) {
+        SectionData singleSection = new SectionData();
+        for (SectionData section : cards) {
             singleSection.addAll(section);
         }
         cards.clear();
@@ -696,8 +698,8 @@ public class MainWindow extends javax.swing.JFrame {
                     CardData cardNode = (CardData) pathObject;
                     actualCard = cardNode;
                     actualCardNode = pathNode;
-                } else if (pathObject instanceof List) {
-                    List<CardData> sectionNode = (List<CardData>) pathObject;
+                } else if (pathObject instanceof SectionData) {
+                    SectionData sectionNode = (SectionData) pathObject;
                     actualSection = sectionNode;
                     actualSectionNode = pathNode;
                 }
@@ -730,8 +732,8 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void deduplicateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deduplicateMenuItemActionPerformed
 
-        ArrayList<CardData> deduplicated = new ArrayList<>(ICardInput.createSectionsDeduplicator(cards));
-        for (List<CardData> list : cards) {
+        SectionData deduplicated = new SectionData(ICardInput.createSectionsDeduplicator(cards));
+        for (SectionData list : cards) {
             list.retainAll(deduplicated);
         }
         updateTree();
@@ -789,7 +791,7 @@ public class MainWindow extends javax.swing.JFrame {
             FileInputStream fis = new FileInputStream(file);
             XmlCardInput input = new XmlCardInput();
 
-            List<List<CardData>> newCards = input.build(fis);
+            CardCollectionData newCards = input.build(fis);
 
             if (clear) {
                 cardTree.clearSelection();
@@ -880,7 +882,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void updateTree() {
 
         root.removeAllChildren();
-        for (List<CardData> section : cards) {
+        for (SectionData section : cards) {
             DefaultMutableTreeNode sectionNode = createSectionNode(section);
             root.add(sectionNode);
             updateNode(section, sectionNode);
@@ -889,14 +891,14 @@ public class MainWindow extends javax.swing.JFrame {
         forceUpdateUI();
     }
 
-    private void updateSectionSubTree(List<CardData> section, DefaultMutableTreeNode sectionNode) {
+    private void updateSectionSubTree(SectionData section, DefaultMutableTreeNode sectionNode) {
 
         sectionNode.removeAllChildren();
         updateNode(section, sectionNode);
         forceUpdateUI();
     }
 
-    private void updateNode(List<CardData> section, DefaultMutableTreeNode sectionNode) {
+    private void updateNode(SectionData section, DefaultMutableTreeNode sectionNode) {
 
         for (CardData c : section) {
             sectionNode.add(createCardNode(c));
@@ -911,29 +913,33 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     public boolean moveCard(int oldCardIndex, int oldSectionIndex, int newCardIndex, int newSectionIndex) {
-        if (oldCardIndex == newCardIndex && oldSectionIndex == newSectionIndex) {
-            return false;
+        if (newSectionIndex == oldSectionIndex) {
+            if (newCardIndex == oldCardIndex) {
+                return false;
+            } else if (newCardIndex > oldCardIndex) {
+                // Need to decrease the new index because upon removing the
+                // card will move the intented position one position down
+                newCardIndex--;
+            }
         }
-        if (oldSectionIndex == newSectionIndex && newSectionIndex > oldSectionIndex) {
-            newSectionIndex--;
-        }
-        List<CardData> oldSection = cards.get(getBoundIndex(cards, oldSectionIndex));
-        CardData card = oldSection.remove(getBoundIndex(oldSection, oldCardIndex));
-        List<CardData> newSection = cards.get(getBoundIndex(cards, newSectionIndex));
-        newSection.add(Math.max(0, Math.min(newSection.size(), newCardIndex)), card);
+        SectionData oldSection = cards.get(cards.getBoundIndex(oldSectionIndex));
+        CardData card = oldSection.remove(oldSection.getBoundIndex(oldCardIndex));
+        SectionData newSection = cards.get(cards.getBoundIndex(newSectionIndex));
+        newSection.add(newSection.getBoundIndexPlusOne(newCardIndex), card);
         updateTree();
         return true;
     }
 
     public boolean moveSection(int oldSectionIndex, int newSectionIndex) {
-        if (oldSectionIndex == newSectionIndex) {
+        if (newSectionIndex == oldSectionIndex) {
             return false;
-        }
-        if (newSectionIndex > oldSectionIndex) {
+        } else if (newSectionIndex > oldSectionIndex) {
+            // Need to decrease the new index because upon removing the
+            // section will move the intented position one position down
             newSectionIndex--;
         }
-        List<CardData> section = cards.remove(getBoundIndex(cards, oldSectionIndex));
-        cards.add(Math.max(0, Math.min(cards.size(), newSectionIndex)), section);
+        SectionData section = cards.remove(cards.getBoundIndex(oldSectionIndex));
+        cards.add(cards.getBoundIndexPlusOne(newSectionIndex), section);
         updateTree();
         return true;
     }
@@ -952,7 +958,7 @@ public class MainWindow extends javax.swing.JFrame {
         return new DefaultMutableTreeNode(card, false);
     }
 
-    private static DefaultMutableTreeNode createSectionNode(List<CardData> section) {
+    private static DefaultMutableTreeNode createSectionNode(SectionData section) {
         return new DefaultMutableTreeNode(section, true);
     }
 
@@ -971,22 +977,6 @@ public class MainWindow extends javax.swing.JFrame {
         return new TreePath(node.getPath());
     }
 
-    private static <T> int getExactIndex(List<T> list, T element) {
-        int i = 0;
-
-        for (T listItem : list) {
-            if (listItem == element) {
-                return i;
-            }
-            i++;
-        }
-        return -1;
-    }
-
-    private static int getBoundIndex(List<?> list, int index) {
-        return Math.max(0, Math.min(list.size() - 1, index));
-    }
-
     private class CardTreeCellRenderer extends DefaultTreeCellRenderer {
 
         @Override
@@ -995,9 +985,9 @@ public class MainWindow extends javax.swing.JFrame {
             Object o = node.getUserObject();
             if (o instanceof CardData) {
                 value = ((CardData) o).getName();
-            } else if (o instanceof List) {
-                List<CardData> section = (List<CardData>) o;
-                int index = getExactIndex(cards, section) + 1;
+            } else if (o instanceof SectionData) {
+                SectionData section = (SectionData) o;
+                int index = cards.getExactIndex(section) + 1;
                 String sectionName = getSectionName(section);
                 if (sectionName.isEmpty()) {
                     value = "Section " + index + " (" + section.size() + ")";
@@ -1010,24 +1000,21 @@ public class MainWindow extends javax.swing.JFrame {
 
     }
 
-    private static String getSectionName(List<CardData> section) {
+    private static String getSectionName(SectionData section) {
         if (!section.isEmpty()) {
-            String title = normalize(section.get(0).getTitle());
-            if (title.isEmpty()) {
+            String firstTitle = Utils.normalizeTrim(section.get(0).getTitle());
+            if (firstTitle.isEmpty()) {
                 return "";
             }
             for (CardData card : section) {
-                if (!title.equals(normalize(card.getTitle()))) {
+                String cardTitle = Utils.normalizeTrim(card.getTitle());
+                if (!firstTitle.equals(cardTitle)) {
                     return "";
                 }
             }
-            return title;
+            return firstTitle;
         }
         return "";
-    }
-
-    private static String normalize(String s) {
-        return (s == null) ? "" : s.trim();
     }
 
 }

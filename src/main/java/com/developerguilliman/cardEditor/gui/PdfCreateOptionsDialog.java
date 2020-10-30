@@ -16,7 +16,7 @@
  */
 package com.developerguilliman.cardEditor.gui;
 
-import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.output.PdfOutput;
 import java.awt.Color;
 import java.awt.Frame;
@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import javax.swing.JCheckBox;
@@ -99,7 +98,7 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         return checkBox.isSelected() ? colorButton.getSelectedColor() : null;
     }
     private final File actualFile;
-    private final List<List<CardData>> cards;
+    private final CardCollectionData cards;
 
     /**
      * Creates new form PdfCreateOptionsDialog
@@ -108,7 +107,7 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
      * @param actualFile
      * @param cards
      */
-    public PdfCreateOptionsDialog(java.awt.Frame parent, File actualFile, List<List<CardData>> cards) {
+    public PdfCreateOptionsDialog(java.awt.Frame parent, File actualFile, CardCollectionData cards) {
         super(parent, true);
         this.actualFile = actualFile;
         this.cards = cards;

@@ -16,14 +16,12 @@
  */
 package com.developerguilliman.cardEditor.output;
 
+import com.developerguilliman.cardEditor.data.CardCollectionData;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
-
-import com.developerguilliman.cardEditor.data.CardData;
 
 public interface ICardOutput {
 
-	void build(OutputStream out, List<List<CardData>> cards) throws IOException;
+	void build(OutputStream out, CardCollectionData cards) throws IOException;
 
 }
