@@ -110,6 +110,14 @@ public class WahapediaStratagemCardBuilder implements IWahapediaCardInput {
             Elements siblings = cardElement.siblingElements();
             String cost = siblings.select("div.stratPts").text();
 
+            String alternateCost = cost.replace("CP", "").trim();
+            if (!alternateCost.equals(cost)) {
+                if (alternateCost.equals("1")) {
+                    cost = "1 COMMAND POINT";
+                } else {
+                    cost = alternateCost.trim().concat(" COMMAND POINTS");
+                }
+            }
             return IWahapediaCardInput.createCard(faction, name, description, rules, cost);
         } catch (Exception e) {
             System.err.println("Error " + e + " at element " + cardElement.html());

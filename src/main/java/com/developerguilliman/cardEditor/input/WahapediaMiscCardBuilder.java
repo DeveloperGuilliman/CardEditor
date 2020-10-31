@@ -153,7 +153,7 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
             int ioRules = rules.indexOf(description) + description.length();
             rules = rules.substring(ioRules);
         }
-        String cost = "";
+        String cost = extractPsychicPowerCost(rules);
 
         return IWahapediaCardInput.createCard(title, name, description, rules, cost);
 
@@ -196,7 +196,7 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
 
         String legend = italic;
         String rules = last.substring(last.indexOf(italic) + italic.length());
-        String cost = "";
+        String cost = extractPsychicPowerCost(rules);
         return IWahapediaCardInput.createCard(title, name, legend, rules, cost);
     }
 
@@ -269,6 +269,19 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
             title = title.substring(0, title.length() - 1);
         }
         return title;
+    }
+
+    private static String extractPsychicPowerCost(String rules) {
+        String prefix = "has a warp charge value of ";
+        int prefixIndexOf = rules.indexOf(prefix);
+        if (prefixIndexOf >= 0) {
+            prefixIndexOf += prefix.length();
+            int endIndexOf = rules.indexOf('.', prefixIndexOf);
+            if (endIndexOf > prefixIndexOf) {
+                return rules.substring(prefixIndexOf, endIndexOf).concat(" WARP CHARGE");
+            }
+        }
+        return "";
     }
 
     private static String getTrimText(Element element) {

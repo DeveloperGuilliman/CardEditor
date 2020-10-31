@@ -54,7 +54,7 @@ public class PdfOutput implements ICardOutput {
     public static final float DEFAULT_NAME_FONT_SIZE = 11;
     public static final float DEFAULT_LEGEND_FONT_SIZE = 7;
     public static final float DEFAULT_RULES_FONT_SIZE = 7;
-    public static final float DEFAULT_COST_FONT_SIZE = 11;
+    public static final float DEFAULT_COST_FONT_SIZE = 8;
 
     public static final PDType1Font DEFAULT_TITLE_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
     public static final PDType1Font DEFAULT_NAME_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
@@ -163,7 +163,7 @@ public class PdfOutput implements ICardOutput {
     @Override
     public void build(OutputStream out, CardCollectionData cards) throws IOException {
 
-        try ( PDDocument document = new PDDocument()) {
+        try (PDDocument document = new PDDocument()) {
             buildDocument(document, cards);
             document.save(out);
 
@@ -188,7 +188,7 @@ public class PdfOutput implements ICardOutput {
     private int buildForegroundPage(PDDocument document, Iterator<CardData> cardIterator) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
 
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
@@ -212,7 +212,7 @@ public class PdfOutput implements ICardOutput {
     private void buildBackgroundPage(PDDocument document, int printedCards) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
 
@@ -307,17 +307,17 @@ public class PdfOutput implements ICardOutput {
 //            cs.drawImage(foregroundImage, x, y, width, height);
 //        }
         if (cardBordersColor != null || cardFillColor != null) {
-            drawCardPoligon(cs, x, y, width, height, cardBordersColor, cardFillColor);
+            drawCardPoligon(cs, x + width * 0.05f, y + height * 0.05f, width * 0.9f, height * 0.9f, cardBordersColor, cardFillColor);
         }
 
-        final float normalTextWidth = width * 0.9f;
+        final float normalTextWidth = width * 0.8f;
         final float normalTextMarginX = (width - normalTextWidth) / 2;
 
-        final float factionTextWidth = width * 0.8125f;
+        final float factionTextWidth = width * 0.75f;
         final float factionTextMarginX = (width - factionTextWidth) / 2;
 
-        float nextY = y + 0.98f * height;
-        float minY = y + 0.03f * height + costFont.size;
+        float nextY = y + 0.9375f * height;
+        float minY = y + 0.075f * height + costFont.size;
 
         nextY -= printCenteredText(cs, title, x + factionTextMarginX, nextY, factionTextWidth, titleFont, printedTextBuffer);
         nextY -= 2;
@@ -344,7 +344,7 @@ public class PdfOutput implements ICardOutput {
         String printedText = printedTextBuffer.toString();
         //System.out.println(printedText);
 
-        printRightText(cs, cardHash.getStringsHash(printedText), x - (normalTextMarginX / 2), minY - (1.5f * hashFont.size), normalTextWidth, hashFont, printedTextBuffer);
+        printRightText(cs, cardHash.getStringsHash(printedText), x + width - 1, y + height + 1, normalTextWidth, hashFont, printedTextBuffer);
 
     }
 
@@ -361,7 +361,7 @@ public class PdfOutput implements ICardOutput {
     private void printCardBackground(PDPageContentStream cs, float x, float y, float width, float height) throws IOException {
 
         if (cardBordersColor != null || cardFillColor != null) {
-            drawCardPoligon(cs, x, y, width, height, cardBordersColor, cardFillColor);
+            drawCardPoligon(cs, x + width * 0.05f, y + height * 0.05f, width * 0.9f, height * 0.9f, cardBordersColor, cardFillColor);
         }
     }
 
