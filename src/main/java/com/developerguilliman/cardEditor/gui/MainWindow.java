@@ -17,6 +17,7 @@
 package com.developerguilliman.cardEditor.gui;
 
 import com.developerguilliman.cardEditor.Utils;
+import com.developerguilliman.cardEditor.warning.WarningArrayList;
 import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.data.CardData;
 import com.developerguilliman.cardEditor.data.SectionData;
@@ -35,6 +36,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.Callable;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
@@ -619,7 +621,7 @@ public class MainWindow extends javax.swing.JFrame {
         if (urlString == null) {
             return;
         }
-        Callable<Void> callable = () -> {
+        Callable<List<String>> callable = () -> {
             WahapediaStratagemCardBuilder builder = new WahapediaStratagemCardBuilder(1, false, true);
             cards.addAll(builder.build(new URL(urlString).openStream()));
             updateTree();
@@ -642,7 +644,7 @@ public class MainWindow extends javax.swing.JFrame {
         if (urlString == null) {
             return;
         }
-        Callable<Void> callable = () -> {
+        Callable<List<String>> callable = () -> {
             WahapediaMiscCardBuilder builder = new WahapediaMiscCardBuilder(1, false, true);
             cards.addAll(builder.build(new URL(urlString).openStream()));
             updateTree();
@@ -713,7 +715,7 @@ public class MainWindow extends javax.swing.JFrame {
         if (urlString == null) {
             return;
         }
-        Callable<Void> callable = () -> {
+        Callable<List<String>> callable = () -> {
             WahapediaAllCardBuilder builder = new WahapediaAllCardBuilder(1, false, true);
             cards.addAll(builder.build(new URL(urlString).openStream()));
             updateTree();
@@ -787,7 +789,7 @@ public class MainWindow extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     public void loadCards(File file, String waitTitle, boolean clear) {
-        Callable<Void> callable = () -> {
+        Callable<List<String>> callable = () -> {
             FileInputStream fis = new FileInputStream(file);
             XmlCardInput input = new XmlCardInput();
 
@@ -808,10 +810,10 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private void saveCards(File file) {
-        Callable<Void> callable = () -> {
+        Callable<List<String>> callable = () -> {
             FileOutputStream fos = new FileOutputStream(file);
             XmlCardOutput output = new XmlCardOutput();
-            output.build(fos, cards);
+            output.build(fos, cards, new WarningArrayList());
             actualFile = file;
             return null;
         };

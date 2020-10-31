@@ -19,9 +19,10 @@ package com.developerguilliman.cardEditor.output;
 import com.developerguilliman.cardEditor.data.CardCollectionData;
 import java.io.IOException;
 import java.io.OutputStream;
+import com.developerguilliman.cardEditor.warning.IWarningHandler;
 
 public interface ICardOutput {
 
-	void build(OutputStream out, CardCollectionData cards) throws IOException;
+	void build(OutputStream out, CardCollectionData cards, IWarningHandler warningHandler) throws IOException;
 
 }

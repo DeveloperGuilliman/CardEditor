@@ -506,7 +506,7 @@
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
                 <Property name="columns" type="int" value="3"/>
                 <Property name="horizontalGap" type="int" value="3"/>
-                <Property name="rows" type="int" value="3"/>
+                <Property name="rows" type="int" value="4"/>
                 <Property name="verticalGap" type="int" value="1"/>
               </Layout>
               <SubComponents>
@@ -554,6 +554,29 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="outerBorderColorChooserButtonActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="costBorderCheckBox">
+                  <Properties>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="text" type="java.lang.String" value="Cost Border"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="costBorderColorLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Cost Border color"/>
+                  </Properties>
+                </Component>
+                <Component class="com.developerguilliman.cardEditor.gui.JColorChooserButton" name="costBorderColorChooserButton">
+                  <Properties>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="org.netbeans.modules.form.compat2.border.BevelBorderInfo">
+                        <BevelBorder/>
+                      </Border>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="costBorderColorChooserButtonActionPerformed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="fillCheckBox">
