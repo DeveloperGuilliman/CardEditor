@@ -43,16 +43,19 @@ public class WaitingDialog extends javax.swing.JDialog {
     }
 
     public static void show(java.awt.Frame parent, String label, Callable<List<String>> callable) {
-        show(parent, label, callable, null, null);
+        show(parent, label, callable, null, null, null);
     }
 
     public static void show(java.awt.Frame parent, String label, Callable<List<String>> callable, Runnable postShow) {
-        show(parent, label, callable, postShow, postShow);
-
+        show(parent, label, callable, null, postShow, postShow);
     }
 
-    public static void show(java.awt.Frame parent, String label, Callable<List<String>> callable, Runnable postWarnings, Runnable postNoWarnings) {
-        WaitingDialog l = new WaitingDialog(parent, label);
+    public static void show(java.awt.Frame parent, String workLabel, Callable<List<String>> callable, String warningLabel, Runnable postShow) {
+        show(parent, workLabel, callable, warningLabel, postShow, postShow);
+    }
+
+    public static void show(java.awt.Frame parent, String workLabel, Callable<List<String>> callable, String warningLabel, Runnable postWarnings, Runnable postNoWarnings) {
+        WaitingDialog l = new WaitingDialog(parent, workLabel);
 
         Thread t = new Thread() {
             @Override
@@ -62,7 +65,7 @@ public class WaitingDialog extends javax.swing.JDialog {
                     l.dispose();
 
                     if (warnings != null && !warnings.isEmpty()) {
-                        l.openWarningDialog(parent, warnings, postWarnings);
+                        l.openWarningDialog(parent, warningLabel, warnings, postWarnings);
                     } else if (postNoWarnings != null) {
                         postNoWarnings.run();
                     }
@@ -142,10 +145,10 @@ public class WaitingDialog extends javax.swing.JDialog {
         return t;
     }
 
-    private void openWarningDialog(Frame parent, List<String> warnings, Runnable postWarnings) {
+    private void openWarningDialog(Frame parent, String warningLabel, List<String> warnings, Runnable postWarnings) {
 
         java.awt.EventQueue.invokeLater(() -> {
-            WarningsDialog wd = new WarningsDialog(parent, warnings, "building the pdf");
+            WarningsDialog wd = new WarningsDialog(parent, warnings, warningLabel);
             if (postWarnings != null) {
 
                 wd.addWindowListener(new WindowAdapter() {

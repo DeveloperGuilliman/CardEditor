@@ -43,7 +43,8 @@ public class WarningsDialog extends javax.swing.JDialog {
         }
         initComponents();
         if (label != null && !label.isEmpty()) {
-            jLabel1.setText(jLabel1.getText() + " " + label);
+            label = "<html>" + jLabel1.getText() + " " + label.replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br/>") + "</html>";
+            jLabel1.setText(label);
         }
         jButton1.requestFocus();
     }
@@ -57,37 +58,38 @@ public class WarningsDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+        jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
         jLabel1 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Warnings");
         setIconImage(null);
         setMinimumSize(new java.awt.Dimension(500, 260));
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosed(java.awt.event.WindowEvent evt) {
-                formWindowClosed(evt);
-            }
-        });
-        getContentPane().setLayout(new java.awt.BorderLayout(2, 2));
+        getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
 
-        jList1.setModel(warnings);
-        jScrollPane1.setViewportView(jList1);
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jPanel1.setLayout(new java.awt.BorderLayout());
 
-        getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
-
-        jLabel1.setText("There were some warnings");
-        getContentPane().add(jLabel1, java.awt.BorderLayout.PAGE_START);
-
-        jButton1.setText("Close");
+        jButton1.setText("Continue");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton1, java.awt.BorderLayout.PAGE_END);
+        jPanel1.add(jButton1, java.awt.BorderLayout.PAGE_END);
+
+        jList1.setModel(warnings);
+        jScrollPane1.setViewportView(jList1);
+
+        jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        jLabel1.setText("There were some warnings");
+        jPanel1.add(jLabel1, java.awt.BorderLayout.PAGE_START);
+
+        getContentPane().add(jPanel1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -96,14 +98,11 @@ public class WarningsDialog extends javax.swing.JDialog {
         dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_formWindowClosed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JList<String> jList1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 

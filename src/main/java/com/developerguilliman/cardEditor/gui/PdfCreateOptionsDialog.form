@@ -129,7 +129,7 @@
             <Component class="javax.swing.JSpinner" name="marginXSpinner">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="10.0" maximum="99.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.1" type="number"/>
+                  <SpinnerModel initial="10.0" maximum="99.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.05" type="number"/>
                 </Property>
                 <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="PdfOutput.DEFAULT_MARGIN_X" type="code"/>
@@ -147,7 +147,7 @@
             <Component class="javax.swing.JSpinner" name="marginYSpinner">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="11.2" maximum="99.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.1" type="number"/>
+                  <SpinnerModel initial="11.15" maximum="99.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.05" type="number"/>
                 </Property>
                 <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="PdfOutput.DEFAULT_MARGIN_Y" type="code"/>

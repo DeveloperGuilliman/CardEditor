@@ -55,7 +55,7 @@ public class PdfOutput implements ICardOutput {
     public static final int DEFAULT_CARDS_PER_Y = 3;
 
     public static final float DEFAULT_MARGIN_X = 10;
-    public static final float DEFAULT_MARGIN_Y = 11.2f;
+    public static final float DEFAULT_MARGIN_Y = 11.15f;
 
     public static final float DEFAULT_TITLE_FONT_SIZE = 9;
     public static final float DEFAULT_NAME_FONT_SIZE = 11;

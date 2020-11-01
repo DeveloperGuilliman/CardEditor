@@ -300,7 +300,7 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         marginXLabel.setText("Margin X %");
         pageFieldPanel.add(marginXLabel);
 
-        marginXSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(10.0f), Float.valueOf(0.0f), Float.valueOf(99.0f), Float.valueOf(0.1f)));
+        marginXSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(10.0f), Float.valueOf(0.0f), Float.valueOf(99.0f), Float.valueOf(0.05f)));
         marginXSpinner.setValue(PdfOutput.DEFAULT_MARGIN_X);
         marginXSpinner.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
@@ -312,7 +312,7 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         marginYLabel.setText("Margin Y %");
         pageFieldPanel.add(marginYLabel);
 
-        marginYSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(11.2f), Float.valueOf(0.0f), Float.valueOf(99.0f), Float.valueOf(0.1f)));
+        marginYSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(11.15f), Float.valueOf(0.0f), Float.valueOf(99.0f), Float.valueOf(0.05f)));
         marginYSpinner.setValue(PdfOutput.DEFAULT_MARGIN_Y);
         marginYSpinner.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
@@ -676,7 +676,7 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
                     .build();
             output.build(new FileOutputStream(file), cards, warningArrayList);
             return warningArrayList.getWarnings();
-        }, () -> {
+        }, "building the pdf.\nSome cards can have missing text or have broken borders.", () -> {
             disposeAndOpenPdf(file);
         });
     }//GEN-LAST:event_saveButtonActionPerformed
