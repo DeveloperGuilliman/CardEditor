@@ -93,7 +93,7 @@ public class PdfOutput implements ICardOutput {
     private final FontData legendFont;
     private final FontData rulesFont;
     private final FontData costFont;
-    private final FontData hashFont = new FontData(PDType1Font.HELVETICA, 6, Color.GRAY);
+    private final FontData hashFont = new FontData(PDType1Font.HELVETICA, 6, new Color(160, 160, 160));
 
     private final Color titleBarsColor;
     private final Color cardBordersColor;
@@ -362,7 +362,7 @@ public class PdfOutput implements ICardOutput {
 
                 float poligon6Height = costFont.size * 1.5f;
                 poligon6Width = width * 0.5f;
-                poligon6Width = (secondCost != null) ? Math.max(poligon6Width, costFont.getTextSize(secondCost)) : poligon6Width;
+                poligon6Width = (secondCost != null) ? Math.max(poligon6Width, 1.01f * costFont.getTextSize(secondCost)) : poligon6Width;
                 float poligon6Min = Math.min(poligon6Width, poligon6Height);
 
                 float poligon6BlankSpace = poligon6Min * 0.1f;
@@ -376,6 +376,9 @@ public class PdfOutput implements ICardOutput {
                 drawCardPoligon(cs, x + costZoneMarginX, costBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, null);
 
                 if (secondCost != null) {
+                    if (poligon6Width + poligon8Side > width) {
+                        warningHandler.warn("Cost borders too wide in card " + cardIndex + ", page:" + pageIndex + ".");
+                    }
                     drawCostPoligon(cs, x + costZoneMarginX + poligon8Side, costBottomY + poligon8ExtraSide, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor);
                 }
             }
@@ -392,16 +395,18 @@ public class PdfOutput implements ICardOutput {
         nextY -= printBreakableCenteredText(cs, title, x + titleTextMarginX, nextY, titleTextWidth, titleFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
         nextY -= 2;
 
-        if (titleBarsColor != null) {
-            nextY -= 3;
-            drawNameLines(cs, x, width, nextY + 1, titleBarsColor);
-        }
+        if (!name.isEmpty()) {
+            if (titleBarsColor != null) {
+                nextY -= 3;
+                drawNameLines(cs, x, width, nextY + 1, titleBarsColor);
+            }
 
-        nextY -= printBreakableCenteredText(cs, name, x + normalTextMarginX, nextY, normalTextWidth, nameFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
+            nextY -= printBreakableCenteredText(cs, name, x + normalTextMarginX, nextY, normalTextWidth, nameFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
 
-        if (titleBarsColor != null) {
-            drawNameLines(cs, x, width, nextY - 2, titleBarsColor);
-            nextY -= 4;
+            if (titleBarsColor != null) {
+                drawNameLines(cs, x, width, nextY - 2, titleBarsColor);
+                nextY -= 4;
+            }
         }
         nextY -= 2;
 
@@ -621,13 +626,13 @@ public class PdfOutput implements ICardOutput {
                     printedTextBuffer.append('\n');
                     yDiff += leading;
                 }
-                if (currentLineStart < lineLen) {
-                    warningHandler.warn("Out of vertical space in card " + cardIndex + ", page:" + pageIndex + ". Wrote only " + (printedTextBuffer.length() - startWroteChars) + " of " + textLen + " characters.");
-                }
             }
             prevNewlineIndexOf = newlineIndexOf + 1;
             newlineIndexOf = text.indexOf('\n', prevNewlineIndexOf);
         } while (prevNewlineIndexOf <= text.length());
+        if (yDiff > maxHeight) {
+            warningHandler.warn("Out of vertical space in card " + cardIndex + ", page:" + pageIndex + ". Wrote only " + (printedTextBuffer.length() - startWroteChars) + " of " + textLen + " characters.");
+        }
         cs.endText();
         return (yDiff + (leading * LEADING_INTERTEXT_FACTOR));
     }
