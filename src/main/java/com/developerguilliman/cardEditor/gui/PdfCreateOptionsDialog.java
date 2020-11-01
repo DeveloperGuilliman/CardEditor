@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Developer Guilliman
+ * Copyright (C) 2020 Developer Guilliman <developerguilliman@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,25 +16,18 @@
  */
 package com.developerguilliman.cardEditor.gui;
 
-import com.developerguilliman.cardEditor.warning.WarningArrayList;
 import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.output.PdfOutput;
+import com.developerguilliman.cardEditor.warning.WarningArrayList;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Frame;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JSpinner;
@@ -45,7 +38,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 /**
  *
- * @author DeveloperGuilliman
+ * @author Developer Guilliman <developerguilliman@gmail.com>
  */
 public class PdfCreateOptionsDialog extends javax.swing.JDialog {
 

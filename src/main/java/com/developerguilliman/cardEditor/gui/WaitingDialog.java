@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Developer Guilliman
+ * Copyright (C) 2020 Developer Guilliman <developerguilliman@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,14 +19,13 @@ package com.developerguilliman.cardEditor.gui;
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.swing.JOptionPane;
 
 /**
  *
- * @author DeveloperGuilliman
+ * @author Developer Guilliman <developerguilliman@gmail.com>
  */
 public class WaitingDialog extends javax.swing.JDialog {
 

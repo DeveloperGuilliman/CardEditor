@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Developer Guilliman
+ * Copyright (C) 2020 Developer Guilliman <developerguilliman@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 package com.developerguilliman.cardEditor.output;
 
 import com.developerguilliman.cardEditor.data.CardCollectionData;
+import com.developerguilliman.cardEditor.warning.IWarningHandler;
 import java.io.IOException;
 import java.io.OutputStream;
-import com.developerguilliman.cardEditor.warning.IWarningHandler;
 
 public interface ICardOutput {
 
-	void build(OutputStream out, CardCollectionData cards, IWarningHandler warningHandler) throws IOException;
+    void build(OutputStream out, CardCollectionData cards, IWarningHandler warningHandler) throws IOException;
 
 }

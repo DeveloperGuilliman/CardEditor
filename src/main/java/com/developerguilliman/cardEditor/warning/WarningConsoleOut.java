@@ -18,7 +18,7 @@ package com.developerguilliman.cardEditor.warning;
 
 /**
  *
- * @author DeveloperGuilliman
+ * @author Developer Guilliman <developerguilliman@gmail.com>
  */
 public class WarningConsoleOut implements IWarningHandler {
 

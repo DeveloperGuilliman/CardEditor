@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  *
- * @author DeveloperGuilliman
+ * @author Developer Guilliman <developerguilliman@gmail.com>
  */
 public class WarningArrayList implements IWarningHandler {
 

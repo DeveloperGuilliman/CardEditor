@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Developer Guilliman
+ * Copyright (C) 2020 Developer Guilliman <developerguilliman@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 package com.developerguilliman.cardEditor.gui;
 
 import com.developerguilliman.cardEditor.Utils;
-import com.developerguilliman.cardEditor.warning.WarningArrayList;
 import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.data.CardData;
 import com.developerguilliman.cardEditor.data.SectionData;
@@ -27,6 +26,7 @@ import com.developerguilliman.cardEditor.input.WahapediaMiscCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaStratagemCardBuilder;
 import com.developerguilliman.cardEditor.input.XmlCardInput;
 import com.developerguilliman.cardEditor.output.XmlCardOutput;
+import com.developerguilliman.cardEditor.warning.WarningArrayList;
 import java.awt.Component;
 import java.awt.Image;
 import java.io.File;
@@ -54,7 +54,7 @@ import javax.swing.tree.TreePath;
 
 /**
  *
- * @author DeveloperGuilliman
+ * @author Developer Guilliman <developerguilliman@gmail.com>
  */
 public class MainWindow extends javax.swing.JFrame {
 

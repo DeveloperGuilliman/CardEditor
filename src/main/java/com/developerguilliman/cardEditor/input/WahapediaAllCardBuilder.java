@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Developer Guilliman
+ * Copyright (C) 2020 Developer Guilliman <developerguilliman@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import org.jsoup.nodes.Document;
 
 /**
  *
- * @author DeveloperGuilliman
+ * @author Developer Guilliman <developerguilliman@gmail.com>
  */
 public class WahapediaAllCardBuilder implements ICardInput {
 
