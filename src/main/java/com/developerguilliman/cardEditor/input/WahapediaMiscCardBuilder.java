@@ -33,6 +33,10 @@ import org.jsoup.select.Elements;
  */
 public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
 
+    private static final String PSYCHIC_POWER_FIND_FIRST = "has a warp charge ";
+    private static final String PSYCHIC_POWER_FIND_SECOND = " of ";
+    private static final String PYSCHIC_POWERS = "Psychic Powers";
+
     private final int maxToGroup;
     private final boolean reorderByName;
     private final boolean deduplicate;
@@ -263,8 +267,8 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
             title = (first + " " + last).trim();
         }
 
-        if (title.endsWith("Psychic Powers")) {
-            title = title.substring(0, title.length() - "Psychic Powers".length()).concat("Discipline");
+        if (title.endsWith(PYSCHIC_POWERS)) {
+            title = title.substring(0, title.length() - PYSCHIC_POWERS.length()).concat("Discipline");
         } else if (title.endsWith("Traits")) {
             title = title.substring(0, title.length() - 1);
         }
@@ -272,13 +276,15 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
     }
 
     private static String extractPsychicPowerCost(String rules) {
-        String prefix = "has a warp charge value of ";
-        int prefixIndexOf = rules.indexOf(prefix);
+        int prefixIndexOf = rules.indexOf(PSYCHIC_POWER_FIND_FIRST);
         if (prefixIndexOf >= 0) {
-            prefixIndexOf += prefix.length();
-            int endIndexOf = rules.indexOf('.', prefixIndexOf);
-            if (endIndexOf > prefixIndexOf) {
-                return rules.substring(prefixIndexOf, endIndexOf).concat(" WARP CHARGE");
+            prefixIndexOf = rules.indexOf(PSYCHIC_POWER_FIND_SECOND, prefixIndexOf);
+            if (prefixIndexOf >= 0) {
+                prefixIndexOf += PSYCHIC_POWER_FIND_SECOND.length();
+                int endIndexOf = rules.indexOf('.', prefixIndexOf);
+                if (endIndexOf > prefixIndexOf) {
+                    return rules.substring(prefixIndexOf, endIndexOf).concat(" WARP CHARGE");
+                }
             }
         }
         return "";

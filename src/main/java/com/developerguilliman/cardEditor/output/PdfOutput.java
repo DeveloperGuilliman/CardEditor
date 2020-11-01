@@ -20,6 +20,8 @@ import com.developerguilliman.cardEditor.CardHash;
 import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.data.CardData;
 import com.developerguilliman.cardEditor.data.SectionData;
+import com.developerguilliman.cardEditor.warning.IWarningHandler;
+import com.developerguilliman.cardEditor.warning.WarningConsoleOut;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -30,8 +32,6 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import com.developerguilliman.cardEditor.warning.IWarningHandler;
-import com.developerguilliman.cardEditor.warning.WarningConsoleOut;
 
 /**
  *
@@ -170,7 +170,7 @@ public class PdfOutput implements ICardOutput {
     @Override
     public void build(OutputStream out, CardCollectionData cards, IWarningHandler warningHandler) throws IOException {
 
-        try ( PDDocument document = new PDDocument()) {
+        try (PDDocument document = new PDDocument()) {
             buildDocument(document, cards, warningHandler);
             document.save(out);
 
@@ -199,7 +199,7 @@ public class PdfOutput implements ICardOutput {
     private int buildForegroundPage(PDDocument document, Iterator<CardData> cardIterator, IWarningHandler warningHandler) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
 
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
@@ -223,7 +223,7 @@ public class PdfOutput implements ICardOutput {
     private void buildBackgroundPage(PDDocument document, int printedCards) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
 
@@ -357,7 +357,8 @@ public class PdfOutput implements ICardOutput {
                 }
 
                 float poligon6Height = costFont.size * 1.5f;
-                float poligon6Width = Math.max(width * 0.5f, costFont.getTextSize(secondCost));
+                float poligon6Width = width * 0.5f;
+                poligon6Width = (secondCost != null) ? Math.max(poligon6Width, costFont.getTextSize(secondCost)) : poligon6Width;
                 float poligon6Min = Math.min(poligon6Width, poligon6Height);
 
                 float poligon6BlankSpace = poligon6Min * 0.1f;
@@ -375,7 +376,7 @@ public class PdfOutput implements ICardOutput {
                     printCenteredText(cs, firstCost, x + costZoneMarginX, costZoneY + 1.75f * costFont.size, poligon8Side, costFont, printedTextBuffer);
                     printCenteredText(cs, secondCost, x + costZoneMarginX + poligon8Side, costZoneY + 1.75f * costFont.size, poligon6Width, costFont, printedTextBuffer);
                 } else if (firstCost != null) {
-                    printCenteredText(cs, firstCost, x + titleTextMarginX, costZoneY + 1.75f * costFont.size, poligon8Side, costFont, printedTextBuffer);
+                    printCenteredText(cs, firstCost, x + costZoneMarginX, costZoneY + 1.75f * costFont.size, poligon8Side, costFont, printedTextBuffer);
                 }
             }
         } else {
@@ -388,7 +389,6 @@ public class PdfOutput implements ICardOutput {
         //cs.setStrokingColor(Color.RED);
         //cs.drawLine(x, nextY, x + width, nextY);
         //cs.drawLine(x, minY, x + width, minY);
-
         nextY -= printBreakableCenteredText(cs, title, x + titleTextMarginX, nextY, titleTextWidth, titleFont, printedTextBuffer);
         nextY -= 2;
 
