@@ -170,7 +170,7 @@ public class PdfOutput implements ICardOutput {
     @Override
     public void build(OutputStream out, CardCollectionData cards, IWarningHandler warningHandler) throws IOException {
 
-        try (PDDocument document = new PDDocument()) {
+        try ( PDDocument document = new PDDocument()) {
             buildDocument(document, cards, warningHandler);
             document.save(out);
 
@@ -199,7 +199,7 @@ public class PdfOutput implements ICardOutput {
     private int buildForegroundPage(PDDocument document, Iterator<CardData> cardIterator, IWarningHandler warningHandler) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
 
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
@@ -223,7 +223,7 @@ public class PdfOutput implements ICardOutput {
     private void buildBackgroundPage(PDDocument document, int printedCards) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
 
@@ -337,15 +337,20 @@ public class PdfOutput implements ICardOutput {
 
         final float titleTextMarginX = (width - titleTextWidth) / 2;
 
-        float minY = y;
+        float minY;
+        float costZoneMarginX = 0;
+        float costBottomY = 0;
+        float poligon6Width = 0;
+        float poligon8Side = 0;
 
+        String firstCost = null;
+        String secondCost = null;
         if (!cost.isEmpty()) {
             if (costBordersColor == null) {
-                minY += costFont.size * MIN_Y_FONT_FACTOR;
-                printCenteredText(cs, cost, x + titleTextMarginX, minY, titleTextWidth, costFont, printedTextBuffer);
+                minY = y + costFont.size * MIN_Y_FONT_FACTOR;
+                printCenteredText(cs, cost, x + titleTextMarginX, minY, titleTextWidth, costFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
             } else {
-                String firstCost;
-                String secondCost;
+
                 int io = cost.indexOf(' ');
 
                 if (io >= 0) {
@@ -353,43 +358,38 @@ public class PdfOutput implements ICardOutput {
                     secondCost = cost.substring(io + 1, cost.length());
                 } else {
                     firstCost = cost;
-                    secondCost = null;
                 }
 
                 float poligon6Height = costFont.size * 1.5f;
-                float poligon6Width = width * 0.5f;
+                poligon6Width = width * 0.5f;
                 poligon6Width = (secondCost != null) ? Math.max(poligon6Width, costFont.getTextSize(secondCost)) : poligon6Width;
                 float poligon6Min = Math.min(poligon6Width, poligon6Height);
 
                 float poligon6BlankSpace = poligon6Min * 0.1f;
                 float poligon8ExtraSide = (poligon6Min / 0.8f) - poligon6Min;
-                float poligon8Side = poligon6Height + 2 * poligon8ExtraSide;
+                poligon8Side = poligon6Height + 2 * poligon8ExtraSide;
 
-                float costZoneMarginX = (width - poligon6Width - poligon8Side) / 2;
-                float costZoneY = y + 0.02f * height;
+                costZoneMarginX = (width - poligon6Width - poligon8Side) / 2;
+                costBottomY = y + 0.02f * height;
 
-                minY = costZoneY + poligon8Side;
-                drawCardPoligon(cs, x + costZoneMarginX, costZoneY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, null);
+                minY = costBottomY + poligon8Side;
+                drawCardPoligon(cs, x + costZoneMarginX, costBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, null);
 
                 if (secondCost != null) {
-                    drawCostPoligon(cs, x + costZoneMarginX + poligon8Side, costZoneY + poligon8ExtraSide, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor);
-                    printCenteredText(cs, firstCost, x + costZoneMarginX, costZoneY + 1.75f * costFont.size, poligon8Side, costFont, printedTextBuffer);
-                    printCenteredText(cs, secondCost, x + costZoneMarginX + poligon8Side, costZoneY + 1.75f * costFont.size, poligon6Width, costFont, printedTextBuffer);
-                } else if (firstCost != null) {
-                    printCenteredText(cs, firstCost, x + costZoneMarginX, costZoneY + 1.75f * costFont.size, poligon8Side, costFont, printedTextBuffer);
+                    drawCostPoligon(cs, x + costZoneMarginX + poligon8Side, costBottomY + poligon8ExtraSide, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor);
                 }
             }
         } else {
-            minY += bordersMargin;
+            minY = y + bordersMargin;
         }
-        minY += 1;
-        float nextY = y + height - 1;
+        minY += 2;
+        float nextY = y + height - 2;
 
         // DEBUG: Uncomment the following lines to print min and max card text available area
         //cs.setStrokingColor(Color.RED);
         //cs.drawLine(x, nextY, x + width, nextY);
         //cs.drawLine(x, minY, x + width, minY);
-        nextY -= printBreakableCenteredText(cs, title, x + titleTextMarginX, nextY, titleTextWidth, titleFont, printedTextBuffer);
+        nextY -= printBreakableCenteredText(cs, title, x + titleTextMarginX, nextY, titleTextWidth, titleFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
         nextY -= 2;
 
         if (titleBarsColor != null) {
@@ -397,7 +397,7 @@ public class PdfOutput implements ICardOutput {
             drawNameLines(cs, x, width, nextY + 1, titleBarsColor);
         }
 
-        nextY -= printBreakableCenteredText(cs, name, x + normalTextMarginX, nextY, normalTextWidth, nameFont, printedTextBuffer);
+        nextY -= printBreakableCenteredText(cs, name, x + normalTextMarginX, nextY, normalTextWidth, nameFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
 
         if (titleBarsColor != null) {
             drawNameLines(cs, x, width, nextY - 2, titleBarsColor);
@@ -408,6 +408,13 @@ public class PdfOutput implements ICardOutput {
         nextY -= printBreakingText(legend, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY, legendFont, cs, printedTextBuffer, cardIndex, pageIndex, warningHandler);
 
         nextY -= printBreakingText(rules, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY, rulesFont, cs, printedTextBuffer, cardIndex, pageIndex, warningHandler);
+
+        if (secondCost != null) {
+            printCenteredText(cs, firstCost, x + costZoneMarginX, costBottomY + 1.75f * costFont.size, poligon8Side, costFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
+            printCenteredText(cs, secondCost, x + costZoneMarginX + poligon8Side, costBottomY + 1.75f * costFont.size, poligon6Width, costFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
+        } else if (firstCost != null) {
+            printCenteredText(cs, firstCost, x + costZoneMarginX, costBottomY + 1.75f * costFont.size, poligon8Side, costFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
+        }
 
         return cardHash.getStringsHash(printedTextBuffer.toString());
 
@@ -502,7 +509,8 @@ public class PdfOutput implements ICardOutput {
     }
 
     private static float printBreakableCenteredText(PDPageContentStream cs, String text, float x, float y,
-            float maxWidth, FontData font, StringBuilder printedTextBuffer) throws IOException {
+            float maxWidth, FontData font, StringBuilder printedTextBuffer,
+            int cardIndex, int pageIndex, IWarningHandler warningHandler) throws IOException {
 
         if (text.isEmpty()) {
             return 0;
@@ -520,19 +528,19 @@ public class PdfOutput implements ICardOutput {
             if (center > 0 && center < text.length()) {
                 String pre = text.substring(0, center);
                 String post = text.substring(center + 1);
-                printCenteredText(cs, pre, x, y, maxWidth, font, font.getTextSize(pre), printedTextBuffer);
-                printCenteredText(cs, post, x, y - leading, maxWidth, font, font.getTextSize(post), printedTextBuffer);
+                printCenteredText(cs, pre, x, y, maxWidth, font, font.getTextSize(pre), printedTextBuffer, cardIndex, pageIndex, warningHandler);
+                printCenteredText(cs, post, x, y - leading, maxWidth, font, font.getTextSize(post), printedTextBuffer, cardIndex, pageIndex, warningHandler);
                 return (2 * leading);
             }
         }
 
-        printCenteredText(cs, text, x, y, maxWidth, font, size, printedTextBuffer);
+        printCenteredText(cs, text, x, y, maxWidth, font, size, printedTextBuffer, cardIndex, pageIndex, warningHandler);
         return leading;
-
     }
 
     private static float printCenteredText(PDPageContentStream cs, String text, float x, float y,
-            float maxWidth, FontData font, StringBuilder printedTextBuffer) throws IOException {
+            float maxWidth, FontData font, StringBuilder printedTextBuffer,
+            int cardIndex, int pageIndex, IWarningHandler warningHandler) throws IOException {
 
         if (text.isEmpty()) {
             return 0;
@@ -544,15 +552,17 @@ public class PdfOutput implements ICardOutput {
         cs.setLeading(leading);
 
         float size = font.getTextSize(text);
-        printCenteredText(cs, text, x, y, maxWidth, font, size, printedTextBuffer);
+        printCenteredText(cs, text, x, y, maxWidth, font, size, printedTextBuffer, cardIndex, pageIndex, warningHandler);
         return leading;
-
     }
 
     private static void printCenteredText(PDPageContentStream cs, String text, float x, float y, float maxWidth, FontData font,
-            float size, StringBuilder printedTextBuffer) throws IOException {
+            float size, StringBuilder printedTextBuffer, int cardIndex, int pageIndex, IWarningHandler warningHandler) throws IOException {
 
         float xDisp = (maxWidth - size) / 2;
+        if (xDisp < 0) {
+            warningHandler.warn("Out of horizontal space in card " + cardIndex + ", page:" + pageIndex + ".");
+        }
         cs.setFont(font.font, font.size);
         cs.setNonStrokingColor(font.color);
         cs.beginText();
@@ -582,6 +592,8 @@ public class PdfOutput implements ICardOutput {
         if (text.isEmpty()) {
             return 0;
         }
+        int textLen = text.length();
+        int startWroteChars = printedTextBuffer.length();
         y -= font.size;
 
         float leading = font.size * LEADING_FACTOR;
@@ -595,26 +607,27 @@ public class PdfOutput implements ICardOutput {
         int prevNewlineIndexOf = 0;
         int newlineIndexOf = text.indexOf('\n');
         do {
-            newlineIndexOf = (newlineIndexOf < 0) ? text.length() : newlineIndexOf;
+            newlineIndexOf = (newlineIndexOf < 0) ? textLen : newlineIndexOf;
             if (prevNewlineIndexOf == newlineIndexOf) {
                 cs.newLine();
                 printedTextBuffer.append('\n');
                 yDiff += leading;
             } else {
                 String line = text.substring(prevNewlineIndexOf, newlineIndexOf);
+                int lineLen = line.length();
                 int currentLineStart = 0;
-                while (currentLineStart < line.length() && yDiff < maxHeight) {
+                while (currentLineStart < lineLen && yDiff < maxHeight) {
                     currentLineStart = printLine(line, currentLineStart, maxWidth, font, cs, printedTextBuffer);
                     printedTextBuffer.append('\n');
                     yDiff += leading;
                 }
-                if (currentLineStart < line.length()) {
-                    warningHandler.warn("Out of space in card " + cardIndex + ", page:" + pageIndex + ". Wrote only " + currentLineStart + " of " + line.length() + " characters");
+                if (currentLineStart < lineLen) {
+                    warningHandler.warn("Out of vertical space in card " + cardIndex + ", page:" + pageIndex + ". Wrote only " + (printedTextBuffer.length() - startWroteChars) + " of " + textLen + " characters.");
                 }
             }
             prevNewlineIndexOf = newlineIndexOf + 1;
             newlineIndexOf = text.indexOf('\n', prevNewlineIndexOf);
-        } while (newlineIndexOf >= 0);
+        } while (prevNewlineIndexOf <= text.length());
         cs.endText();
         return (yDiff + (leading * LEADING_INTERTEXT_FACTOR));
     }
