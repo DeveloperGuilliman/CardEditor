@@ -52,8 +52,11 @@ public class SectionData implements List<CardData> {
 
     public SectionData(Collection<? extends CardData> c) {
         this.cards = new ArrayList<>(c);
-        this.name = getCommonCardsName();
+        this.updateName();
+    }
 
+    public void updateName() {
+        name = getCommonCardsName();
     }
 
     public int getExactIndex(CardData card) {
@@ -130,7 +133,7 @@ public class SectionData implements List<CardData> {
     @Override
     public CardData set(int index, CardData element) {
         CardData ret = cards.set(index, element);
-        name = getCommonCardsName();
+        updateName();
         return ret;
     }
 
@@ -138,7 +141,7 @@ public class SectionData implements List<CardData> {
     public boolean add(CardData e) {
         boolean ret = cards.add(e);
         if (ret) {
-            name = getCommonCardsName();
+            updateName();
         }
         return ret;
     }
@@ -146,13 +149,13 @@ public class SectionData implements List<CardData> {
     @Override
     public void add(int index, CardData element) {
         cards.add(index, element);
-        name = getCommonCardsName();
+        updateName();
     }
 
     @Override
     public CardData remove(int index) {
         CardData ret = cards.remove(index);
-        name = getCommonCardsName();
+        updateName();
         return ret;
     }
 
@@ -160,7 +163,7 @@ public class SectionData implements List<CardData> {
     public boolean remove(Object o) {
         boolean ret = cards.remove(o);
         if (ret) {
-            name = getCommonCardsName();
+            updateName();
         }
         return ret;
     }
@@ -175,7 +178,7 @@ public class SectionData implements List<CardData> {
     public boolean addAll(Collection<? extends CardData> c) {
         boolean ret = cards.addAll(c);
         if (ret) {
-            name = getCommonCardsName();
+            updateName();
         }
         return ret;
     }
@@ -184,7 +187,7 @@ public class SectionData implements List<CardData> {
     public boolean addAll(int index, Collection<? extends CardData> c) {
         boolean ret = cards.addAll(index, c);
         if (ret) {
-            name = getCommonCardsName();
+            updateName();
         }
         return ret;
     }
@@ -193,7 +196,7 @@ public class SectionData implements List<CardData> {
     public boolean removeAll(Collection<?> c) {
         boolean ret = cards.removeAll(c);
         if (ret) {
-            name = getCommonCardsName();
+            updateName();
         }
         return ret;
     }
@@ -202,7 +205,7 @@ public class SectionData implements List<CardData> {
     public boolean retainAll(Collection<?> c) {
         boolean ret = cards.retainAll(c);
         if (ret) {
-            name = getCommonCardsName();
+            updateName();
         }
         return ret;
     }
@@ -250,19 +253,19 @@ public class SectionData implements List<CardData> {
             @Override
             public void remove() {
                 listIterator.remove();
-                name = getCommonCardsName();
+                updateName();
             }
 
             @Override
             public void set(CardData e) {
                 listIterator.set(e);
-                name = getCommonCardsName();
+                updateName();
             }
 
             @Override
             public void add(CardData e) {
                 listIterator.add(e);
-                name = getCommonCardsName();
+                updateName();
             }
         };
     }
@@ -284,7 +287,7 @@ public class SectionData implements List<CardData> {
             @Override
             public void remove() {
                 iterator.remove();
-                name = getCommonCardsName();
+                updateName();
             }
 
         };
@@ -309,7 +312,7 @@ public class SectionData implements List<CardData> {
     public boolean removeIf(Predicate<? super CardData> filter) {
         boolean ret = cards.removeIf(filter);
         if (ret) {
-            name = getCommonCardsName();
+            updateName();
         }
         return ret;
     }
@@ -317,7 +320,7 @@ public class SectionData implements List<CardData> {
     @Override
     public void replaceAll(UnaryOperator<CardData> operator) {
         cards.replaceAll(operator);
-        name = getCommonCardsName();
+        updateName();
     }
 
     @Override

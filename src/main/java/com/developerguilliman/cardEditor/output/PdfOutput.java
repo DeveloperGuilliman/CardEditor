@@ -189,7 +189,7 @@ public class PdfOutput implements ICardOutput {
     @Override
     public void build(OutputStream out, CardCollectionData cards, IWarningHandler warningHandler) throws IOException {
 
-        try ( PDDocument document = new PDDocument()) {
+        try (PDDocument document = new PDDocument()) {
             buildDocument(document, cards, warningHandler);
             document.save(out);
 
@@ -237,7 +237,7 @@ public class PdfOutput implements ICardOutput {
             outlineItem.setTitle(sectionTitle.isEmpty() ? "Various cards" : sectionTitle);
             document.getDocumentCatalog().getDocumentOutline().addLast(outlineItem);
         }
-        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
 
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
@@ -261,7 +261,7 @@ public class PdfOutput implements ICardOutput {
     private void buildBackgroundPage(PDDocument document, int printedCards) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
 
@@ -386,60 +386,58 @@ public class PdfOutput implements ICardOutput {
 
         if (costValue.isEmpty() && costType.isEmpty()) {
             minY = y + bordersMargin;
+        } else if (costBordersColor == null) {
+            float maxFont = Math.max(costValueFont.size, costTypeFont.size) * MIN_Y_FONT_FACTOR;
+            minY = y + maxFont;
+            poligon8Side = costValueFont.getTextSize(costValue.concat(" "));
+            poligon6Width = costTypeFont.getTextSize(" ".concat(costType));
+            float sumWidth = poligon8Side + poligon6Width;
+            costValueX = x + ((width - sumWidth) / 2);
+            costTypeX = costValueX + poligon8Side;
+            costValueBottomY = costTypeBottomY = minY + 2 - maxFont;
+            costValueBottomY += costValueFont.getHeight() + ((maxFont - costValueFont.size) / 2);
+            costTypeBottomY += costTypeFont.getHeight() + ((maxFont - costTypeFont.size) / 2);
         } else {
-            if (costBordersColor == null) {
-                float maxFont = Math.max(costValueFont.size, costTypeFont.size) * MIN_Y_FONT_FACTOR;
-                minY = y + maxFont;
-                poligon8Side = costValueFont.getTextSize(costValue.concat(" "));
-                poligon6Width = costTypeFont.getTextSize(" ".concat(costType));
-                float sumWidth = poligon8Side + poligon6Width;
-                costValueX = x + ((width - sumWidth) / 2);
-                costTypeX = costValueX + poligon8Side;
-                costValueBottomY = costTypeBottomY = minY + 2 - maxFont;
-                costValueBottomY += costValueFont.getHeight() + ((maxFont - costValueFont.size) / 2);
-                costTypeBottomY += costTypeFont.getHeight() + ((maxFont - costTypeFont.size) / 2);
+            float poligon6Height = Math.max(costValueFont.size, costTypeFont.size * 1.5f);
+            poligon6Width = width * 0.5f;
+            poligon6Width = (!costType.isEmpty()) ? Math.max(poligon6Width, 1.01f * costTypeFont.getTextSize(costType)) : poligon6Width;
+            float poligon6Min = Math.min(poligon6Width, poligon6Height);
 
-            } else {
-                float poligon6Height = Math.max(costValueFont.size, costTypeFont.size * 1.5f);
-                poligon6Width = width * 0.5f;
-                poligon6Width = (!costType.isEmpty()) ? Math.max(poligon6Width, 1.01f * costTypeFont.getTextSize(costType)) : poligon6Width;
-                float poligon6Min = Math.min(poligon6Width, poligon6Height);
+            float poligon6BlankSpace = poligon6Min * 0.1f;
+            float poligon8ExtraSide = poligon6Min * 0.25f;
+            poligon8Side = poligon6Height + 2 * poligon8ExtraSide;
+            minY = y + 4;
+            costValueBottomY = costTypeBottomY = minY;
+            float costZoneMarginX = (width - poligon6Width - poligon8Side) / 2;
 
-                float poligon6BlankSpace = poligon6Min * 0.1f;
-                float poligon8ExtraSide = poligon6Min * 0.25f;
-                poligon8Side = poligon6Height + 2 * poligon8ExtraSide;
-                minY = y + 4;
-                costValueBottomY = costTypeBottomY = minY;
-                float costZoneMarginX = (width - poligon6Width - poligon8Side) / 2;
-
-                if (poligon6Width + poligon8Side > width) {
-                    warningHandler.warn("Cost borders too wide in card " + cardIndex + ", page:" + pageIndex + ".");
-                }
-                costValueX = costTypeX = x + costZoneMarginX;
-
-                if (!costValue.isEmpty()) {
-                    minY += poligon8Side;
-                    if (!costType.isEmpty()) {
-                        costTypeX += poligon8Side;
-                        costTypeBottomY += poligon8ExtraSide;
-
-                        drawCostPoligon(cs, costTypeX, costTypeBottomY, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor, costTypeFillColor);
-                        drawCardPoligon(cs, costValueX, costValueBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, costValueFillColor);
-
-                    } else {
-                        drawCardPoligon(cs, costTypeX, costValueBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, costValueFillColor);
-                    }
-                } else if (!costType.isEmpty()) {
-                    minY += poligon6Height + poligon8ExtraSide;
-                    poligon6Width += poligon8Side;
-                    costTypeBottomY += poligon8ExtraSide;
-                    drawCardPoligon(cs, costValueX, costTypeBottomY, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor, costTypeFillColor);
-                }
-                costValueBottomY += poligon8ExtraSide + costValueFont.getHeight() + ((poligon6Height - costValueFont.size) / 2) + 1;
-                costTypeBottomY += costTypeFont.getHeight() + ((poligon6Height - costTypeFont.size) / 2) + 1;
-
+            if (poligon6Width + poligon8Side > width) {
+                warningHandler.warn("Cost borders too wide in card " + cardIndex + ", page:" + pageIndex + ".");
             }
+            costValueX = costTypeX = x + costZoneMarginX;
+
+            if (!costValue.isEmpty()) {
+                minY += poligon8Side;
+                if (!costType.isEmpty()) {
+                    costTypeX += poligon8Side;
+                    costTypeBottomY += poligon8ExtraSide;
+
+                    drawCostPoligon(cs, costTypeX, costTypeBottomY, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor, costTypeFillColor);
+                    drawCardPoligon(cs, costValueX, costValueBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, costValueFillColor);
+
+                } else {
+                    drawCardPoligon(cs, costTypeX, costValueBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, costValueFillColor);
+                }
+            } else if (!costType.isEmpty()) {
+                minY += poligon6Height + poligon8ExtraSide;
+                poligon6Width += poligon8Side;
+                costTypeBottomY += poligon8ExtraSide;
+                drawCardPoligon(cs, costValueX, costTypeBottomY, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor, costTypeFillColor);
+            }
+            costValueBottomY += poligon8ExtraSide + costValueFont.getHeight() + ((poligon6Height - costValueFont.size) / 2) + 1;
+            costTypeBottomY += costTypeFont.getHeight() + ((poligon6Height - costTypeFont.size) / 2) + 1;
+
         }
+
         float nextY = y + height;
 
         // DEBUG: Uncomment the following lines to print max card text available area

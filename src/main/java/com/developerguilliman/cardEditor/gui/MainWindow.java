@@ -101,6 +101,7 @@ public class MainWindow extends javax.swing.JFrame {
                     return;
                 }
                 actualCard.setTitle(titleTextField.getText());
+                actualSection.updateName();
                 cardTree.updateUI();
             }
         });
