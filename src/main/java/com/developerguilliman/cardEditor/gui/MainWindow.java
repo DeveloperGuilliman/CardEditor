@@ -413,13 +413,15 @@ public class MainWindow extends javax.swing.JFrame {
         costPanel.setLayout(new javax.swing.BoxLayout(costPanel, javax.swing.BoxLayout.LINE_AXIS));
 
         costValuePanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 1));
+        costValuePanel.setMaximumSize(new java.awt.Dimension(300, 34));
         costValuePanel.setLayout(new javax.swing.BoxLayout(costValuePanel, javax.swing.BoxLayout.Y_AXIS));
 
         costValueLabel.setLabelFor(costValueTextField);
         costValueLabel.setText("Cost Value");
+        costValueLabel.setMinimumSize(new java.awt.Dimension(300, 14));
         costValuePanel.add(costValueLabel);
 
-        costValueTextField.setMaximumSize(new java.awt.Dimension(200, 20));
+        costValueTextField.setMaximumSize(new java.awt.Dimension(300, 20));
         costValuePanel.add(costValueTextField);
 
         costPanel.add(costValuePanel);

@@ -44,7 +44,7 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
 public class PdfOutput implements ICardOutput {
 
     private static final float LEADING_FACTOR = 1.125f;
-    private static final float LEADING_INTERTEXT_FACTOR = 0.5f;
+    private static final float LEADING_INTERTEXT_FACTOR = 0.25f;
     private static final float MIN_Y_FONT_FACTOR = 1.25f;
     private static final Color VERY_LIGHT_GRAY = new Color(0xe7, 0xe7, 0xe7);
     private static final float EXTRA_GRID = 5;
@@ -189,7 +189,7 @@ public class PdfOutput implements ICardOutput {
     @Override
     public void build(OutputStream out, CardCollectionData cards, IWarningHandler warningHandler) throws IOException {
 
-        try (PDDocument document = new PDDocument()) {
+        try ( PDDocument document = new PDDocument()) {
             buildDocument(document, cards, warningHandler);
             document.save(out);
 
@@ -237,7 +237,7 @@ public class PdfOutput implements ICardOutput {
             outlineItem.setTitle(sectionTitle.isEmpty() ? "Various cards" : sectionTitle);
             document.getDocumentCatalog().getDocumentOutline().addLast(outlineItem);
         }
-        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
 
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
@@ -261,7 +261,7 @@ public class PdfOutput implements ICardOutput {
     private void buildBackgroundPage(PDDocument document, int printedCards) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
 
@@ -384,84 +384,85 @@ public class PdfOutput implements ICardOutput {
         float costValueX = 0;
         float costTypeX = 0;
 
-        if (!costValue.isEmpty() || !costType.isEmpty()) {
-            float biggerCostFont = Math.max(costValueFont.size, costTypeFont.size);
+        if (costValue.isEmpty() && costType.isEmpty()) {
+            minY = y + bordersMargin;
+        } else {
             if (costBordersColor == null) {
-                minY = y + biggerCostFont * MIN_Y_FONT_FACTOR;
-                //printCenteredText(cs, costValue + " " + costType, x + titleTextMarginX, minY, titleTextWidth, costValueFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
+                float maxFont = Math.max(costValueFont.size, costTypeFont.size) * MIN_Y_FONT_FACTOR;
+                minY = y + maxFont;
                 poligon8Side = costValueFont.getTextSize(costValue.concat(" "));
                 poligon6Width = costTypeFont.getTextSize(" ".concat(costType));
                 float sumWidth = poligon8Side + poligon6Width;
                 costValueX = x + ((width - sumWidth) / 2);
                 costTypeX = costValueX + poligon8Side;
-                costValueBottomY = minY;
-                costTypeBottomY = minY - ((costTypeFont.size + costTypeFont.size + costValueFont.size) / 3);
-            } else {
+                costValueBottomY = costTypeBottomY = minY + 2 - maxFont;
+                costValueBottomY += costValueFont.getHeight() + ((maxFont - costValueFont.size) / 2);
+                costTypeBottomY += costTypeFont.getHeight() + ((maxFont - costTypeFont.size) / 2);
 
-                float poligon6Height = biggerCostFont * 1.5f;
+            } else {
+                float poligon6Height = Math.max(costValueFont.size, costTypeFont.size * 1.5f);
                 poligon6Width = width * 0.5f;
                 poligon6Width = (!costType.isEmpty()) ? Math.max(poligon6Width, 1.01f * costTypeFont.getTextSize(costType)) : poligon6Width;
                 float poligon6Min = Math.min(poligon6Width, poligon6Height);
 
                 float poligon6BlankSpace = poligon6Min * 0.1f;
-                float poligon8ExtraSide = (poligon6Min / 0.8f) - poligon6Min;
+                float poligon8ExtraSide = poligon6Min * 0.25f;
                 poligon8Side = poligon6Height + 2 * poligon8ExtraSide;
-                minY = y + 0.02f * height;
-                costValueBottomY = minY;
-                costTypeBottomY = minY;
+                minY = y + 4;
+                costValueBottomY = costTypeBottomY = minY;
                 float costZoneMarginX = (width - poligon6Width - poligon8Side) / 2;
 
                 if (poligon6Width + poligon8Side > width) {
                     warningHandler.warn("Cost borders too wide in card " + cardIndex + ", page:" + pageIndex + ".");
                 }
-                costValueX = x + costZoneMarginX;
-                costTypeX = costValueX;
+                costValueX = costTypeX = x + costZoneMarginX;
+
                 if (!costValue.isEmpty()) {
+                    minY += poligon8Side;
                     if (!costType.isEmpty()) {
                         costTypeX += poligon8Side;
                         costTypeBottomY += poligon8ExtraSide;
+
                         drawCostPoligon(cs, costTypeX, costTypeBottomY, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor, costTypeFillColor);
                         drawCardPoligon(cs, costValueX, costValueBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, costValueFillColor);
-                        costValueBottomY += 2 * poligon8ExtraSide + costValueFont.size;
-                        costTypeBottomY += poligon8ExtraSide + ((costTypeFont.size + costTypeFont.size + costValueFont.size) / 3);
+
                     } else {
                         drawCardPoligon(cs, costTypeX, costValueBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, costValueFillColor);
-                        costValueBottomY += 2 * poligon8ExtraSide + costValueFont.size;
                     }
                 } else if (!costType.isEmpty()) {
+                    minY += poligon6Height + poligon8ExtraSide;
                     poligon6Width += poligon8Side;
                     costTypeBottomY += poligon8ExtraSide;
                     drawCardPoligon(cs, costValueX, costTypeBottomY, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor, costTypeFillColor);
-                    costTypeBottomY += poligon8ExtraSide + ((costTypeFont.size + costTypeFont.size + costValueFont.size) / 3);
                 }
-            }
-        } else {
-            minY = y + bordersMargin;
-        }
-        minY += 2;
-        float nextY = y + height - 2;
+                costValueBottomY += poligon8ExtraSide + costValueFont.getHeight() + ((poligon6Height - costValueFont.size) / 2) + 1;
+                costTypeBottomY += costTypeFont.getHeight() + ((poligon6Height - costTypeFont.size) / 2) + 1;
 
-        // DEBUG: Uncomment the following lines to print min and max card text available area
+            }
+        }
+        float nextY = y + height;
+
+        // DEBUG: Uncomment the following lines to print max card text available area
         //cs.setStrokingColor(Color.RED);
-        //cs.drawLine(x, nextY, x + width, nextY);
         //cs.drawLine(x, minY, x + width, minY);
         nextY -= printBreakableCenteredText(cs, title, x + titleTextMarginX, nextY, titleTextWidth, titleFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
-        nextY -= 2;
+        nextY -= 4;
 
         if (!name.isEmpty()) {
+
             if (titleBarsColor != null) {
-                nextY -= 3;
-                drawNameLines(cs, x, width, nextY + 1, titleBarsColor);
+                nextY -= 2;
+                drawNameLines(cs, x, width, nextY, titleBarsColor);
             }
 
             nextY -= printBreakableCenteredText(cs, name, x + normalTextMarginX, nextY, normalTextWidth, nameFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
 
             if (titleBarsColor != null) {
-                drawNameLines(cs, x, width, nextY - 2, titleBarsColor);
+                drawNameLines(cs, x, width, nextY - 6, titleBarsColor);
                 nextY -= 4;
             }
         }
-        nextY -= 2;
+        nextY -= 6;
 
         nextY -= printBreakingText(legend, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY, legendFont, cs, printedTextBuffer, cardIndex, pageIndex, warningHandler);
 
@@ -479,7 +480,7 @@ public class PdfOutput implements ICardOutput {
     }
 
     private void printCardHash(PDPageContentStream cs, String hash, float x, float y, float width) throws IOException {
-        float margin = hashFont.size * 0.55f;
+        float margin = hashFont.size * 0.5f;
         printRightText(cs, hash, x + margin, y + margin, width - 2 * margin, hashFont, printedTextBuffer);
     }
 
@@ -582,7 +583,7 @@ public class PdfOutput implements ICardOutput {
         if (text.isEmpty()) {
             return 0;
         }
-        y -= font.size;
+        y -= font.getHeight();
 
         float leading = font.size * LEADING_FACTOR;
 
@@ -612,7 +613,7 @@ public class PdfOutput implements ICardOutput {
         if (text.isEmpty()) {
             return 0;
         }
-        y -= font.size;
+        y -= font.getHeight();
 
         float leading = font.size * LEADING_FACTOR;
 
@@ -661,7 +662,7 @@ public class PdfOutput implements ICardOutput {
         }
         int textLen = text.length();
         int startWroteChars = printedTextBuffer.length();
-        y -= font.size;
+        y -= font.getHeight();
 
         float leading = font.size * LEADING_FACTOR;
         float yDiff = leading;
@@ -1013,11 +1014,12 @@ public class PdfOutput implements ICardOutput {
 
     }
 
-    private static class FontData {
+    static class FontData {
 
-        private final PDFont font;
-        private final float size;
-        private final Color color;
+        final PDFont font;
+        final float size;
+        final Color color;
+        private float height;
 
         public FontData(PDFont font, float size, Color color) {
             this.font = font;
@@ -1025,8 +1027,15 @@ public class PdfOutput implements ICardOutput {
             this.color = color;
         }
 
-        private float getTextSize(String text) throws IOException {
+        float getTextSize(String text) throws IOException {
             return size * font.getStringWidth(text) / 1000;
+        }
+
+        float getHeight() throws IOException {
+            if (height == 0) {
+                height = font.getBoundingBox().getHeight() * size / 1000;
+            }
+            return height;
         }
 
     }
