@@ -25,13 +25,17 @@ import com.developerguilliman.cardEditor.warning.WarningConsoleOut;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Calendar;
 import java.util.Iterator;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
+import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
 
 /**
  *
@@ -57,24 +61,29 @@ public class PdfOutput implements ICardOutput {
     public static final float DEFAULT_NAME_FONT_SIZE = 11;
     public static final float DEFAULT_LEGEND_FONT_SIZE = 7;
     public static final float DEFAULT_RULES_FONT_SIZE = 7;
-    public static final float DEFAULT_COST_FONT_SIZE = 8;
+    public static final float DEFAULT_COST_VALUE_FONT_SIZE = 8;
+    public static final float DEFAULT_COST_TYPE_FONT_SIZE = 8;
 
     public static final PDType1Font DEFAULT_TITLE_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
     public static final PDType1Font DEFAULT_NAME_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
     public static final PDType1Font DEFAULT_LEGEND_FONT_TYPE = PDType1Font.TIMES_ITALIC;
     public static final PDType1Font DEFAULT_RULES_FONT_TYPE = PDType1Font.TIMES_ROMAN;
-    public static final PDType1Font DEFAULT_COST_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
+    public static final PDType1Font DEFAULT_COST_VALUE_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
+    public static final PDType1Font DEFAULT_COST_TYPE_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
 
     public static final Color DEFAULT_TITLE_FONT_COLOR = Color.BLACK;
     public static final Color DEFAULT_NAME_FONT_COLOR = Color.BLACK;
     public static final Color DEFAULT_LEGEND_FONT_COLOR = Color.BLACK;
     public static final Color DEFAULT_RULES_FONT_COLOR = Color.BLACK;
-    public static final Color DEFAULT_COST_FONT_COLOR = Color.BLACK;
+    public static final Color DEFAULT_COST_VALUE_FONT_COLOR = Color.BLACK;
+    public static final Color DEFAULT_COST_TYPE_FONT_COLOR = Color.BLACK;
 
     public static final Color DEFAULT_TITLE_BAR_COLOR = Color.BLACK;
     public static final Color DEFAULT_CARD_BORDER_COLOR = Color.BLACK;
     public static final Color DEFAULT_COST_BORDER_COLOR = Color.BLACK;
     public static final Color DEFAULT_CARD_FILL_COLOR = Color.WHITE;
+    public static final Color DEFAULT_COST_VALUE_FILL_COLOR = Color.WHITE;
+    public static final Color DEFAULT_COST_TYPE_FILL_COLOR = Color.WHITE;
     public static final Color DEFAULT_FOREGROUND_GRID_COLOR = VERY_LIGHT_GRAY;
     public static final Color DEFAULT_BACKGROUND_GRID_COLOR = VERY_LIGHT_GRAY;
 
@@ -92,13 +101,16 @@ public class PdfOutput implements ICardOutput {
     private final FontData nameFont;
     private final FontData legendFont;
     private final FontData rulesFont;
-    private final FontData costFont;
+    private final FontData costValueFont;
+    private final FontData costTypeFont;
     private final FontData hashFont = new FontData(PDType1Font.HELVETICA, 6, new Color(160, 160, 160));
 
     private final Color titleBarsColor;
     private final Color cardBordersColor;
     private final Color costBordersColor;
     private final Color cardFillColor;
+    private final Color costValueFillColor;
+    private final Color costTypeFillColor;
     private final Color foregroundGridColor;
     private final Color backgroundGridColor;
     private final boolean backgroundPages;
@@ -120,12 +132,15 @@ public class PdfOutput implements ICardOutput {
         this.nameFont = new FontData(DEFAULT_NAME_FONT_TYPE, DEFAULT_NAME_FONT_SIZE, DEFAULT_NAME_FONT_COLOR);
         this.legendFont = new FontData(DEFAULT_LEGEND_FONT_TYPE, DEFAULT_LEGEND_FONT_SIZE, DEFAULT_LEGEND_FONT_COLOR);
         this.rulesFont = new FontData(DEFAULT_RULES_FONT_TYPE, DEFAULT_RULES_FONT_SIZE, DEFAULT_RULES_FONT_COLOR);
-        this.costFont = new FontData(DEFAULT_COST_FONT_TYPE, DEFAULT_COST_FONT_SIZE, DEFAULT_COST_FONT_COLOR);
+        this.costValueFont = new FontData(DEFAULT_COST_VALUE_FONT_TYPE, DEFAULT_COST_VALUE_FONT_SIZE, DEFAULT_COST_VALUE_FONT_COLOR);
+        this.costTypeFont = new FontData(DEFAULT_COST_TYPE_FONT_TYPE, DEFAULT_COST_TYPE_FONT_SIZE, DEFAULT_COST_TYPE_FONT_COLOR);
 
         this.titleBarsColor = DEFAULT_TITLE_BAR_COLOR;
         this.cardBordersColor = DEFAULT_CARD_BORDER_COLOR;
         this.costBordersColor = DEFAULT_COST_BORDER_COLOR;
         this.cardFillColor = DEFAULT_CARD_FILL_COLOR;
+        this.costValueFillColor = DEFAULT_COST_VALUE_FILL_COLOR;
+        this.costTypeFillColor = DEFAULT_COST_TYPE_FILL_COLOR;
         this.foregroundGridColor = DEFAULT_FOREGROUND_GRID_COLOR;
         this.backgroundGridColor = DEFAULT_BACKGROUND_GRID_COLOR;
 
@@ -136,8 +151,9 @@ public class PdfOutput implements ICardOutput {
     }
 
     private PdfOutput(PDRectangle pageSize, int perX, int perY, float marginPercentX, float marginPercentY,
-            FontData titleFont, FontData nameFont, FontData legendFont, FontData rulesFont, FontData costFont,
-            Color titleBarsColor, Color cardBordersColor, Color costBordersColor, Color cardFillColor,
+            FontData titleFont, FontData nameFont, FontData legendFont, FontData rulesFont, FontData costValueFont, FontData costTypeFont,
+            Color titleBarsColor, Color cardBordersColor, Color costBordersColor,
+            Color cardFillColor, Color costValueFillColor, Color costTypeFillColor,
             Color foregroundGridColor, Color backgroundGridColor, boolean backgroundPages) {
 
         this.pageSize = pageSize;
@@ -151,12 +167,15 @@ public class PdfOutput implements ICardOutput {
         this.nameFont = nameFont;
         this.legendFont = legendFont;
         this.rulesFont = rulesFont;
-        this.costFont = costFont;
+        this.costValueFont = costValueFont;
+        this.costTypeFont = costTypeFont;
 
         this.titleBarsColor = titleBarsColor;
         this.cardBordersColor = cardBordersColor;
         this.costBordersColor = costBordersColor;
         this.cardFillColor = cardFillColor;
+        this.costValueFillColor = costValueFillColor;
+        this.costTypeFillColor = costTypeFillColor;
 
         this.foregroundGridColor = foregroundGridColor;
         this.backgroundGridColor = backgroundGridColor;
@@ -170,7 +189,7 @@ public class PdfOutput implements ICardOutput {
     @Override
     public void build(OutputStream out, CardCollectionData cards, IWarningHandler warningHandler) throws IOException {
 
-        try ( PDDocument document = new PDDocument()) {
+        try (PDDocument document = new PDDocument()) {
             buildDocument(document, cards, warningHandler);
             document.save(out);
 
@@ -184,22 +203,41 @@ public class PdfOutput implements ICardOutput {
 
     private void buildDocument(PDDocument document, CardCollectionData cards, IWarningHandler warningHandler) throws IOException {
 
-        for (SectionData cardPage : cards) {
-            Iterator<CardData> cardIterator = cardPage.iterator();
-            while (cardIterator.hasNext()) {
+        Calendar now = Calendar.getInstance();
+        PDDocumentInformation info = new PDDocumentInformation();
+        info.setCreator("Card Editor 0.2.2");
+        info.setProducer("https://github.com/DeveloperGuilliman/CardEditor");
+        info.setCreationDate(now);
+        info.setModificationDate(now);
+        document.setDocumentInformation(info);
 
-                int printedCards = buildForegroundPage(document, cardIterator, warningHandler);
+        document.getDocumentCatalog().setDocumentOutline(new PDDocumentOutline());
+
+        for (SectionData sections : cards) {
+            boolean first = true;
+            Iterator<CardData> cardIterator = sections.iterator();
+            while (cardIterator.hasNext()) {
+                int printedCards = buildForegroundPage(document, sections, cardIterator, first, warningHandler);
+                first = false;
                 if (backgroundPages) {
                     buildBackgroundPage(document, printedCards);
                 }
             }
         }
+
     }
 
-    private int buildForegroundPage(PDDocument document, Iterator<CardData> cardIterator, IWarningHandler warningHandler) throws IOException {
+    private int buildForegroundPage(PDDocument document, SectionData section, Iterator<CardData> cardIterator, boolean first, IWarningHandler warningHandler) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        if (first) {
+            String sectionTitle = section.getName();
+            PDOutlineItem outlineItem = new PDOutlineItem();
+            outlineItem.setDestination(page);
+            outlineItem.setTitle(sectionTitle.isEmpty() ? "Various cards" : sectionTitle);
+            document.getDocumentCatalog().getDocumentOutline().addLast(outlineItem);
+        }
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
 
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
@@ -223,7 +261,7 @@ public class PdfOutput implements ICardOutput {
     private void buildBackgroundPage(PDDocument document, int printedCards) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
 
@@ -309,7 +347,8 @@ public class PdfOutput implements ICardOutput {
         String name = card.getName().replace('\n', ' ').trim();
         String legend = card.getLegend().trim();
         String rules = card.getRules().trim();
-        String cost = card.getCost().replace('\n', ' ').trim();
+        String costValue = card.getCostValue().replace('\n', ' ').trim();
+        String costType = card.getCostType().replace('\n', ' ').trim();
 
         printedTextBuffer.setLength(0);
 
@@ -338,48 +377,62 @@ public class PdfOutput implements ICardOutput {
         final float titleTextMarginX = (width - titleTextWidth) / 2;
 
         float minY;
-        float costZoneMarginX = 0;
-        float costBottomY = 0;
+        float costValueBottomY = 0;
+        float costTypeBottomY = 0;
         float poligon6Width = 0;
         float poligon8Side = 0;
+        float costValueX = 0;
+        float costTypeX = 0;
 
-        String firstCost = null;
-        String secondCost = null;
-        if (!cost.isEmpty()) {
+        if (!costValue.isEmpty() || !costType.isEmpty()) {
+            float biggerCostFont = Math.max(costValueFont.size, costTypeFont.size);
             if (costBordersColor == null) {
-                minY = y + costFont.size * MIN_Y_FONT_FACTOR;
-                printCenteredText(cs, cost, x + titleTextMarginX, minY, titleTextWidth, costFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
+                minY = y + biggerCostFont * MIN_Y_FONT_FACTOR;
+                //printCenteredText(cs, costValue + " " + costType, x + titleTextMarginX, minY, titleTextWidth, costValueFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
+                poligon8Side = costValueFont.getTextSize(costValue.concat(" "));
+                poligon6Width = costTypeFont.getTextSize(" ".concat(costType));
+                float sumWidth = poligon8Side + poligon6Width;
+                costValueX = x + ((width - sumWidth) / 2);
+                costTypeX = costValueX + poligon8Side;
+                costValueBottomY = minY;
+                costTypeBottomY = minY - ((costTypeFont.size + costTypeFont.size + costValueFont.size) / 3);
             } else {
 
-                int io = cost.indexOf(' ');
-
-                if (io >= 0) {
-                    firstCost = cost.substring(0, io);
-                    secondCost = cost.substring(io + 1, cost.length());
-                } else {
-                    firstCost = cost;
-                }
-
-                float poligon6Height = costFont.size * 1.5f;
+                float poligon6Height = biggerCostFont * 1.5f;
                 poligon6Width = width * 0.5f;
-                poligon6Width = (secondCost != null) ? Math.max(poligon6Width, 1.01f * costFont.getTextSize(secondCost)) : poligon6Width;
+                poligon6Width = (!costType.isEmpty()) ? Math.max(poligon6Width, 1.01f * costTypeFont.getTextSize(costType)) : poligon6Width;
                 float poligon6Min = Math.min(poligon6Width, poligon6Height);
 
                 float poligon6BlankSpace = poligon6Min * 0.1f;
                 float poligon8ExtraSide = (poligon6Min / 0.8f) - poligon6Min;
                 poligon8Side = poligon6Height + 2 * poligon8ExtraSide;
+                minY = y + 0.02f * height;
+                costValueBottomY = minY;
+                costTypeBottomY = minY;
+                float costZoneMarginX = (width - poligon6Width - poligon8Side) / 2;
 
-                costZoneMarginX = (width - poligon6Width - poligon8Side) / 2;
-                costBottomY = y + 0.02f * height;
-
-                minY = costBottomY + poligon8Side;
-                drawCardPoligon(cs, x + costZoneMarginX, costBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, null);
-
-                if (secondCost != null) {
-                    if (poligon6Width + poligon8Side > width) {
-                        warningHandler.warn("Cost borders too wide in card " + cardIndex + ", page:" + pageIndex + ".");
+                if (poligon6Width + poligon8Side > width) {
+                    warningHandler.warn("Cost borders too wide in card " + cardIndex + ", page:" + pageIndex + ".");
+                }
+                costValueX = x + costZoneMarginX;
+                costTypeX = costValueX;
+                if (!costValue.isEmpty()) {
+                    if (!costType.isEmpty()) {
+                        costTypeX += poligon8Side;
+                        costTypeBottomY += poligon8ExtraSide;
+                        drawCostPoligon(cs, costTypeX, costTypeBottomY, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor, costTypeFillColor);
+                        drawCardPoligon(cs, costValueX, costValueBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, costValueFillColor);
+                        costValueBottomY += 2 * poligon8ExtraSide + costValueFont.size;
+                        costTypeBottomY += poligon8ExtraSide + ((costTypeFont.size + costTypeFont.size + costValueFont.size) / 3);
+                    } else {
+                        drawCardPoligon(cs, costTypeX, costValueBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, costValueFillColor);
+                        costValueBottomY += 2 * poligon8ExtraSide + costValueFont.size;
                     }
-                    drawCostPoligon(cs, x + costZoneMarginX + poligon8Side, costBottomY + poligon8ExtraSide, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor);
+                } else if (!costType.isEmpty()) {
+                    poligon6Width += poligon8Side;
+                    costTypeBottomY += poligon8ExtraSide;
+                    drawCardPoligon(cs, costValueX, costTypeBottomY, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor, costTypeFillColor);
+                    costTypeBottomY += poligon8ExtraSide + ((costTypeFont.size + costTypeFont.size + costValueFont.size) / 3);
                 }
             }
         } else {
@@ -414,11 +467,11 @@ public class PdfOutput implements ICardOutput {
 
         nextY -= printBreakingText(rules, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY, rulesFont, cs, printedTextBuffer, cardIndex, pageIndex, warningHandler);
 
-        if (secondCost != null) {
-            printCenteredText(cs, firstCost, x + costZoneMarginX, costBottomY + 1.75f * costFont.size, poligon8Side, costFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
-            printCenteredText(cs, secondCost, x + costZoneMarginX + poligon8Side, costBottomY + 1.75f * costFont.size, poligon6Width, costFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
-        } else if (firstCost != null) {
-            printCenteredText(cs, firstCost, x + costZoneMarginX, costBottomY + 1.75f * costFont.size, poligon8Side, costFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
+        if (!costValue.isEmpty()) {
+            printCenteredText(cs, costValue, costValueX, costValueBottomY, poligon8Side, costValueFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
+        }
+        if (!costType.isEmpty()) {
+            printCenteredText(cs, costType, costTypeX, costTypeBottomY, poligon6Width, costTypeFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
         }
 
         return cardHash.getStringsHash(printedTextBuffer.toString());
@@ -491,7 +544,7 @@ public class PdfOutput implements ICardOutput {
     }
 
     private static void drawCostPoligon(PDPageContentStream cs, float x, float y, float width, float height, float blankSpace,
-            Color outerColor) throws IOException {
+            Color outerColor, Color fillColor) throws IOException {
 
         float x0 = x;
         float x2 = x0 + width - blankSpace;
@@ -508,9 +561,18 @@ public class PdfOutput implements ICardOutput {
         cs.lineTo(x2, y3);
         cs.lineTo(x0, y3);
 
-        cs.setStrokingColor(outerColor);
-        cs.stroke();
-
+        if (outerColor != null) {
+            cs.setStrokingColor(outerColor);
+            if (fillColor != null) {
+                cs.setNonStrokingColor(fillColor);
+                cs.fillAndStroke();
+            } else {
+                cs.stroke();
+            }
+        } else if (fillColor != null) {
+            cs.setNonStrokingColor(fillColor);
+            cs.fill();
+        }
     }
 
     private static float printBreakableCenteredText(PDPageContentStream cs, String text, float x, float y,
@@ -698,24 +760,29 @@ public class PdfOutput implements ICardOutput {
         private float nameFontSize;
         private float legendFontSize;
         private float rulesFontSize;
-        private float costFontSize;
+        private float costValueFontSize;
+        private float costTypeFontSize;
 
         private PDFont titleFontType;
         private PDFont nameFontType;
         private PDFont legendFontType;
         private PDFont rulesFontType;
-        private PDFont costFontType;
+        private PDFont costValueFontType;
+        private PDFont costTypeFontType;
 
         private Color titleFontColor;
         private Color nameFontColor;
         private Color legendFontColor;
         private Color rulesFontColor;
-        private Color costFontColor;
+        private Color costValueFontColor;
+        private Color costTypeFontColor;
 
         private Color titleBarsColor;
         private Color cardBordersColor;
         private Color costBordersColor;
         private Color cardFillColor;
+        private Color costValueFillColor;
+        private Color costTypeFillColor;
         private Color foregroundGridColor;
         private Color backgroundGridColor;
 
@@ -734,18 +801,29 @@ public class PdfOutput implements ICardOutput {
             this.nameFontSize = DEFAULT_NAME_FONT_SIZE;
             this.legendFontSize = DEFAULT_LEGEND_FONT_SIZE;
             this.rulesFontSize = DEFAULT_RULES_FONT_SIZE;
-            this.costFontSize = DEFAULT_COST_FONT_SIZE;
+            this.costValueFontSize = DEFAULT_COST_VALUE_FONT_SIZE;
+            this.costTypeFontSize = DEFAULT_COST_TYPE_FONT_SIZE;
 
             this.titleFontType = DEFAULT_TITLE_FONT_TYPE;
             this.nameFontType = DEFAULT_NAME_FONT_TYPE;
             this.legendFontType = DEFAULT_LEGEND_FONT_TYPE;
             this.rulesFontType = DEFAULT_RULES_FONT_TYPE;
-            this.costFontType = DEFAULT_COST_FONT_TYPE;
+            this.costValueFontType = DEFAULT_COST_VALUE_FONT_TYPE;
+            this.costTypeFontType = DEFAULT_COST_TYPE_FONT_TYPE;
+
+            this.titleFontColor = DEFAULT_TITLE_FONT_COLOR;
+            this.nameFontColor = DEFAULT_NAME_FONT_COLOR;
+            this.legendFontColor = DEFAULT_LEGEND_FONT_COLOR;
+            this.rulesFontColor = DEFAULT_RULES_FONT_COLOR;
+            this.costValueFontColor = DEFAULT_COST_VALUE_FONT_COLOR;
+            this.costTypeFontColor = DEFAULT_COST_TYPE_FONT_COLOR;
 
             this.titleBarsColor = DEFAULT_TITLE_BAR_COLOR;
             this.cardBordersColor = DEFAULT_CARD_BORDER_COLOR;
             this.costBordersColor = DEFAULT_COST_BORDER_COLOR;
             this.cardFillColor = DEFAULT_CARD_FILL_COLOR;
+            this.costValueFillColor = DEFAULT_COST_VALUE_FILL_COLOR;
+            this.costTypeFillColor = DEFAULT_COST_TYPE_FILL_COLOR;
             this.foregroundGridColor = DEFAULT_FOREGROUND_GRID_COLOR;
             this.backgroundGridColor = DEFAULT_BACKGROUND_GRID_COLOR;
 
@@ -801,9 +879,15 @@ public class PdfOutput implements ICardOutput {
             return this;
         }
 
-        public Builder setCostFontSize(
-                float costFontSize) {
-            this.costFontSize = costFontSize;
+        public Builder setCostValueFontSize(
+                float costValueFontSize) {
+            this.costValueFontSize = costValueFontSize;
+            return this;
+        }
+
+        public Builder setCostTypeFontSize(
+                float costTypeFontSize) {
+            this.costTypeFontSize = costTypeFontSize;
             return this;
         }
 
@@ -827,8 +911,13 @@ public class PdfOutput implements ICardOutput {
             return this;
         }
 
-        public Builder setCostFontType(PDFont costFont) {
-            this.costFontType = costFont;
+        public Builder setCostValueFontType(PDFont costFont) {
+            this.costValueFontType = costFont;
+            return this;
+        }
+
+        public Builder setCostTypeFontType(PDFont costTypeFontType) {
+            this.costTypeFontType = costTypeFontType;
             return this;
         }
 
@@ -852,6 +941,16 @@ public class PdfOutput implements ICardOutput {
             return this;
         }
 
+        public Builder setCostValueFillColor(Color costValueFillColor) {
+            this.costValueFillColor = costValueFillColor;
+            return this;
+        }
+
+        public Builder setCostTypeFillColor(Color costTypeFillColor) {
+            this.costTypeFillColor = costTypeFillColor;
+            return this;
+        }
+
         public Builder setTitleFontColor(Color titleFontColor) {
             this.titleFontColor = titleFontColor;
             return this;
@@ -872,8 +971,13 @@ public class PdfOutput implements ICardOutput {
             return this;
         }
 
-        public Builder setCostFontColor(Color costFontColor) {
-            this.costFontColor = costFontColor;
+        public Builder setCostValueFontColor(Color costValueFontColor) {
+            this.costValueFontColor = costValueFontColor;
+            return this;
+        }
+
+        public Builder setCostTypeFontColor(Color costTypeFontColor) {
+            this.costTypeFontColor = costTypeFontColor;
             return this;
         }
 
@@ -899,8 +1003,10 @@ public class PdfOutput implements ICardOutput {
                     new FontData(nameFontType, nameFontSize, nameFontColor),
                     new FontData(legendFontType, legendFontSize, legendFontColor),
                     new FontData(rulesFontType, rulesFontSize, rulesFontColor),
-                    new FontData(costFontType, costFontSize, costFontColor),
-                    titleBarsColor, cardBordersColor, costBordersColor, cardFillColor,
+                    new FontData(costValueFontType, costValueFontSize, costValueFontColor),
+                    new FontData(costTypeFontType, costTypeFontSize, costTypeFontColor),
+                    titleBarsColor, cardBordersColor, costBordersColor,
+                    cardFillColor, costValueFillColor, costTypeFillColor,
                     foregroundGridColor, backgroundGridColor, backgroundPages
             );
         }

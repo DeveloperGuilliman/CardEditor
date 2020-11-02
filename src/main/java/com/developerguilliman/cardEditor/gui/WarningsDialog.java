@@ -45,6 +45,7 @@ public class WarningsDialog extends javax.swing.JDialog {
         if (label != null && !label.isEmpty()) {
             jLabel1.setText(jLabel1.getText() + " " + label);
         }
+        jButton1.requestFocus();
     }
 
     /**

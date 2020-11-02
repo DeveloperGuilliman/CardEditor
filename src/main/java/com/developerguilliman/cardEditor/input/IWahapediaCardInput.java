@@ -26,8 +26,8 @@ import org.jsoup.nodes.Document;
  */
 interface IWahapediaCardInput extends ICardInput {
 
-    public static CardData createCard(String title, String name, String legend, String rules, String cost) {
-        return new CardData(title.trim(), name.trim().toUpperCase(), legend.trim(), rules.trim(), cost.trim());
+    public static CardData createCard(String title, String name, String legend, String rules, String costValue, String costType) {
+        return new CardData(title.trim(), name.trim().toUpperCase(), legend.trim(), rules.trim(), costValue.trim(), costType.trim());
     }
 
     public void buildFromHtml(Document doc, SectionData list);

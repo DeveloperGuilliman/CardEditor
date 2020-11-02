@@ -81,7 +81,8 @@ public interface ICardInput {
                         .thenComparing(CardData::getName)
                         .thenComparing(CardData::getLegend)
                         .thenComparing(CardData::getRules)
-                        .thenComparing(CardData::getCost)
+                        .thenComparing(CardData::getCostValue)
+                        .thenComparing(CardData::getCostType)
         );
         dedup.addAll(list);
         return dedup;
@@ -93,7 +94,8 @@ public interface ICardInput {
                         .thenComparing(CardData::getName)
                         .thenComparing(CardData::getLegend)
                         .thenComparing(CardData::getRules)
-                        .thenComparing(CardData::getCost)
+                        .thenComparing(CardData::getCostValue)
+                        .thenComparing(CardData::getCostType)
         );
         for (SectionData l : list) {
             dedup.addAll(l);

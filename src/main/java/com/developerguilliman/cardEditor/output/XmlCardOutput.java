@@ -56,7 +56,8 @@ public class XmlCardOutput implements ICardOutput {
                     create(doc, cardElement, "title", card.getTitle());
                     create(doc, cardElement, "legend", card.getLegend());
                     create(doc, cardElement, "rules", card.getRules());
-                    create(doc, cardElement, "cost", card.getCost());
+                    create(doc, cardElement, "costValue", card.getCostValue());
+                    create(doc, cardElement, "costType", card.getCostType());
 
                 }
             }

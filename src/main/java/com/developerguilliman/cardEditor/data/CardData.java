@@ -37,18 +37,21 @@ public class CardData implements Serializable {
 
     private String rules;
 
-    private String cost;
+    private String costValue;
+
+    private String costType;
 
     public CardData() {
-        this("", "", "", "", "");
+        this("", "", "", "", "", "");
     }
 
-    public CardData(String title, String name, String legend, String rules, String cost) {
+    public CardData(String title, String name, String legend, String rules, String costValue, String costType) {
         this.title = title;
         this.name = name;
         this.legend = legend;
         this.rules = rules;
-        this.cost = cost;
+        this.costValue = costValue;
+        this.costType = costType;
     }
 
     public String getTitle() {
@@ -83,12 +86,20 @@ public class CardData implements Serializable {
         this.rules = rules;
     }
 
-    public String getCost() {
-        return cost;
+    public String getCostValue() {
+        return costValue;
     }
 
-    public void setCost(String cost) {
-        this.cost = cost;
+    public void setCostValue(String costValue) {
+        this.costValue = costValue;
+    }
+
+    public String getCostType() {
+        return costType;
+    }
+
+    public void setCostType(String costType) {
+        this.costType = costType;
     }
 
     public void trimStrings() {
@@ -96,12 +107,13 @@ public class CardData implements Serializable {
         this.name = name.trim();
         this.legend = legend.trim();
         this.rules = rules.trim();
-        this.cost = cost.trim();
+        this.costValue = costValue.trim();
+        this.costType = costType.trim();
     }
 
     @Override
     public String toString() {
-        return "CardData{" + "title=" + title + ", name=" + name + ", legend=" + legend + ", rules=" + rules + ", cost=" + cost + '}';
+        return "CardData{" + "title=" + title + ", name=" + name + ", legend=" + legend + ", rules=" + rules + ", costValue=" + costValue + ", costType=" + costType + '}';
     }
 
 }

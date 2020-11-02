@@ -200,7 +200,7 @@ public class CardCollectionData implements List<SectionData> {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 41 * hash + Objects.hashCode(this.sections);
+        hash = 41 * hash + sections.hashCode();
         return hash;
     }
 

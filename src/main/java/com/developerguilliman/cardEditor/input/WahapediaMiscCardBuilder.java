@@ -147,19 +147,19 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
             title = titleCase(preName + " " + title);
         }
 
-        String description = nextElements.first().text();
+        String legend = nextElements.first().text();
 
         String rules;
         if (nextElements.size() == 2) {
             rules = nextElements.last().text();
         } else {
             rules = cardElement.parent().text();
-            int ioRules = rules.indexOf(description) + description.length();
+            int ioRules = rules.indexOf(legend) + legend.length();
             rules = rules.substring(ioRules);
         }
-        String cost = extractPsychicPowerCost(rules);
-
-        return IWahapediaCardInput.createCard(title, name, description, rules, cost);
+        String costValue = extractPsychicPowerCost(rules);
+        String costType = costValue.isEmpty() ? " ": "WARP CHARGE";
+        return IWahapediaCardInput.createCard(title, name, legend, rules, costValue, costType);
 
     }
 
@@ -200,8 +200,10 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
 
         String legend = italic;
         String rules = last.substring(last.indexOf(italic) + italic.length());
-        String cost = extractPsychicPowerCost(rules);
-        return IWahapediaCardInput.createCard(title, name, legend, rules, cost);
+        String costValue = extractPsychicPowerCost(rules);
+        String costType = costValue.isEmpty() ? " ": "WARP CHARGE";
+       
+        return IWahapediaCardInput.createCard(title, name, legend, rules, costValue, costType);
     }
 
     private String titleCase(String title) {
@@ -283,7 +285,7 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
                 prefixIndexOf += PSYCHIC_POWER_FIND_SECOND.length();
                 int endIndexOf = rules.indexOf('.', prefixIndexOf);
                 if (endIndexOf > prefixIndexOf) {
-                    return rules.substring(prefixIndexOf, endIndexOf).concat(" WARP CHARGE");
+                    return rules.substring(prefixIndexOf, endIndexOf);
                 }
             }
         }

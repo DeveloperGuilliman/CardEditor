@@ -79,21 +79,36 @@ public class XmlCardInput implements ICardInput {
 
     private CardData buildStratagem(Element cardElement) {
 
-        String title = getText(cardElement, "title");
-        String name = getText(cardElement, "name");
-        String legend = getText(cardElement, "legend");
-        String rules = getText(cardElement, "rules");
-        String cost = getText(cardElement, "cost");
-        return new CardData(title, name, legend, rules, cost);
+        String title = getText(cardElement, "title", "");
+        String name = getText(cardElement, "name", "");
+        String legend = getText(cardElement, "legend", "");
+        String rules = getText(cardElement, "rules", "");
+        String costValue = getText(cardElement, "costValue", null);
+        String costType = getText(cardElement, "costType", null);
+        if (costValue == null && costType == null) {
+            String oldCost = getText(cardElement, "cost", null);
+            int io = oldCost.indexOf(' ');
+            if (io >= 0) {
+                costValue = oldCost.substring(0, io);
+                costType = oldCost.substring(io + 1, oldCost.length());
+            } else {
+                costValue = oldCost;
+                costType = "";
+            }
+        } else {
+            costValue = Utils.normalize(costValue);
+            costType = Utils.normalize(costType);
+        }
+        return new CardData(title, name, legend, rules, costValue, costType);
 
     }
 
-    private String getText(Element cardElement, String key) {
+    private String getText(Element cardElement, String key, String defaultText) {
 
         NodeList cardNodes = cardElement.getElementsByTagName(key);
         int len = cardNodes.getLength();
         if (len == 0) {
-            return "";
+            return defaultText;
         }
         if (len == 1) {
             return Utils.normalize(cardNodes.item(0).getTextContent());

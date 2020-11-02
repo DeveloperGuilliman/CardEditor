@@ -37,17 +37,23 @@ import java.util.stream.Stream;
 public class SectionData implements List<CardData> {
 
     private final ArrayList<CardData> cards;
+    private String name;
 
     public SectionData() {
         this.cards = new ArrayList<>();
+        this.name = "";
     }
 
     public SectionData(int len) {
         this.cards = new ArrayList<>(len);
+        this.name = "";
+
     }
 
     public SectionData(Collection<? extends CardData> c) {
         this.cards = new ArrayList<>(c);
+        this.name = getCommonCardsName();
+
     }
 
     public int getExactIndex(CardData card) {
@@ -60,6 +66,25 @@ public class SectionData implements List<CardData> {
 
     public int getBoundIndexPlusOne(int position) {
         return Utils.getBoundIndexPlusOne(cards, position);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    private String getCommonCardsName() {
+        if (!cards.isEmpty()) {
+            Iterator<CardData> iterator = cards.iterator();
+            String firstTitle = Utils.normalizeTrim(iterator.next().getTitle());
+            while (iterator.hasNext()) {
+                String cardTitle = Utils.normalizeTrim(iterator.next().getTitle());
+                if (!firstTitle.equals(cardTitle)) {
+                    return "";
+                }
+            }
+            return firstTitle;
+        }
+        return "";
     }
 
     @Override
@@ -104,52 +129,82 @@ public class SectionData implements List<CardData> {
 
     @Override
     public CardData set(int index, CardData element) {
-        return cards.set(index, element);
+        CardData ret = cards.set(index, element);
+        name = getCommonCardsName();
+        return ret;
     }
 
     @Override
     public boolean add(CardData e) {
-        return cards.add(e);
+        boolean ret = cards.add(e);
+        if (ret) {
+            name = getCommonCardsName();
+        }
+        return ret;
     }
 
     @Override
     public void add(int index, CardData element) {
         cards.add(index, element);
+        name = getCommonCardsName();
     }
 
     @Override
     public CardData remove(int index) {
-        return cards.remove(index);
+        CardData ret = cards.remove(index);
+        name = getCommonCardsName();
+        return ret;
     }
 
     @Override
     public boolean remove(Object o) {
-        return cards.remove(o);
+        boolean ret = cards.remove(o);
+        if (ret) {
+            name = getCommonCardsName();
+        }
+        return ret;
     }
 
     @Override
     public void clear() {
         cards.clear();
+        name = "";
     }
 
     @Override
     public boolean addAll(Collection<? extends CardData> c) {
-        return cards.addAll(c);
+        boolean ret = cards.addAll(c);
+        if (ret) {
+            name = getCommonCardsName();
+        }
+        return ret;
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends CardData> c) {
-        return cards.addAll(index, c);
+        boolean ret = cards.addAll(index, c);
+        if (ret) {
+            name = getCommonCardsName();
+        }
+        return ret;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return cards.removeAll(c);
+        boolean ret = cards.removeAll(c);
+        if (ret) {
+            name = getCommonCardsName();
+        }
+        return ret;
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return cards.retainAll(c);
+        boolean ret = cards.retainAll(c);
+        if (ret) {
+            name = getCommonCardsName();
+        }
+        return ret;
     }
 
     @Override
@@ -159,12 +214,80 @@ public class SectionData implements List<CardData> {
 
     @Override
     public ListIterator<CardData> listIterator() {
-        return cards.listIterator();
+
+        ListIterator<CardData> listIterator = cards.listIterator();
+        return new ListIterator<CardData>() {
+            @Override
+            public boolean hasNext() {
+                return listIterator.hasNext();
+            }
+
+            @Override
+            public CardData next() {
+                return listIterator.next();
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return listIterator.hasPrevious();
+            }
+
+            @Override
+            public CardData previous() {
+                return listIterator.previous();
+            }
+
+            @Override
+            public int nextIndex() {
+                return listIterator.nextIndex();
+            }
+
+            @Override
+            public int previousIndex() {
+                return listIterator.previousIndex();
+            }
+
+            @Override
+            public void remove() {
+                listIterator.remove();
+                name = getCommonCardsName();
+            }
+
+            @Override
+            public void set(CardData e) {
+                listIterator.set(e);
+                name = getCommonCardsName();
+            }
+
+            @Override
+            public void add(CardData e) {
+                listIterator.add(e);
+                name = getCommonCardsName();
+            }
+        };
     }
 
     @Override
     public Iterator<CardData> iterator() {
-        return cards.iterator();
+        Iterator<CardData> iterator = cards.iterator();
+        return new Iterator<CardData>() {
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public CardData next() {
+                return iterator.next();
+            }
+
+            @Override
+            public void remove() {
+                iterator.remove();
+                name = getCommonCardsName();
+            }
+
+        };
     }
 
     @Override
@@ -184,12 +307,17 @@ public class SectionData implements List<CardData> {
 
     @Override
     public boolean removeIf(Predicate<? super CardData> filter) {
-        return cards.removeIf(filter);
+        boolean ret = cards.removeIf(filter);
+        if (ret) {
+            name = getCommonCardsName();
+        }
+        return ret;
     }
 
     @Override
     public void replaceAll(UnaryOperator<CardData> operator) {
         cards.replaceAll(operator);
+        name = getCommonCardsName();
     }
 
     @Override
@@ -199,7 +327,8 @@ public class SectionData implements List<CardData> {
 
     @Override
     public int hashCode() {
-        int hash = 3;
+        int hash = 7;
+        hash = 97 * hash + cards.hashCode();
         return hash;
     }
 

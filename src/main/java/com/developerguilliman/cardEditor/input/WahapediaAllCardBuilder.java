@@ -65,9 +65,13 @@ public class WahapediaAllCardBuilder implements ICardInput {
             if (deduplicate) {
 
                 TreeSet<CardData> deduplicator = new TreeSet<>(
-                        Comparator.comparing(CardData::getTitle).thenComparing(CardData::getName)
-                                .thenComparing(CardData::getLegend).thenComparing(CardData::getRules)
-                                .thenComparing(CardData::getCost));
+                        Comparator.comparing(CardData::getTitle)
+                                .thenComparing(CardData::getName)
+                                .thenComparing(CardData::getLegend)
+                                .thenComparing(CardData::getRules)
+                                .thenComparing(CardData::getCostValue)
+                                .thenComparing(CardData::getCostType)
+                );
 
                 deduplicator.addAll(list);
                 list.retainAll(deduplicator);
