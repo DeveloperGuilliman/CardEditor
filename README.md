@@ -1,2 +1,9 @@
 # CardEditor
-A Card Editor to build pdfs for Warhammer 40K
+A Java Application to edit and build pdfs with cards for Warhammer 40K. Generates PDF files with card generated with the correct sizes to print, cut & use in your Warhammer 40K games.
+Includes options to import content directly from Wahapedia.
+
+Needs Java 8+ installed.
+
+![](doc/card_editor_main.png)
+
+![](doc/card_editor_pdf.png)
