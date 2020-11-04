@@ -56,4 +56,44 @@ public class Utils {
         return (str != null) ? str.trim() : "";
     }
 
+    public static String longestCommonWords(List<String> list) {
+        String[] array = list.toArray(new String[0]);
+        int aLen = array.length;
+        if (aLen == 0) {
+            return "";
+        }
+
+        String result = "";
+        String s = array[0];
+        int sLen = s.length();
+
+        for (int i = 0; i < sLen; i = nextSpace(s, i) + 1) {
+            for (int j = nextSpace(s, i); j <= sLen; j = nextSpace(s, j)) {
+
+                String sub = s.substring(i, j);
+                int k;
+                for (k = 1; k < aLen; k++) {
+                    if (!array[k].contains(sub)) {
+                        break;
+                    }
+                }
+
+                if (k == aLen && result.length() < sub.length()) {
+                    result = sub;
+                }
+
+            }
+        }
+
+        return result;
+    }
+
+    private static int nextSpace(String s, int i) {
+        int sLen = s.length();
+        if (i == sLen) {
+            return sLen + 1;
+        }
+        i = s.indexOf(' ', i + 1);
+        return i < 0 ? sLen : i;
+    }
 }

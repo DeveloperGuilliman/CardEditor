@@ -52,7 +52,7 @@ public class SectionData implements List<CardData> {
 
     public SectionData(Collection<? extends CardData> c) {
         this.cards = new ArrayList<>(c);
-        this.updateName();
+        this.name = getCommonCardsName();
     }
 
     public void updateName() {
@@ -76,18 +76,15 @@ public class SectionData implements List<CardData> {
     }
 
     private String getCommonCardsName() {
-        if (!cards.isEmpty()) {
-            Iterator<CardData> iterator = cards.iterator();
-            String firstTitle = Utils.normalizeTrim(iterator.next().getTitle());
-            while (iterator.hasNext()) {
-                String cardTitle = Utils.normalizeTrim(iterator.next().getTitle());
-                if (!firstTitle.equals(cardTitle)) {
-                    return "";
-                }
-            }
-            return firstTitle;
+        if (cards.isEmpty()) {
+            return "";
         }
-        return "";
+
+        ArrayList<String> list = new ArrayList<>(cards.size());
+        for (CardData card : cards) {
+            list.add(Utils.normalizeTrim(card.getTitle()));
+        }
+        return Utils.longestCommonWords(list);
     }
 
     @Override

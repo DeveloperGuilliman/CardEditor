@@ -78,6 +78,7 @@ public class PdfOutput implements ICardOutput {
     public static final Color DEFAULT_COST_VALUE_FONT_COLOR = Color.BLACK;
     public static final Color DEFAULT_COST_TYPE_FONT_COLOR = Color.BLACK;
 
+    public static final Color DEFAULT_CARD_BACKGROUND_COLOR = null;
     public static final Color DEFAULT_TITLE_BAR_COLOR = Color.BLACK;
     public static final Color DEFAULT_CARD_BORDER_COLOR = Color.BLACK;
     public static final Color DEFAULT_COST_BORDER_COLOR = Color.BLACK;
@@ -88,6 +89,9 @@ public class PdfOutput implements ICardOutput {
     public static final Color DEFAULT_BACKGROUND_GRID_COLOR = VERY_LIGHT_GRAY;
 
     public static final boolean DEFAULT_BACKGROUND_PAGES = false;
+    public static final boolean DEFAULT_FILL_UNUSED_CARD_SLOTS = false;
+    public static final boolean DEFAULT_FILL_UNUSED_CARD_SLOTS_COST = false;
+    public static final boolean DEFAULT_FILL_UNUSED_CARD_SLOTS_TITLES = false;
 
     private final PDRectangle pageSize;
 
@@ -105,6 +109,7 @@ public class PdfOutput implements ICardOutput {
     private final FontData costTypeFont;
     private final FontData hashFont = new FontData(PDType1Font.HELVETICA, 6, new Color(160, 160, 160));
 
+    private final Color cardBackgroundColor;
     private final Color titleBarsColor;
     private final Color cardBordersColor;
     private final Color costBordersColor;
@@ -114,6 +119,9 @@ public class PdfOutput implements ICardOutput {
     private final Color foregroundGridColor;
     private final Color backgroundGridColor;
     private final boolean backgroundPages;
+    private final boolean fillUnusedCardSlots;
+    private final boolean fillUnusedCardSlotsTitles;
+    private final boolean fillUnusedCardSlotsBorders;
 
     private final CardHash cardHash;
     private final StringBuilder printedTextBuffer;
@@ -135,6 +143,7 @@ public class PdfOutput implements ICardOutput {
         this.costValueFont = new FontData(DEFAULT_COST_VALUE_FONT_TYPE, DEFAULT_COST_VALUE_FONT_SIZE, DEFAULT_COST_VALUE_FONT_COLOR);
         this.costTypeFont = new FontData(DEFAULT_COST_TYPE_FONT_TYPE, DEFAULT_COST_TYPE_FONT_SIZE, DEFAULT_COST_TYPE_FONT_COLOR);
 
+        this.cardBackgroundColor = DEFAULT_CARD_BACKGROUND_COLOR;
         this.titleBarsColor = DEFAULT_TITLE_BAR_COLOR;
         this.cardBordersColor = DEFAULT_CARD_BORDER_COLOR;
         this.costBordersColor = DEFAULT_COST_BORDER_COLOR;
@@ -145,6 +154,9 @@ public class PdfOutput implements ICardOutput {
         this.backgroundGridColor = DEFAULT_BACKGROUND_GRID_COLOR;
 
         this.backgroundPages = DEFAULT_BACKGROUND_PAGES;
+        this.fillUnusedCardSlots = DEFAULT_FILL_UNUSED_CARD_SLOTS;
+        this.fillUnusedCardSlotsBorders = DEFAULT_FILL_UNUSED_CARD_SLOTS_COST;
+        this.fillUnusedCardSlotsTitles = DEFAULT_FILL_UNUSED_CARD_SLOTS_TITLES;
 
         this.cardHash = new CardHash();
         this.printedTextBuffer = new StringBuilder();
@@ -152,9 +164,10 @@ public class PdfOutput implements ICardOutput {
 
     private PdfOutput(PDRectangle pageSize, int perX, int perY, float marginPercentX, float marginPercentY,
             FontData titleFont, FontData nameFont, FontData legendFont, FontData rulesFont, FontData costValueFont, FontData costTypeFont,
-            Color titleBarsColor, Color cardBordersColor, Color costBordersColor,
+            Color cardBackgroundColor, Color titleBarsColor, Color cardBordersColor, Color costBordersColor,
             Color cardFillColor, Color costValueFillColor, Color costTypeFillColor,
-            Color foregroundGridColor, Color backgroundGridColor, boolean backgroundPages) {
+            Color foregroundGridColor, Color backgroundGridColor,
+            boolean backgroundPages, boolean fillUnusedCardSlots, boolean fillUnusedCardSlotsBorders, boolean fillUnusedCardSlotsTitles) {
 
         this.pageSize = pageSize;
         this.perX = perX;
@@ -170,6 +183,7 @@ public class PdfOutput implements ICardOutput {
         this.costValueFont = costValueFont;
         this.costTypeFont = costTypeFont;
 
+        this.cardBackgroundColor = cardBackgroundColor;
         this.titleBarsColor = titleBarsColor;
         this.cardBordersColor = cardBordersColor;
         this.costBordersColor = costBordersColor;
@@ -181,6 +195,9 @@ public class PdfOutput implements ICardOutput {
         this.backgroundGridColor = backgroundGridColor;
 
         this.backgroundPages = backgroundPages;
+        this.fillUnusedCardSlots = fillUnusedCardSlots;
+        this.fillUnusedCardSlotsBorders = fillUnusedCardSlotsBorders;
+        this.fillUnusedCardSlotsTitles = fillUnusedCardSlotsTitles;
 
         this.cardHash = new CardHash();
         this.printedTextBuffer = new StringBuilder();
@@ -287,34 +304,40 @@ public class PdfOutput implements ICardOutput {
         for (int numY = perY - 1; numY >= 0; numY--) {
             // Left to Right
             for (int numX = 0; numX < perX; numX++) {
-                if (!cardIterator.hasNext()) {
-                    return printedCards;
-                }
-                CardData card = cardIterator.next();
                 float x = cardWidth * numX + marginX;
                 float y = cardHeight * numY + marginY;
-                printedCards++;
-                String hash = printCardForeground(cs, card, x, y, cardWidth, cardHeight, printedCards, pageIndex, warningHandler);
-                printCardHash(cs, hash, x, y, cardWidth);
+                if (!cardIterator.hasNext()) {
+                    if (fillUnusedCardSlots) {
+                        printCardEmptyForeground(cs, x, y, cardWidth, cardHeight, printedCards, pageIndex, warningHandler);
+                    } else {
+                        return printedCards;
+                    }
+                } else {
+                    CardData card = cardIterator.next();
+                    printedCards++;
+                    String hash = printCardForeground(cs, card, x, y, cardWidth, cardHeight, printedCards, pageIndex, warningHandler);
+                    printCardHash(cs, hash, x, y, cardWidth);
+                }
             }
         }
         return printedCards;
     }
 
     private void buildCardsBackgroundPage(PDPageContentStream cs, int printedCards,
-            float marginX, float marginY, float width, float height) throws IOException {
+            float marginX, float marginY, float cardWidth, float cardHeight) throws IOException {
 
         // Up to Down
         for (int numY = perY - 1; numY >= 0; numY--) {
             // Left to Right
             for (int numX = 0; numX < perX; numX++) {
-                if (printedCards == 0) {
+                float x = cardWidth * numX + marginX;
+                float y = cardHeight * numY + marginY;
+                if (fillUnusedCardSlots || printedCards > 0) {
+                    printCardBackground(cs, x, y, cardWidth, cardHeight);
+                    printedCards--;
+                } else {
                     return;
                 }
-                float x = width * numX + marginX;
-                float y = height * numY + marginY;
-                printCardBackground(cs, x, y, width, height);
-                printedCards--;
             }
         }
     }
@@ -341,6 +364,87 @@ public class PdfOutput implements ICardOutput {
         }
     }
 
+    private void printCardEmptyForeground(PDPageContentStream cs, float x, float y, float width, float height, int cardIndex, int pageIndex, IWarningHandler warningHandler) throws IOException {
+
+        if (cardBackgroundColor != null) {
+            cs.setNonStrokingColor(cardBackgroundColor);
+            cs.addRect(x, y, width, height);
+            cs.fill();
+        }
+
+        if (cardBordersColor != null || cardFillColor != null) {
+            float bordersMargin = Math.min(width * 0.04f, height * 0.04f);
+            width -= 2 * bordersMargin;
+            height -= 2 * bordersMargin;
+            x += bordersMargin;
+            y += bordersMargin;
+            float blankSpace = Math.min(width, height) * 0.1f;
+            drawCardPoligon(cs, x, y, width, height, blankSpace, cardBordersColor, cardFillColor);
+        }
+        if (fillUnusedCardSlotsBorders) {
+            float minY;
+            float costValueBottomY;
+            float costTypeBottomY;
+            float poligon6Width;
+            float poligon8Side;
+            float costValueX;
+            float costTypeX;
+            if (costBordersColor == null) {
+                float maxFont = Math.max(costValueFont.size, costTypeFont.size) * MIN_Y_FONT_FACTOR;
+                minY = y + maxFont;
+                costValueBottomY = costTypeBottomY = minY + 2 - maxFont;
+                costValueBottomY += costValueFont.getHeight() + ((maxFont - costValueFont.size) / 2);
+                costTypeBottomY += costTypeFont.getHeight() + ((maxFont - costTypeFont.size) / 2);
+            } else {
+                float poligon6Height = Math.max(costValueFont.size, costTypeFont.size * 1.5f);
+                poligon6Width = width * 0.5f;
+                float poligon6Min = Math.min(poligon6Width, poligon6Height);
+
+                float poligon6BlankSpace = poligon6Min * 0.1f;
+                float poligon8ExtraSide = poligon6Min * 0.25f;
+                poligon8Side = poligon6Height + 2 * poligon8ExtraSide;
+                minY = y + 4;
+                costValueBottomY = costTypeBottomY = minY;
+                float costZoneMarginX = (width - poligon6Width - poligon8Side) / 2;
+
+                if (poligon6Width + poligon8Side > width) {
+                    warningHandler.warn("Cost borders too wide in card " + cardIndex + ", page:" + pageIndex + ".");
+                }
+                costValueX = costTypeX = x + costZoneMarginX;
+
+                minY += poligon8Side;
+                costTypeX += poligon8Side;
+                costTypeBottomY += poligon8ExtraSide;
+
+                drawCostPoligon(cs, costTypeX, costTypeBottomY, poligon6Width, poligon6Height, poligon6BlankSpace, costBordersColor, costTypeFillColor);
+                drawCardPoligon(cs, costValueX, costValueBottomY, poligon8Side, poligon8Side, poligon8ExtraSide, costBordersColor, costValueFillColor);
+
+                costValueBottomY += poligon8ExtraSide + costValueFont.getHeight() + ((poligon6Height - costValueFont.size) / 2) + 1;
+                costTypeBottomY += costTypeFont.getHeight() + ((poligon6Height - costTypeFont.size) / 2) + 1;
+            }
+        }
+
+        if (fillUnusedCardSlotsTitles) {
+
+            float nextY = y + height;
+
+            nextY -= titleFont.size * LEADING_FACTOR;
+            nextY -= 4;
+
+            if (titleBarsColor != null) {
+                nextY -= 2;
+                drawNameLines(cs, x, width, nextY, titleBarsColor);
+            }
+
+            nextY -= nameFont.size * LEADING_FACTOR;
+
+            if (titleBarsColor != null) {
+                drawNameLines(cs, x, width, nextY - 6, titleBarsColor);
+            }
+        }
+
+    }
+
     private String printCardForeground(PDPageContentStream cs, CardData card, float x, float y, float width, float height, int cardIndex, int pageIndex, IWarningHandler warningHandler) throws IOException {
 
         String title = card.getTitle().replace('\n', ' ').trim();
@@ -355,6 +459,12 @@ public class PdfOutput implements ICardOutput {
 //        if (foregroundImage != null) {
 //            cs.drawImage(foregroundImage, x, y, width, height);
 //        }
+        if (cardBackgroundColor != null) {
+            cs.setNonStrokingColor(cardBackgroundColor);
+            cs.addRect(x, y, width, height);
+            cs.fill();
+        }
+
         final float titleTextWidth;
         float bordersMargin;
         if (cardBordersColor != null || cardFillColor != null) {
@@ -493,6 +603,12 @@ public class PdfOutput implements ICardOutput {
     }
 
     private void printCardBackground(PDPageContentStream cs, float x, float y, float width, float height) throws IOException {
+
+        if (cardBackgroundColor != null) {
+            cs.setNonStrokingColor(cardBackgroundColor);
+            cs.addRect(x, y, width, height);
+            cs.fill();
+        }
 
         if (cardBordersColor != null || cardFillColor != null) {
             float margin = Math.min(width, height) * 0.04f;
@@ -776,6 +892,7 @@ public class PdfOutput implements ICardOutput {
         private Color costValueFontColor;
         private Color costTypeFontColor;
 
+        private Color cardBackgroundColor;
         private Color titleBarsColor;
         private Color cardBordersColor;
         private Color costBordersColor;
@@ -786,9 +903,15 @@ public class PdfOutput implements ICardOutput {
         private Color backgroundGridColor;
 
         private boolean backgroundPages;
+        private boolean fillUnusedCardSlots;
+        private boolean fillUnusedCardSlotsBorders;
+        private boolean fillUnusedCardSlotsTitles;
 
         public Builder() {
+            reset();
+        }
 
+        public void reset() {
             this.pageSize = DEFAULT_PAGE_SIZE;
             this.perX = DEFAULT_CARDS_PER_X;
             this.perY = DEFAULT_CARDS_PER_Y;
@@ -817,6 +940,7 @@ public class PdfOutput implements ICardOutput {
             this.costValueFontColor = DEFAULT_COST_VALUE_FONT_COLOR;
             this.costTypeFontColor = DEFAULT_COST_TYPE_FONT_COLOR;
 
+            this.cardBackgroundColor = DEFAULT_CARD_BACKGROUND_COLOR;
             this.titleBarsColor = DEFAULT_TITLE_BAR_COLOR;
             this.cardBordersColor = DEFAULT_CARD_BORDER_COLOR;
             this.costBordersColor = DEFAULT_COST_BORDER_COLOR;
@@ -827,6 +951,9 @@ public class PdfOutput implements ICardOutput {
             this.backgroundGridColor = DEFAULT_BACKGROUND_GRID_COLOR;
 
             this.backgroundPages = DEFAULT_BACKGROUND_PAGES;
+            this.fillUnusedCardSlots = DEFAULT_FILL_UNUSED_CARD_SLOTS;
+            this.fillUnusedCardSlotsBorders = DEFAULT_FILL_UNUSED_CARD_SLOTS_COST;
+            this.fillUnusedCardSlotsTitles = DEFAULT_FILL_UNUSED_CARD_SLOTS_TITLES;
         }
 
         public Builder setPageSize(PDRectangle pageSize) {
@@ -920,6 +1047,11 @@ public class PdfOutput implements ICardOutput {
             return this;
         }
 
+        public Builder setCardBackgroundColor(Color cardBackgroundColor) {
+            this.cardBackgroundColor = cardBackgroundColor;
+            return this;
+        }
+
         public Builder setTitleBarsColor(Color titleBarsColor) {
             this.titleBarsColor = titleBarsColor;
             return this;
@@ -995,6 +1127,166 @@ public class PdfOutput implements ICardOutput {
             return this;
         }
 
+        public Builder setFillUnusedCardSlots(boolean fillUnusedCardSlots) {
+            this.fillUnusedCardSlots = fillUnusedCardSlots;
+            return this;
+        }
+
+        public Builder setFillUnusedCardSlotsBorders(boolean fillUnusedCardSlotsBorders) {
+            this.fillUnusedCardSlotsBorders = fillUnusedCardSlotsBorders;
+            return this;
+        }
+
+        public Builder setFillUnusedCardSlotsTitles(boolean fillUnusedCardSlotsTitles) {
+            this.fillUnusedCardSlotsTitles = fillUnusedCardSlotsTitles;
+            return this;
+        }
+
+        public PDRectangle getPageSize() {
+            return pageSize;
+        }
+
+        public int getPerX() {
+            return perX;
+        }
+
+        public int getPerY() {
+            return perY;
+        }
+
+        public float getMarginPercentX() {
+            return marginPercentX;
+        }
+
+        public float getMarginPercentY() {
+            return marginPercentY;
+        }
+
+        public float getTitleFontSize() {
+            return titleFontSize;
+        }
+
+        public float getNameFontSize() {
+            return nameFontSize;
+        }
+
+        public float getLegendFontSize() {
+            return legendFontSize;
+        }
+
+        public float getRulesFontSize() {
+            return rulesFontSize;
+        }
+
+        public float getCostValueFontSize() {
+            return costValueFontSize;
+        }
+
+        public float getCostTypeFontSize() {
+            return costTypeFontSize;
+        }
+
+        public PDFont getTitleFontType() {
+            return titleFontType;
+        }
+
+        public PDFont getNameFontType() {
+            return nameFontType;
+        }
+
+        public PDFont getLegendFontType() {
+            return legendFontType;
+        }
+
+        public PDFont getRulesFontType() {
+            return rulesFontType;
+        }
+
+        public PDFont getCostValueFontType() {
+            return costValueFontType;
+        }
+
+        public PDFont getCostTypeFontType() {
+            return costTypeFontType;
+        }
+
+        public Color getTitleFontColor() {
+            return titleFontColor;
+        }
+
+        public Color getNameFontColor() {
+            return nameFontColor;
+        }
+
+        public Color getLegendFontColor() {
+            return legendFontColor;
+        }
+
+        public Color getRulesFontColor() {
+            return rulesFontColor;
+        }
+
+        public Color getCostValueFontColor() {
+            return costValueFontColor;
+        }
+
+        public Color getCostTypeFontColor() {
+            return costTypeFontColor;
+        }
+
+        public Color getCardBackgroundColor() {
+            return cardBackgroundColor;
+        }
+
+        public Color getTitleBarsColor() {
+            return titleBarsColor;
+        }
+
+        public Color getCardBordersColor() {
+            return cardBordersColor;
+        }
+
+        public Color getCostBordersColor() {
+            return costBordersColor;
+        }
+
+        public Color getCardFillColor() {
+            return cardFillColor;
+        }
+
+        public Color getCostValueFillColor() {
+            return costValueFillColor;
+        }
+
+        public Color getCostTypeFillColor() {
+            return costTypeFillColor;
+        }
+
+        public Color getForegroundGridColor() {
+            return foregroundGridColor;
+        }
+
+        public Color getBackgroundGridColor() {
+            return backgroundGridColor;
+        }
+
+        public boolean isBackgroundPages() {
+            return backgroundPages;
+        }
+
+        public boolean isFillUnusedCardSlots() {
+            return fillUnusedCardSlots;
+        }
+
+        public boolean isFillUnusedCardSlotsBorders() {
+            return fillUnusedCardSlotsBorders;
+        }
+
+        public boolean isFillUnusedCardSlotsTitles() {
+            return fillUnusedCardSlotsTitles;
+        }
+
+        
         public PdfOutput build() {
             return new PdfOutput(
                     pageSize, perX, perY, marginPercentX, marginPercentY,
@@ -1004,9 +1296,10 @@ public class PdfOutput implements ICardOutput {
                     new FontData(rulesFontType, rulesFontSize, rulesFontColor),
                     new FontData(costValueFontType, costValueFontSize, costValueFontColor),
                     new FontData(costTypeFontType, costTypeFontSize, costTypeFontColor),
-                    titleBarsColor, cardBordersColor, costBordersColor,
+                    cardBackgroundColor, titleBarsColor, cardBordersColor, costBordersColor,
                     cardFillColor, costValueFillColor, costTypeFillColor,
-                    foregroundGridColor, backgroundGridColor, backgroundPages
+                    foregroundGridColor, backgroundGridColor,
+                    backgroundPages, fillUnusedCardSlots, fillUnusedCardSlotsBorders, fillUnusedCardSlotsTitles
             );
         }
 
