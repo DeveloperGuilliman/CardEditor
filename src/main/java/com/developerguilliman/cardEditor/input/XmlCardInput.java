@@ -79,8 +79,8 @@ public class XmlCardInput implements ICardInput {
 
     private CardData buildStratagem(Element cardElement) {
 
-        String title = getText(cardElement, "title", "");
-        String name = getText(cardElement, "name", "");
+        String title = getText(cardElement, "title", "").replace('\n', ' ');
+        String name = getText(cardElement, "name", "").replace('\n', ' ');
         String legend = getText(cardElement, "legend", "");
         String rules = getText(cardElement, "rules", "");
         String costValue = getText(cardElement, "costValue", null);
@@ -89,15 +89,15 @@ public class XmlCardInput implements ICardInput {
             String oldCost = getText(cardElement, "cost", null);
             int io = oldCost.indexOf(' ');
             if (io >= 0) {
-                costValue = oldCost.substring(0, io);
-                costType = oldCost.substring(io + 1, oldCost.length());
+                costValue = oldCost.substring(0, io).replace('\n', ' ');
+                costType = oldCost.substring(io + 1, oldCost.length()).replace('\n', ' ');
             } else {
-                costValue = oldCost;
+                costValue = oldCost.replace('\n', ' ');
                 costType = "";
             }
         } else {
-            costValue = Utils.normalize(costValue);
-            costType = Utils.normalize(costType);
+            costValue = Utils.normalize(costValue).replace('\n', ' ');
+            costType = Utils.normalize(costType).replace('\n', ' ');
         }
         return new CardData(title, name, legend, rules, costValue, costType);
 

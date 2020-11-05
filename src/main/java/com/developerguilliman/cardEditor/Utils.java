@@ -56,6 +56,25 @@ public class Utils {
         return (str != null) ? str.trim() : "";
     }
 
+    public static String rightTrim(String value) {
+        int len = value.length();
+        int end = len;
+        while ((0 < end) && (value.charAt(end - 1) <= ' ')) {
+            end--;
+        }
+        return (end < len) ? value.substring(0, end) : value;
+    }
+
+    public static String leftTrim(String value) {
+        int len = value.length();
+        int start = 0;
+
+        while ((start < len) && (value.charAt(start) <= ' ')) {
+            start++;
+        }
+        return (start > 0) ? value.substring(start, len) : value;
+    }
+
     public static String longestCommonWords(List<String> list) {
         String[] array = list.toArray(new String[0]);
         int aLen = array.length;

@@ -24,6 +24,7 @@ import com.developerguilliman.cardEditor.input.WahapediaAllCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaMiscCardBuilder;
 import com.developerguilliman.cardEditor.input.WahapediaStratagemCardBuilder;
 import com.developerguilliman.cardEditor.input.XmlCardInput;
+import com.developerguilliman.cardEditor.output.PdfOutput;
 import com.developerguilliman.cardEditor.output.XmlCardOutput;
 import com.developerguilliman.cardEditor.warning.WarningArrayList;
 import java.awt.Component;
@@ -57,6 +58,7 @@ import javax.swing.tree.TreePath;
  */
 public class MainWindow extends javax.swing.JFrame {
 
+    private final PdfOutput.Builder pdfSettings;
     private final CardCollectionData cards;
     private final DefaultMutableTreeNode root;
 
@@ -75,6 +77,7 @@ public class MainWindow extends javax.swing.JFrame {
         cards = new CardCollectionData();
         initComponents();
 
+        pdfSettings = new PdfOutput.Builder();
         root = new DefaultMutableTreeNode("Cards", true);
         cardTree.setModel(new DefaultTreeModel(root, true));
         cardTree.setTransferHandler(new TreeTransferHandler(cardTree));
@@ -615,6 +618,7 @@ public class MainWindow extends javax.swing.JFrame {
         }
         CardData card = new CardData();
         card.setName("NEW");
+        card.setTitle(actualSection.getName());
         actualSection.add(card);
         DefaultMutableTreeNode cardNode = createCardNode(card);
         actualSectionNode.add(cardNode);
@@ -704,7 +708,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void pdfExportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pdfExportMenuItemActionPerformed
 
 //        java.awt.EventQueue.invokeLater(() -> {
-        new PdfCreateOptionsDialog(this, actualFile, cards).setVisible(true);
+        new PdfCreateOptionsDialog(this, actualFile, cards, pdfSettings).setVisible(true);
 //        });
 
     }//GEN-LAST:event_pdfExportMenuItemActionPerformed

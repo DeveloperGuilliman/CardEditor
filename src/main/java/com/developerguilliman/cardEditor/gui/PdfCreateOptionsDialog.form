@@ -16,6 +16,9 @@
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
     <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
   </SyntheticProperties>
+  <Events>
+    <EventHandler event="windowClosed" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="formWindowClosed"/>
+  </Events>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
@@ -72,9 +75,6 @@
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="new javax.swing.DefaultComboBoxModel(PAGE_SIZE_NAMES)" type="code"/>
                     </Property>
-                    <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getPageName(PdfOutput.DEFAULT_PAGE_SIZE)" type="code"/>
-                    </Property>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pageSizeComboBoxActionPerformed"/>
@@ -96,9 +96,6 @@
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="3" maximum="12" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                     </Property>
-                    <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="PdfOutput.DEFAULT_CARDS_PER_X" type="code"/>
-                    </Property>
                   </Properties>
                   <Events>
                     <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="cardsPerXSpinnerPropertyChange"/>
@@ -117,9 +114,6 @@
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="3" maximum="12" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                     </Property>
-                    <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="PdfOutput.DEFAULT_CARDS_PER_Y" type="code"/>
-                    </Property>
                   </Properties>
                   <Events>
                     <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="cardsPerYSpinnerPropertyChange"/>
@@ -134,9 +128,6 @@
                   <Properties>
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="10.0" maximum="99.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.05" type="number"/>
-                    </Property>
-                    <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="PdfOutput.DEFAULT_MARGIN_X" type="code"/>
                     </Property>
                   </Properties>
                   <Events>
@@ -153,9 +144,6 @@
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="11.15" maximum="99.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.05" type="number"/>
                     </Property>
-                    <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="PdfOutput.DEFAULT_MARGIN_Y" type="code"/>
-                    </Property>
                   </Properties>
                   <Events>
                     <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="marginYSpinnerPropertyChange"/>
@@ -169,6 +157,9 @@
                 <Component class="javax.swing.JTextField" name="cardSizeMMTextField">
                   <Properties>
                     <Property name="editable" type="boolean" value="false"/>
+                    <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[300, 20]"/>
+                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="cardSizeInchLabel">
@@ -337,18 +328,12 @@
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="1.0" minimum="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
                     </Property>
-                    <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="PdfOutput.DEFAULT_TITLE_FONT_SIZE" type="code"/>
-                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JComboBox" name="titleFontTypeCombo">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="new javax.swing.DefaultComboBoxModel(FONT_NAMES)" type="code"/>
-                    </Property>
-                    <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getFontName(PdfOutput.DEFAULT_TITLE_FONT_TYPE)" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -377,18 +362,12 @@
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="1.0" minimum="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
                     </Property>
-                    <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="PdfOutput.DEFAULT_NAME_FONT_SIZE" type="code"/>
-                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JComboBox" name="nameFontTypeCombo">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="new javax.swing.DefaultComboBoxModel(FONT_NAMES)" type="code"/>
-                    </Property>
-                    <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getFontName(PdfOutput.DEFAULT_NAME_FONT_TYPE)" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -417,18 +396,12 @@
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="1.0" minimum="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
                     </Property>
-                    <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="PdfOutput.DEFAULT_LEGEND_FONT_SIZE" type="code"/>
-                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JComboBox" name="legendFontTypeCombo">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="new javax.swing.DefaultComboBoxModel(FONT_NAMES)" type="code"/>
-                    </Property>
-                    <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getFontName(PdfOutput.DEFAULT_LEGEND_FONT_TYPE)" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -457,18 +430,12 @@
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="1.0" minimum="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
                     </Property>
-                    <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="PdfOutput.DEFAULT_RULES_FONT_SIZE" type="code"/>
-                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JComboBox" name="rulesFontTypeCombo">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="new javax.swing.DefaultComboBoxModel(FONT_NAMES)" type="code"/>
-                    </Property>
-                    <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getFontName(PdfOutput.DEFAULT_RULES_FONT_TYPE)" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -497,18 +464,12 @@
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="1.0" minimum="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
                     </Property>
-                    <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="PdfOutput.DEFAULT_COST_VALUE_FONT_SIZE" type="code"/>
-                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JComboBox" name="costValueFontTypeCombo">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="new javax.swing.DefaultComboBoxModel(FONT_NAMES)" type="code"/>
-                    </Property>
-                    <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getFontName(PdfOutput.DEFAULT_COST_VALUE_FONT_TYPE)" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -537,18 +498,12 @@
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="1.0" minimum="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
                     </Property>
-                    <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="PdfOutput.DEFAULT_COST_TYPE_FONT_SIZE" type="code"/>
-                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JComboBox" name="costTypeFontTypeCombo">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="new javax.swing.DefaultComboBoxModel(FONT_NAMES)" type="code"/>
-                    </Property>
-                    <Property name="selectedItem" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="getFontName(PdfOutput.DEFAULT_COST_TYPE_FONT_TYPE)" type="code"/>
                     </Property>
                   </Properties>
                   <AuxValues>
@@ -584,7 +539,7 @@
             <Property name="alignment" type="int" value="0"/>
           </Layout>
           <SubComponents>
-            <Container class="javax.swing.JPanel" name="jPanel4">
+            <Container class="javax.swing.JPanel" name="cardSettingsFieldsPanel">
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
                 <Property name="columns" type="int" value="3"/>
@@ -799,6 +754,14 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="saveButtonActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="jButton1">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Reset settings"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="cancelButton">

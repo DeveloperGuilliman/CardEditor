@@ -17,6 +17,7 @@
 package com.developerguilliman.cardEditor.output;
 
 import com.developerguilliman.cardEditor.CardHash;
+import com.developerguilliman.cardEditor.Utils;
 import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.data.CardData;
 import com.developerguilliman.cardEditor.data.SectionData;
@@ -43,6 +44,7 @@ import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlin
  */
 public class PdfOutput implements ICardOutput {
 
+    private static final String TAB_SPACES = "    ";
     private static final float LEADING_FACTOR = 1.125f;
     private static final float LEADING_INTERTEXT_FACTOR = 0.25f;
     private static final float MIN_Y_FONT_FACTOR = 1.25f;
@@ -82,11 +84,11 @@ public class PdfOutput implements ICardOutput {
     public static final Color DEFAULT_TITLE_BAR_COLOR = Color.BLACK;
     public static final Color DEFAULT_CARD_BORDER_COLOR = Color.BLACK;
     public static final Color DEFAULT_COST_BORDER_COLOR = Color.BLACK;
-    public static final Color DEFAULT_CARD_FILL_COLOR = Color.WHITE;
-    public static final Color DEFAULT_COST_VALUE_FILL_COLOR = Color.WHITE;
-    public static final Color DEFAULT_COST_TYPE_FILL_COLOR = Color.WHITE;
+    public static final Color DEFAULT_CARD_FILL_COLOR = null;
+    public static final Color DEFAULT_COST_VALUE_FILL_COLOR = null;
+    public static final Color DEFAULT_COST_TYPE_FILL_COLOR = null;
     public static final Color DEFAULT_FOREGROUND_GRID_COLOR = VERY_LIGHT_GRAY;
-    public static final Color DEFAULT_BACKGROUND_GRID_COLOR = VERY_LIGHT_GRAY;
+    public static final Color DEFAULT_BACKGROUND_GRID_COLOR = null;
 
     public static final boolean DEFAULT_BACKGROUND_PAGES = false;
     public static final boolean DEFAULT_FILL_UNUSED_CARD_SLOTS = false;
@@ -447,12 +449,12 @@ public class PdfOutput implements ICardOutput {
 
     private String printCardForeground(PDPageContentStream cs, CardData card, float x, float y, float width, float height, int cardIndex, int pageIndex, IWarningHandler warningHandler) throws IOException {
 
-        String title = card.getTitle().replace('\n', ' ').trim();
-        String name = card.getName().replace('\n', ' ').trim();
-        String legend = card.getLegend().trim();
-        String rules = card.getRules().trim();
-        String costValue = card.getCostValue().replace('\n', ' ').trim();
-        String costType = card.getCostType().replace('\n', ' ').trim();
+        String title = card.getTitle().replace("\t", TAB_SPACES).trim();
+        String name = card.getName().replace("\t", TAB_SPACES).trim();
+        String legend = Utils.rightTrim(card.getLegend().replace("\t", TAB_SPACES));
+        String rules = Utils.rightTrim(card.getRules().replace("\t", TAB_SPACES));
+        String costValue = card.getCostValue().replace("\t", TAB_SPACES).trim();
+        String costType = card.getCostType().replace("\t", TAB_SPACES).trim();
 
         printedTextBuffer.setLength(0);
 
@@ -908,7 +910,7 @@ public class PdfOutput implements ICardOutput {
         private boolean fillUnusedCardSlotsTitles;
 
         public Builder() {
-            reset();
+            this.reset();
         }
 
         public void reset() {
@@ -981,38 +983,32 @@ public class PdfOutput implements ICardOutput {
             return this;
         }
 
-        public Builder setTitleFontSize(
-                float titleFontSize) {
+        public Builder setTitleFontSize(float titleFontSize) {
             this.titleFontSize = titleFontSize;
             return this;
         }
 
-        public Builder setNameFontSize(
-                float nameFontSize) {
+        public Builder setNameFontSize(float nameFontSize) {
             this.nameFontSize = nameFontSize;
             return this;
         }
 
-        public Builder setLegendFontSize(
-                float legendFontSize) {
+        public Builder setLegendFontSize(float legendFontSize) {
             this.legendFontSize = legendFontSize;
             return this;
         }
 
-        public Builder setRulesFontSize(
-                float rulesFontSize) {
+        public Builder setRulesFontSize(float rulesFontSize) {
             this.rulesFontSize = rulesFontSize;
             return this;
         }
 
-        public Builder setCostValueFontSize(
-                float costValueFontSize) {
+        public Builder setCostValueFontSize(float costValueFontSize) {
             this.costValueFontSize = costValueFontSize;
             return this;
         }
 
-        public Builder setCostTypeFontSize(
-                float costTypeFontSize) {
+        public Builder setCostTypeFontSize(float costTypeFontSize) {
             this.costTypeFontSize = costTypeFontSize;
             return this;
         }
@@ -1286,7 +1282,6 @@ public class PdfOutput implements ICardOutput {
             return fillUnusedCardSlotsTitles;
         }
 
-        
         public PdfOutput build() {
             return new PdfOutput(
                     pageSize, perX, perY, marginPercentX, marginPercentY,
