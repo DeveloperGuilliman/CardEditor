@@ -249,13 +249,13 @@
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="fillUnusedCardSlotsBordersCheckBox">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Empty card slots Borders"/>
+                    <Property name="text" type="java.lang.String" value="Empty card slots with Borders"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="fillUnusedCardSlotsTitleBarsCheckBox">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Empty card slots Title bars"/>
+                    <Property name="text" type="java.lang.String" value="Empty card slots with Title bars"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>

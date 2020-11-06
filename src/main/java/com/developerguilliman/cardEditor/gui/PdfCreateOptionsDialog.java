@@ -409,11 +409,11 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         });
         pageFieldPanel4.add(fillUnusedCardSlotsCheckBox);
 
-        fillUnusedCardSlotsBordersCheckBox.setText("Empty card slots Borders");
+        fillUnusedCardSlotsBordersCheckBox.setText("Empty card slots with Borders");
         fillUnusedCardSlotsBordersCheckBox.setEnabled(false);
         pageFieldPanel4.add(fillUnusedCardSlotsBordersCheckBox);
 
-        fillUnusedCardSlotsTitleBarsCheckBox.setText("Empty card slots Title bars");
+        fillUnusedCardSlotsTitleBarsCheckBox.setText("Empty card slots with Title bars");
         fillUnusedCardSlotsTitleBarsCheckBox.setEnabled(false);
         pageFieldPanel4.add(fillUnusedCardSlotsTitleBarsCheckBox);
 

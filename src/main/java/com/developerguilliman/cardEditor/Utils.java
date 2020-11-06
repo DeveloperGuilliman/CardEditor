@@ -59,6 +59,7 @@ public class Utils {
     public static String rightTrim(String value) {
         int len = value.length();
         int end = len;
+        
         while ((0 < end) && (value.charAt(end - 1) <= ' ')) {
             end--;
         }
