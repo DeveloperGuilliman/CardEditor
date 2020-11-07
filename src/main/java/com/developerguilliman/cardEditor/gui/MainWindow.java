@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -42,11 +43,13 @@ import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeNode;
@@ -81,7 +84,6 @@ public class MainWindow extends javax.swing.JFrame {
         root = new DefaultMutableTreeNode("Cards", true);
         cardTree.setModel(new DefaultTreeModel(root, true));
         cardTree.setTransferHandler(new TreeTransferHandler(cardTree));
-        cardTree.setCellRenderer(new CardTreeCellRenderer());
         cardTree.getSelectionModel().setSelectionMode(DefaultTreeSelectionModel.SINGLE_TREE_SELECTION);
         titleTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -229,7 +231,22 @@ public class MainWindow extends javax.swing.JFrame {
                 actualCard.setCostType(costTypeTextField.getText());
             }
         });
+        CardTreeCellRenderer cellRenderer = new CardTreeCellRenderer(cards);
+        cardTree.setCellRenderer(cellRenderer);
+        CardTreeCellEditor treeCellEditor = new CardTreeCellEditor(cardTree, cellRenderer);
+        treeCellEditor.addCellEditorListener(new CellEditorListener() {
+            @Override
+            public void editingStopped(ChangeEvent e) {
+                forceUpdateUI();
+            }
+
+            @Override
+            public void editingCanceled(ChangeEvent e) {
+            }
+        });
+        cardTree.setCellEditor(treeCellEditor);
         updateButtonsFields();
+
     }
 
     /**
@@ -802,7 +819,18 @@ public class MainWindow extends javax.swing.JFrame {
         JFileChooser chooser = createXmlFileChooser();
         int returnVal = chooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            loadCards(chooser.getSelectedFile(), "Importing...", false);
+            File file = chooser.getSelectedFile();
+            Callable<List<String>> callable = () -> {
+                FileInputStream fis = new FileInputStream(file);
+                XmlCardInput input = new XmlCardInput();
+
+                CardCollectionData newCards = input.build(fis);
+                java.awt.EventQueue.invokeLater(() -> {
+                    new CardImportDialog(MainWindow.this, newCards).setVisible(true);
+                });
+                return null;
+            };
+            WaitingDialog.show(MainWindow.this, "Loa...", callable);
         }
     }//GEN-LAST:event_cardsXmlImportMenuItemActionPerformed
 
@@ -900,6 +928,11 @@ public class MainWindow extends javax.swing.JFrame {
             return null;
         };
         WaitingDialog.show(MainWindow.this, waitTitle, callable);
+    }
+
+    public void addCards(Collection<SectionData> newCards) {
+        cards.addAll(newCards);
+        updateTree();
     }
 
     private void saveCards(File file) {
@@ -1054,11 +1087,26 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private static DefaultMutableTreeNode createCardNode(CardData card) {
-        return new DefaultMutableTreeNode(card, false);
+        return new DefaultMutableTreeNode(card, false) {
+            @Override
+            public void setUserObject(Object userObject) {
+                String name = userObject.toString();
+                card.setName(name);
+            }
+        };
     }
 
     private static DefaultMutableTreeNode createSectionNode(SectionData section) {
-        return new DefaultMutableTreeNode(section, true);
+        return new DefaultMutableTreeNode(section, true) {
+            @Override
+            public void setUserObject(Object userObject) {
+                String title = userObject.toString();
+                for (CardData card : section) {
+                    card.setTitle(title);
+                }
+                section.updateName();
+            }
+        };
     }
 
     private static void expandNodes(JTree tree, DefaultMutableTreeNode node) {
@@ -1089,25 +1137,26 @@ public class MainWindow extends javax.swing.JFrame {
         setTitle(file != null ? file.getName().concat(" - Card editor") : "Card editor");
     }
 
-    private class CardTreeCellRenderer extends DefaultTreeCellRenderer {
+    private static class CardTreeCellEditor extends DefaultTreeCellEditor {
+
+        public CardTreeCellEditor(JTree tree, CardTreeCellRenderer cellRenderer) {
+            super(tree, cellRenderer);
+
+        }
 
         @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-            Object o = node.getUserObject();
+        public Component getTreeCellEditorComponent(JTree tree, Object value, boolean isSelected, boolean expanded, boolean leaf, int row) {
+            Object o = ((DefaultMutableTreeNode) value).getUserObject();
             if (o instanceof CardData) {
                 value = ((CardData) o).getName();
             } else if (o instanceof SectionData) {
-                SectionData section = (SectionData) o;
-                int index = cards.getExactIndex(section) + 1;
-                String sectionName = section.getName();
-                if (sectionName.isEmpty()) {
-                    value = "Section " + index + " (" + section.size() + ")";
-                } else {
-                    value = "Section " + index + " - " + sectionName + " (" + section.size() + ")";
-                }
+                value = ((SectionData) o).getName();
             }
-            return super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+            return super.getTreeCellEditorComponent(tree, value, isSelected, expanded, leaf, row);
+        }
+
+        public TreePath getLastPath() {
+            return lastPath;
         }
 
     }

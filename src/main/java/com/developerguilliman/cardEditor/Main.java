@@ -40,19 +40,27 @@ public class Main {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             ex.printStackTrace();
         }
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> {
-            MainWindow window = new MainWindow();
-            window.setVisible(true);
-
-            Thread.setDefaultUncaughtExceptionHandler((Thread t, Throwable e) -> {
-                JOptionPane.showMessageDialog(window, e.getLocalizedMessage(), "Unknown Error", JOptionPane.ERROR_MESSAGE);
+        if (args.length <= 0) {
+            java.awt.EventQueue.invokeLater(() -> {
+                MainWindow window = new MainWindow();
+                window.setVisible(true);
             });
-            if (args.length <= 0) {
-                return;
-            }
-            window.loadCards(new File(args[0]), "Loading...", true);
-        });
+            return;
+        }
+        for (String filename : args) {
+            /* Create and display the form */
+            java.awt.EventQueue.invokeLater(() -> {
+                MainWindow window = new MainWindow();
+                window.setVisible(true);
+
+                Thread.setDefaultUncaughtExceptionHandler((Thread t, Throwable e) -> {
+                    JOptionPane.showMessageDialog(window, e.getLocalizedMessage(), "Unknown Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                });
+
+                window.loadCards(new File(filename), "Loading...", true);
+            });
+        }
     }
 
 }
