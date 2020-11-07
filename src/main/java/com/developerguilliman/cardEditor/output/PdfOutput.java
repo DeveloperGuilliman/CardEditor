@@ -82,6 +82,9 @@ public class PdfOutput implements ICardOutput {
 
     public static final Color DEFAULT_CARD_BACKGROUND_COLOR = null;
     public static final Color DEFAULT_TITLE_BAR_COLOR = Color.BLACK;
+    public static final Color DEFAULT_UPPER_BAR_COLOR = null;
+    public static final Color DEFAULT_LOWER_BAR_COLOR = null;
+
     public static final Color DEFAULT_CARD_BORDER_COLOR = Color.BLACK;
     public static final Color DEFAULT_COST_BORDER_COLOR = Color.BLACK;
     public static final Color DEFAULT_CARD_FILL_COLOR = null;
@@ -113,6 +116,8 @@ public class PdfOutput implements ICardOutput {
 
     private final Color cardBackgroundColor;
     private final Color titleBarsColor;
+    private final Color upperBarColor;
+    private final Color lowerBarColor;
     private final Color cardBordersColor;
     private final Color costBordersColor;
     private final Color cardFillColor;
@@ -147,6 +152,9 @@ public class PdfOutput implements ICardOutput {
 
         this.cardBackgroundColor = DEFAULT_CARD_BACKGROUND_COLOR;
         this.titleBarsColor = DEFAULT_TITLE_BAR_COLOR;
+        this.upperBarColor = DEFAULT_UPPER_BAR_COLOR;
+        this.lowerBarColor = DEFAULT_LOWER_BAR_COLOR;
+
         this.cardBordersColor = DEFAULT_CARD_BORDER_COLOR;
         this.costBordersColor = DEFAULT_COST_BORDER_COLOR;
         this.cardFillColor = DEFAULT_CARD_FILL_COLOR;
@@ -166,7 +174,8 @@ public class PdfOutput implements ICardOutput {
 
     private PdfOutput(PDRectangle pageSize, int perX, int perY, float marginPercentX, float marginPercentY,
             FontData titleFont, FontData nameFont, FontData legendFont, FontData rulesFont, FontData costValueFont, FontData costTypeFont,
-            Color cardBackgroundColor, Color titleBarsColor, Color cardBordersColor, Color costBordersColor,
+            Color cardBackgroundColor, Color titleBarsColor, Color upperBarColor, Color lowerBarColor,
+            Color cardBordersColor, Color costBordersColor,
             Color cardFillColor, Color costValueFillColor, Color costTypeFillColor,
             Color foregroundGridColor, Color backgroundGridColor,
             boolean backgroundPages, boolean fillUnusedCardSlots, boolean fillUnusedCardSlotsBorders, boolean fillUnusedCardSlotsTitles) {
@@ -187,6 +196,8 @@ public class PdfOutput implements ICardOutput {
 
         this.cardBackgroundColor = cardBackgroundColor;
         this.titleBarsColor = titleBarsColor;
+        this.upperBarColor = upperBarColor;
+        this.lowerBarColor = lowerBarColor;
         this.cardBordersColor = cardBordersColor;
         this.costBordersColor = costBordersColor;
         this.cardFillColor = cardFillColor;
@@ -208,7 +219,7 @@ public class PdfOutput implements ICardOutput {
     @Override
     public void build(OutputStream out, CardCollectionData cards, IWarningHandler warningHandler) throws IOException {
 
-        try (PDDocument document = new PDDocument()) {
+        try ( PDDocument document = new PDDocument()) {
             buildDocument(document, cards, warningHandler);
             document.save(out);
 
@@ -256,7 +267,7 @@ public class PdfOutput implements ICardOutput {
             outlineItem.setTitle(sectionTitle.isEmpty() ? "Various cards" : sectionTitle);
             document.getDocumentCatalog().getDocumentOutline().addLast(outlineItem);
         }
-        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
 
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
@@ -280,7 +291,7 @@ public class PdfOutput implements ICardOutput {
     private void buildBackgroundPage(PDDocument document, int printedCards) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
 
@@ -424,6 +435,9 @@ public class PdfOutput implements ICardOutput {
                 costValueBottomY += poligon8ExtraSide + costValueFont.getHeight() + ((poligon6Height - costValueFont.size) / 2) + 1;
                 costTypeBottomY += costTypeFont.getHeight() + ((poligon6Height - costTypeFont.size) / 2) + 1;
             }
+            if (lowerBarColor != null) {
+                drawNameLines(cs, x, width, costValueBottomY, lowerBarColor);
+            }
         }
 
         if (fillUnusedCardSlotsTitles) {
@@ -432,6 +446,11 @@ public class PdfOutput implements ICardOutput {
 
             nextY -= titleFont.size * LEADING_FACTOR;
             nextY -= 4;
+
+            if (upperBarColor != null) {
+                nextY -= 2;
+                drawNameLines(cs, x, width, nextY, upperBarColor);
+            }
 
             if (titleBarsColor != null) {
                 nextY -= 2;
@@ -558,11 +577,18 @@ public class PdfOutput implements ICardOutput {
         nextY -= printBreakableCenteredText(cs, title, x + titleTextMarginX, nextY, titleTextWidth, titleFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
         nextY -= 4;
 
+        if (upperBarColor != null) {
+            nextY -= 2;
+            drawNameLines(cs, x, width, nextY, upperBarColor);
+        }
+
         if (!name.isEmpty()) {
 
             if (titleBarsColor != null) {
                 nextY -= 2;
                 drawNameLines(cs, x, width, nextY, titleBarsColor);
+            } else {
+
             }
 
             nextY -= printBreakableCenteredText(cs, name, x + normalTextMarginX, nextY, normalTextWidth, nameFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
@@ -570,6 +596,7 @@ public class PdfOutput implements ICardOutput {
             if (titleBarsColor != null) {
                 drawNameLines(cs, x, width, nextY - 6, titleBarsColor);
                 nextY -= 4;
+
             }
         }
         nextY -= 6;
@@ -578,6 +605,9 @@ public class PdfOutput implements ICardOutput {
 
         nextY -= printBreakingText(rules, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY, rulesFont, cs, printedTextBuffer, cardIndex, pageIndex, warningHandler);
 
+        if (lowerBarColor != null) {
+            drawNameLines(cs, x, width, costValueBottomY, lowerBarColor);
+        }
         if (!costValue.isEmpty()) {
             printCenteredText(cs, costValue, costValueX, costValueBottomY, poligon8Side, costValueFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
         }
@@ -896,6 +926,8 @@ public class PdfOutput implements ICardOutput {
 
         private Color cardBackgroundColor;
         private Color titleBarsColor;
+        private Color upperBarColor;
+        private Color lowerBarColor;
         private Color cardBordersColor;
         private Color costBordersColor;
         private Color cardFillColor;
@@ -944,6 +976,9 @@ public class PdfOutput implements ICardOutput {
 
             this.cardBackgroundColor = DEFAULT_CARD_BACKGROUND_COLOR;
             this.titleBarsColor = DEFAULT_TITLE_BAR_COLOR;
+            this.upperBarColor = DEFAULT_UPPER_BAR_COLOR;
+            this.lowerBarColor = DEFAULT_LOWER_BAR_COLOR;
+
             this.cardBordersColor = DEFAULT_CARD_BORDER_COLOR;
             this.costBordersColor = DEFAULT_COST_BORDER_COLOR;
             this.cardFillColor = DEFAULT_CARD_FILL_COLOR;
@@ -1050,6 +1085,16 @@ public class PdfOutput implements ICardOutput {
 
         public Builder setTitleBarsColor(Color titleBarsColor) {
             this.titleBarsColor = titleBarsColor;
+            return this;
+        }
+
+        public Builder setUpperBarColor(Color upperBarColor) {
+            this.upperBarColor = upperBarColor;
+            return this;
+        }
+
+        public Builder setLowerBarColor(Color lowerBarColor) {
+            this.lowerBarColor = lowerBarColor;
             return this;
         }
 
@@ -1238,6 +1283,14 @@ public class PdfOutput implements ICardOutput {
             return titleBarsColor;
         }
 
+        public Color getUpperBarColor() {
+            return upperBarColor;
+        }
+
+        public Color getLowerBarColor() {
+            return lowerBarColor;
+        }
+
         public Color getCardBordersColor() {
             return cardBordersColor;
         }
@@ -1291,7 +1344,8 @@ public class PdfOutput implements ICardOutput {
                     new FontData(rulesFontType, rulesFontSize, rulesFontColor),
                     new FontData(costValueFontType, costValueFontSize, costValueFontColor),
                     new FontData(costTypeFontType, costTypeFontSize, costTypeFontColor),
-                    cardBackgroundColor, titleBarsColor, cardBordersColor, costBordersColor,
+                    cardBackgroundColor, titleBarsColor, upperBarColor, lowerBarColor,
+                    cardBordersColor, costBordersColor,
                     cardFillColor, costValueFillColor, costTypeFillColor,
                     foregroundGridColor, backgroundGridColor,
                     backgroundPages, fillUnusedCardSlots, fillUnusedCardSlotsBorders, fillUnusedCardSlotsTitles
