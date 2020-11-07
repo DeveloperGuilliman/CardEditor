@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<cards>
+  <section>
+    <card>
+      <name>DUNCAN'S DISAPPOINTMENT</name>
+      <title>Endgame Stratagem</title>
+      <legend>The presence of grey plastic on the battlefield doesn't make Duncan angry with you - just dissapointed.</legend>
+      <rules>Select an enemy unpainted unit. One friendly painted unit may reroll failed hit rolls to hit and wound against this unit this phase.</rules>
+      <costValue>1</costValue>
+      <costType>COMMAND POINTS</costType>
+    </card>
+    <card>
+      <name>THE END OF THE WORLD</name>
+      <title>Endgame Stratagem</title>
+      <legend>There is a reason the game area is limited. Out of bounds, there is only death.</legend>
+      <rules>Use this stratagem when your opponent drops a model outside the game board. That model is considered destroyed</rules>
+      <costValue>1</costValue>
+      <costType>COMMAND POINTS</costType>
+    </card>
+    <card>
+      <name>YOU SHALL NOT PASS</name>
+      <title>Endgame Stratagem</title>
+      <legend>By sheer willpower, a powerful hero can impose himself even against towering enemies which will be unable to move.</legend>
+      <rules>Use this stratagem when a enemy unit within 12" of a CHARACTER is choosed to move in the enemy movement phase. That enemy unit is automatically unavailable to to move and can't be selected to move in this phase.</rules>
+      <costValue>3</costValue>
+      <costType>COMMAND POINTS</costType>
+    </card>
+  </section>
+  <section>
+    <card>
+      <name>LIGHT SMITE</name>
+      <title>Common Discipline</title>
+      <legend>The psyker draws upon the raw power of the warp, to unleash a crackling bolt that can gravely wound a man.</legend>
+      <rules>Light smite has a warp charge value of 5. If manifested, the closest visible enemy unit within 18" of the psyker suffers 1 mortal wounds.
+
+This power can be attempted more than only once per turn and does not suffer warp charge value increases.</rules>
+      <costValue>5</costValue>
+      <costType>PSYCHIC POWER</costType>
+    </card>
+  </section>
+  <section>
+    <card>
+      <name>EXPERT COMMANDER</name>
+      <title>Warlord Trait</title>
+      <legend>This veteran commander has a few tricks up his sleeve.</legend>
+      <rules>Once per battle, you can reroll a failed hit, wound or save roll</rules>
+      <costValue/>
+      <costType/>
+    </card>
+  </section>
+  <section>
+    <card>
+      <name>THE SEALED BOX</name>
+      <title>Misterious relic</title>
+      <legend>This black box has a powerful energy core inside than can devastate any enemy, but the cost to the user is always too high.</legend>
+      <rules>Once per battle, at the start of the shooting phase, a model with this relic can open the box. When it does, select a enemy model within 3". That enemy model and the relic bearer model are instantly slain. Both models counts as destroyed by an enemy attack.</rules>
+      <costValue/>
+      <costType/>
+    </card>
+  </section>
+</cards>
