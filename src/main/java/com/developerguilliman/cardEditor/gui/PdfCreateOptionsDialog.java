@@ -252,6 +252,12 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         cardBackgroundCheckBox = new javax.swing.JCheckBox();
         cardBackgroundLabel = new javax.swing.JLabel();
         cardBackgroundColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
+        outerBorderCheckBox = new javax.swing.JCheckBox();
+        outerBorderColorLabel = new javax.swing.JLabel();
+        outerBorderColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
+        fillCheckBox = new javax.swing.JCheckBox();
+        fillColorLabel = new javax.swing.JLabel();
+        fillColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
         titleBarsCheckBox = new javax.swing.JCheckBox();
         titleBarsColorLabel = new javax.swing.JLabel();
         titleBarsColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
@@ -261,12 +267,6 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         lowerBarCheckBox = new javax.swing.JCheckBox();
         lowerBarColorLabel = new javax.swing.JLabel();
         lowerBarColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
-        outerBorderCheckBox = new javax.swing.JCheckBox();
-        outerBorderColorLabel = new javax.swing.JLabel();
-        outerBorderColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
-        fillCheckBox = new javax.swing.JCheckBox();
-        fillColorLabel = new javax.swing.JLabel();
-        fillColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
         costBorderCheckBox = new javax.swing.JCheckBox();
         costBorderColorLabel = new javax.swing.JLabel();
         costBorderColorChooserButton = new com.developerguilliman.cardEditor.gui.JColorChooserButton();
@@ -575,6 +575,41 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         });
         cardSettingsFieldsPanel.add(cardBackgroundColorChooserButton);
 
+        outerBorderCheckBox.setSelected(true);
+        outerBorderCheckBox.setText("Card Poligon Border");
+        outerBorderCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                outerBorderCheckBoxActionPerformed(evt);
+            }
+        });
+        cardSettingsFieldsPanel.add(outerBorderCheckBox);
+
+        outerBorderColorLabel.setText("Card Poligon color");
+        cardSettingsFieldsPanel.add(outerBorderColorLabel);
+
+        outerBorderColorChooserButton.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        outerBorderColorChooserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                outerBorderColorChooserButtonActionPerformed(evt);
+            }
+        });
+        cardSettingsFieldsPanel.add(outerBorderColorChooserButton);
+
+        fillCheckBox.setText("Fill Card Poligon");
+        cardSettingsFieldsPanel.add(fillCheckBox);
+
+        fillColorLabel.setText("Fill Card Poligon color");
+        cardSettingsFieldsPanel.add(fillColorLabel);
+
+        fillColorChooserButton.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        fillColorChooserButton.setSelectedColor(new java.awt.Color(255, 255, 255));
+        fillColorChooserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fillColorChooserButtonActionPerformed(evt);
+            }
+        });
+        cardSettingsFieldsPanel.add(fillColorChooserButton);
+
         titleBarsCheckBox.setSelected(true);
         titleBarsCheckBox.setText("Title Bars");
         cardSettingsFieldsPanel.add(titleBarsCheckBox);
@@ -619,41 +654,6 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
             }
         });
         cardSettingsFieldsPanel.add(lowerBarColorChooserButton);
-
-        outerBorderCheckBox.setSelected(true);
-        outerBorderCheckBox.setText("Outer Border");
-        outerBorderCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                outerBorderCheckBoxActionPerformed(evt);
-            }
-        });
-        cardSettingsFieldsPanel.add(outerBorderCheckBox);
-
-        outerBorderColorLabel.setText("Outer Border color");
-        cardSettingsFieldsPanel.add(outerBorderColorLabel);
-
-        outerBorderColorChooserButton.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        outerBorderColorChooserButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                outerBorderColorChooserButtonActionPerformed(evt);
-            }
-        });
-        cardSettingsFieldsPanel.add(outerBorderColorChooserButton);
-
-        fillCheckBox.setText("Fill OuterBorder");
-        cardSettingsFieldsPanel.add(fillCheckBox);
-
-        fillColorLabel.setText("Fill color");
-        cardSettingsFieldsPanel.add(fillColorLabel);
-
-        fillColorChooserButton.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        fillColorChooserButton.setSelectedColor(new java.awt.Color(255, 255, 255));
-        fillColorChooserButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fillColorChooserButtonActionPerformed(evt);
-            }
-        });
-        cardSettingsFieldsPanel.add(fillColorChooserButton);
 
         costBorderCheckBox.setSelected(true);
         costBorderCheckBox.setText("Cost Border");

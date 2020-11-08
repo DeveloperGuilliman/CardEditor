@@ -219,7 +219,7 @@ public class PdfOutput implements ICardOutput {
     @Override
     public void build(OutputStream out, CardCollectionData cards, IWarningHandler warningHandler) throws IOException {
 
-        try ( PDDocument document = new PDDocument()) {
+        try (PDDocument document = new PDDocument()) {
             buildDocument(document, cards, warningHandler);
             document.save(out);
 
@@ -267,7 +267,7 @@ public class PdfOutput implements ICardOutput {
             outlineItem.setTitle(sectionTitle.isEmpty() ? "Various cards" : sectionTitle);
             document.getDocumentCatalog().getDocumentOutline().addLast(outlineItem);
         }
-        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
 
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
@@ -291,7 +291,7 @@ public class PdfOutput implements ICardOutput {
     private void buildBackgroundPage(PDDocument document, int printedCards) throws IOException {
         PDPage page = new PDPage(pageSize);
         document.addPage(page);
-        try ( PDPageContentStream cs = new PDPageContentStream(document, page)) {
+        try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
             final float pageWidth = page.getBBox().getWidth();
             final float pageHeight = page.getBBox().getHeight();
 
@@ -385,12 +385,15 @@ public class PdfOutput implements ICardOutput {
             cs.fill();
         }
 
-        if (cardBordersColor != null || cardFillColor != null) {
-            float bordersMargin = Math.min(width * 0.04f, height * 0.04f);
-            width -= 2 * bordersMargin;
-            height -= 2 * bordersMargin;
-            x += bordersMargin;
-            y += bordersMargin;
+        boolean marginForCardBorders = (cardBordersColor != null || cardFillColor != null);
+        float bordersMargin = Math.min(width, height);
+        bordersMargin *= marginForCardBorders ? 0.04f : 0.02f;
+        width -= 2 * bordersMargin;
+        height -= 2 * bordersMargin;
+        x += bordersMargin;
+        y += bordersMargin;
+
+        if (marginForCardBorders) {
             float blankSpace = Math.min(width, height) * 0.1f;
             drawCardPoligon(cs, x, y, width, height, blankSpace, cardBordersColor, cardFillColor);
         }
@@ -487,22 +490,26 @@ public class PdfOutput implements ICardOutput {
         }
 
         final float titleTextWidth;
-        float bordersMargin;
+        final float normalTextWidth;
+        boolean marginForCardBorders = (cardBordersColor != null || cardFillColor != null);
+        float bordersMargin = Math.min(width, height);
+        bordersMargin *= marginForCardBorders ? 0.04f : 0.025f;
+        width -= 2 * bordersMargin;
+        height -= 2 * bordersMargin;
+        x += bordersMargin;
+        y += bordersMargin;
+
         if (cardBordersColor != null || cardFillColor != null) {
-            bordersMargin = Math.min(width * 0.04f, height * 0.04f);
-            width -= 2 * bordersMargin;
-            height -= 2 * bordersMargin;
-            x += bordersMargin;
-            y += bordersMargin;
             float blankSpace = Math.min(width, height) * 0.1f;
             drawCardPoligon(cs, x, y, width, height, blankSpace, cardBordersColor, cardFillColor);
             titleTextWidth = width * 0.85f;
+            normalTextWidth = width * 0.9f;
         } else {
             titleTextWidth = width * 0.9f;
+            normalTextWidth = width * 0.9f;
             bordersMargin = 0;
         }
 
-        final float normalTextWidth = width * 0.9f;
         final float normalTextMarginX = (width - normalTextWidth) / 2;
 
         final float titleTextMarginX = (width - titleTextWidth) / 2;
@@ -568,6 +575,7 @@ public class PdfOutput implements ICardOutput {
             costTypeBottomY += costTypeFont.getHeight() + ((poligon6Height - costTypeFont.size) / 2) + 1;
 
         }
+        minY += (lowerBarColor != null) ? 2 : 0;
 
         float nextY = y + height;
 
@@ -578,25 +586,22 @@ public class PdfOutput implements ICardOutput {
         nextY -= 4;
 
         if (upperBarColor != null) {
+            drawNameLines(cs, x + titleTextMarginX, titleTextWidth, nextY, upperBarColor);
             nextY -= 2;
-            drawNameLines(cs, x, width, nextY, upperBarColor);
         }
 
         if (!name.isEmpty()) {
 
             if (titleBarsColor != null) {
                 nextY -= 2;
-                drawNameLines(cs, x, width, nextY, titleBarsColor);
-            } else {
-
+                drawNameLines(cs, x + normalTextMarginX, normalTextWidth, nextY, titleBarsColor);
             }
 
             nextY -= printBreakableCenteredText(cs, name, x + normalTextMarginX, nextY, normalTextWidth, nameFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
 
             if (titleBarsColor != null) {
-                drawNameLines(cs, x, width, nextY - 6, titleBarsColor);
+                drawNameLines(cs, x + normalTextMarginX, normalTextWidth, nextY - 6, titleBarsColor);
                 nextY -= 4;
-
             }
         }
         nextY -= 6;
@@ -606,7 +611,7 @@ public class PdfOutput implements ICardOutput {
         nextY -= printBreakingText(rules, x + normalTextMarginX, nextY, normalTextWidth, nextY - minY, rulesFont, cs, printedTextBuffer, cardIndex, pageIndex, warningHandler);
 
         if (lowerBarColor != null) {
-            drawNameLines(cs, x, width, costValueBottomY, lowerBarColor);
+            drawNameLines(cs, x + titleTextMarginX, titleTextWidth, minY, lowerBarColor);
         }
         if (!costValue.isEmpty()) {
             printCenteredText(cs, costValue, costValueX, costValueBottomY, poligon8Side, costValueFont, printedTextBuffer, cardIndex, pageIndex, warningHandler);
@@ -624,13 +629,11 @@ public class PdfOutput implements ICardOutput {
         printRightText(cs, hash, x + margin, y + margin, width - 2 * margin, hashFont, printedTextBuffer);
     }
 
-    private static void drawNameLines(PDPageContentStream cs, float x, float width, float nextY, Color color) throws IOException {
-        float lineX0 = x + width * 0.05f;
-        float lineX1 = x + width * 0.95f;
-        cs.setStrokingColor(color);
+    private static void drawNameLines(PDPageContentStream cs, float x, float width, float y, Color color) throws IOException {
 
-        cs.moveTo(lineX0, nextY);
-        cs.lineTo(lineX1, nextY);
+        cs.setStrokingColor(color);
+        cs.moveTo(x, y);
+        cs.lineTo(x + width, y);
         cs.stroke();
     }
 
