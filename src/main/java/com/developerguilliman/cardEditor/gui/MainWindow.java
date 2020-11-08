@@ -61,12 +61,12 @@ import javax.swing.tree.TreePath;
  */
 public class MainWindow extends javax.swing.JFrame {
 
-    private final PdfOutput.Builder pdfSettings;
     private final CardCollectionData cards;
     private final DefaultMutableTreeNode root;
 
     private SectionData actualSection;
     private CardData actualCard;
+    private PdfOutput.Builder pdfSettings;
 
     private DefaultMutableTreeNode actualSectionNode;
     private DefaultMutableTreeNode actualCardNode;
@@ -80,7 +80,6 @@ public class MainWindow extends javax.swing.JFrame {
         cards = new CardCollectionData();
         initComponents();
 
-        pdfSettings = new PdfOutput.Builder();
         root = new DefaultMutableTreeNode("Cards", true);
         cardTree.setModel(new DefaultTreeModel(root, true));
         cardTree.setTransferHandler(new TreeTransferHandler(cardTree));
@@ -299,7 +298,11 @@ public class MainWindow extends javax.swing.JFrame {
         wahapediaWarlordTraitImportMenuItem = new javax.swing.JMenuItem();
         wahapediaAllImportMenuItem = new javax.swing.JMenuItem();
         exportMenu = new javax.swing.JMenu();
-        pdfExportMenuItem = new javax.swing.JMenuItem();
+        pdfExportMenu = new javax.swing.JMenu();
+        bw8ExportMenuItem = new javax.swing.JMenuItem();
+        bw9ExportMenuItem = new javax.swing.JMenuItem();
+        color8ExportMenuItem1 = new javax.swing.JMenuItem();
+        lastExportMenuItem = new javax.swing.JMenuItem();
         sectionMenu = new javax.swing.JMenu();
         compactAllSectionsMenuItem = new javax.swing.JMenuItem();
         reorderTitleSectionMenuItem = new javax.swing.JMenuItem();
@@ -545,13 +548,46 @@ public class MainWindow extends javax.swing.JFrame {
 
         exportMenu.setText("Export");
 
-        pdfExportMenuItem.setText("Export PDF...");
-        pdfExportMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        pdfExportMenu.setText("Export PDF");
+
+        bw8ExportMenuItem.setText("Black & White 8th edition...");
+        bw8ExportMenuItem.setToolTipText("");
+        bw8ExportMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pdfExportMenuItemActionPerformed(evt);
+                bw8ExportMenuItemActionPerformed(evt);
             }
         });
-        exportMenu.add(pdfExportMenuItem);
+        pdfExportMenu.add(bw8ExportMenuItem);
+
+        bw9ExportMenuItem.setText("Black & White 9th edition...");
+        bw9ExportMenuItem.setToolTipText("");
+        bw9ExportMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bw9ExportMenuItemActionPerformed(evt);
+            }
+        });
+        pdfExportMenu.add(bw9ExportMenuItem);
+
+        color8ExportMenuItem1.setText("Color 8th edition...");
+        color8ExportMenuItem1.setToolTipText("");
+        color8ExportMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                color8ExportMenuItem1ActionPerformed(evt);
+            }
+        });
+        pdfExportMenu.add(color8ExportMenuItem1);
+
+        lastExportMenuItem.setText("Last style...");
+        lastExportMenuItem.setToolTipText("");
+        lastExportMenuItem.setEnabled(false);
+        lastExportMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lastExportMenuItemActionPerformed(evt);
+            }
+        });
+        pdfExportMenu.add(lastExportMenuItem);
+
+        exportMenu.add(pdfExportMenu);
 
         mainMenuBar1.add(exportMenu);
 
@@ -719,16 +755,13 @@ public class MainWindow extends javax.swing.JFrame {
             return null;
         };
         WaitingDialog.show(this, "Loading stratagem cards from Wahapedia...", callable);
-
     }//GEN-LAST:event_wahapediaStratagemImportMenuItemActionPerformed
 
-    private void pdfExportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pdfExportMenuItemActionPerformed
-
-//        java.awt.EventQueue.invokeLater(() -> {
+    private void bw8ExportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bw8ExportMenuItemActionPerformed
+        pdfSettings = new PdfOutput.Builder(PdfOutput.DefaultPreset.BW_8);
+        lastExportMenuItem.setEnabled(true);
         new PdfCreateOptionsDialog(this, actualFile, cards, pdfSettings).setVisible(true);
-//        });
-
-    }//GEN-LAST:event_pdfExportMenuItemActionPerformed
+    }//GEN-LAST:event_bw8ExportMenuItemActionPerformed
 
     private void wahapediaWarlordTraitImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaWarlordTraitImportMenuItemActionPerformed
         String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import Misc cards for", "Wahapedia Misc cards import", JOptionPane.QUESTION_MESSAGE);
@@ -858,13 +891,34 @@ public class MainWindow extends javax.swing.JFrame {
         forceUpdateUI();
     }//GEN-LAST:event_duplicateCardButtonActionPerformed
 
+    private void bw9ExportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bw9ExportMenuItemActionPerformed
+        pdfSettings = new PdfOutput.Builder(PdfOutput.DefaultPreset.BW_9);
+        lastExportMenuItem.setEnabled(true);
+        new PdfCreateOptionsDialog(this, actualFile, cards, pdfSettings).setVisible(true);
+    }//GEN-LAST:event_bw9ExportMenuItemActionPerformed
+
+    private void lastExportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lastExportMenuItemActionPerformed
+        if (pdfSettings != null) {
+            new PdfCreateOptionsDialog(this, actualFile, cards, pdfSettings).setVisible(true);
+        }
+    }//GEN-LAST:event_lastExportMenuItemActionPerformed
+
+    private void color8ExportMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_color8ExportMenuItem1ActionPerformed
+        pdfSettings = new PdfOutput.Builder(PdfOutput.DefaultPreset.COLOR_8);
+        lastExportMenuItem.setEnabled(true);
+        new PdfCreateOptionsDialog(this, actualFile, cards, pdfSettings).setVisible(true);
+    }//GEN-LAST:event_color8ExportMenuItem1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addCardButton;
     private javax.swing.JButton addSectionButton;
+    private javax.swing.JMenuItem bw8ExportMenuItem;
+    private javax.swing.JMenuItem bw9ExportMenuItem;
     private javax.swing.JTree cardTree;
     private javax.swing.JScrollPane cardTreeScrollPane;
     private javax.swing.JPanel cardsButtonsPanel;
     private javax.swing.JMenuItem cardsXmlImportMenuItem;
+    private javax.swing.JMenuItem color8ExportMenuItem1;
     private javax.swing.JMenuItem compactAllSectionsMenuItem;
     private javax.swing.JPanel costPanel;
     private javax.swing.JLabel costTypeLabel;
@@ -880,6 +934,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenu exportMenu;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu importMenu;
+    private javax.swing.JMenuItem lastExportMenuItem;
     private javax.swing.JLabel legendLabel;
     private javax.swing.JScrollPane legendScrollPane;
     private javax.swing.JTextArea legendTextArea;
@@ -888,7 +943,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JLabel nameLabel;
     private javax.swing.JTextField nameTextField;
     private javax.swing.JMenuItem newMenuItem;
-    private javax.swing.JMenuItem pdfExportMenuItem;
+    private javax.swing.JMenu pdfExportMenu;
     private javax.swing.JButton removeCardButton;
     private javax.swing.JButton removeSectionButton;
     private javax.swing.JMenuItem reorderNameSectionMenuItem;

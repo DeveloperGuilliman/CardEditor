@@ -63,7 +63,6 @@ public class PdfOutput implements ICardOutput {
     public static final float DEFAULT_NAME_FONT_SIZE = 11;
     public static final float DEFAULT_LEGEND_FONT_SIZE = 7;
     public static final float DEFAULT_RULES_FONT_SIZE = 7;
-    public static final float DEFAULT_COST_VALUE_FONT_SIZE = 8;
     public static final float DEFAULT_COST_TYPE_FONT_SIZE = 8;
 
     public static final PDType1Font DEFAULT_TITLE_FONT_TYPE = PDType1Font.HELVETICA_BOLD;
@@ -77,18 +76,8 @@ public class PdfOutput implements ICardOutput {
     public static final Color DEFAULT_NAME_FONT_COLOR = Color.BLACK;
     public static final Color DEFAULT_LEGEND_FONT_COLOR = Color.BLACK;
     public static final Color DEFAULT_RULES_FONT_COLOR = Color.BLACK;
-    public static final Color DEFAULT_COST_VALUE_FONT_COLOR = Color.BLACK;
     public static final Color DEFAULT_COST_TYPE_FONT_COLOR = Color.BLACK;
 
-    public static final Color DEFAULT_CARD_BACKGROUND_COLOR = null;
-    public static final Color DEFAULT_TITLE_BAR_COLOR = Color.BLACK;
-    public static final Color DEFAULT_UPPER_BAR_COLOR = null;
-    public static final Color DEFAULT_LOWER_BAR_COLOR = null;
-
-    public static final Color DEFAULT_CARD_BORDER_COLOR = Color.BLACK;
-    public static final Color DEFAULT_COST_BORDER_COLOR = Color.BLACK;
-    public static final Color DEFAULT_CARD_FILL_COLOR = null;
-    public static final Color DEFAULT_COST_VALUE_FILL_COLOR = null;
     public static final Color DEFAULT_COST_TYPE_FILL_COLOR = null;
     public static final Color DEFAULT_FOREGROUND_GRID_COLOR = VERY_LIGHT_GRAY;
     public static final Color DEFAULT_BACKGROUND_GRID_COLOR = null;
@@ -133,7 +122,7 @@ public class PdfOutput implements ICardOutput {
     private final CardHash cardHash;
     private final StringBuilder printedTextBuffer;
 
-    public PdfOutput() {
+    public PdfOutput(DefaultPreset preset) {
 
         this.pageSize = DEFAULT_PAGE_SIZE;
 
@@ -147,18 +136,18 @@ public class PdfOutput implements ICardOutput {
         this.nameFont = new FontData(DEFAULT_NAME_FONT_TYPE, DEFAULT_NAME_FONT_SIZE, DEFAULT_NAME_FONT_COLOR);
         this.legendFont = new FontData(DEFAULT_LEGEND_FONT_TYPE, DEFAULT_LEGEND_FONT_SIZE, DEFAULT_LEGEND_FONT_COLOR);
         this.rulesFont = new FontData(DEFAULT_RULES_FONT_TYPE, DEFAULT_RULES_FONT_SIZE, DEFAULT_RULES_FONT_COLOR);
-        this.costValueFont = new FontData(DEFAULT_COST_VALUE_FONT_TYPE, DEFAULT_COST_VALUE_FONT_SIZE, DEFAULT_COST_VALUE_FONT_COLOR);
+        this.costValueFont = new FontData(DEFAULT_COST_VALUE_FONT_TYPE, preset.getCostValueFontSize(), preset.getCostValueFontColor());
         this.costTypeFont = new FontData(DEFAULT_COST_TYPE_FONT_TYPE, DEFAULT_COST_TYPE_FONT_SIZE, DEFAULT_COST_TYPE_FONT_COLOR);
 
-        this.cardBackgroundColor = DEFAULT_CARD_BACKGROUND_COLOR;
-        this.titleBarsColor = DEFAULT_TITLE_BAR_COLOR;
-        this.upperBarColor = DEFAULT_UPPER_BAR_COLOR;
-        this.lowerBarColor = DEFAULT_LOWER_BAR_COLOR;
+        this.cardBackgroundColor = preset.getCardBackgroundColor();
+        this.titleBarsColor = preset.getTitleBarsColor();
+        this.upperBarColor = preset.getUpperBarColor();
+        this.lowerBarColor = preset.getLowerBarColor();
 
-        this.cardBordersColor = DEFAULT_CARD_BORDER_COLOR;
-        this.costBordersColor = DEFAULT_COST_BORDER_COLOR;
-        this.cardFillColor = DEFAULT_CARD_FILL_COLOR;
-        this.costValueFillColor = DEFAULT_COST_VALUE_FILL_COLOR;
+        this.cardBordersColor = preset.getCardBorderColor();
+        this.costBordersColor = preset.getCostBordersColor();
+        this.cardFillColor = preset.getCardFillColor();
+        this.costValueFillColor = preset.getCostValueFillColor();
         this.costTypeFillColor = DEFAULT_COST_TYPE_FILL_COLOR;
         this.foregroundGridColor = DEFAULT_FOREGROUND_GRID_COLOR;
         this.backgroundGridColor = DEFAULT_BACKGROUND_GRID_COLOR;
@@ -944,11 +933,11 @@ public class PdfOutput implements ICardOutput {
         private boolean fillUnusedCardSlotsBorders;
         private boolean fillUnusedCardSlotsTitles;
 
-        public Builder() {
-            this.reset();
+        public Builder(DefaultPreset preset) {
+            this.reset(preset);
         }
 
-        public void reset() {
+        public void reset(DefaultPreset preset) {
             this.pageSize = DEFAULT_PAGE_SIZE;
             this.perX = DEFAULT_CARDS_PER_X;
             this.perY = DEFAULT_CARDS_PER_Y;
@@ -960,7 +949,7 @@ public class PdfOutput implements ICardOutput {
             this.nameFontSize = DEFAULT_NAME_FONT_SIZE;
             this.legendFontSize = DEFAULT_LEGEND_FONT_SIZE;
             this.rulesFontSize = DEFAULT_RULES_FONT_SIZE;
-            this.costValueFontSize = DEFAULT_COST_VALUE_FONT_SIZE;
+            this.costValueFontSize = preset.getCostValueFontSize();
             this.costTypeFontSize = DEFAULT_COST_TYPE_FONT_SIZE;
 
             this.titleFontType = DEFAULT_TITLE_FONT_TYPE;
@@ -974,18 +963,18 @@ public class PdfOutput implements ICardOutput {
             this.nameFontColor = DEFAULT_NAME_FONT_COLOR;
             this.legendFontColor = DEFAULT_LEGEND_FONT_COLOR;
             this.rulesFontColor = DEFAULT_RULES_FONT_COLOR;
-            this.costValueFontColor = DEFAULT_COST_VALUE_FONT_COLOR;
+            this.costValueFontColor = preset.getCostValueFontColor();
             this.costTypeFontColor = DEFAULT_COST_TYPE_FONT_COLOR;
 
-            this.cardBackgroundColor = DEFAULT_CARD_BACKGROUND_COLOR;
-            this.titleBarsColor = DEFAULT_TITLE_BAR_COLOR;
-            this.upperBarColor = DEFAULT_UPPER_BAR_COLOR;
-            this.lowerBarColor = DEFAULT_LOWER_BAR_COLOR;
+            this.cardBackgroundColor = preset.getCardBackgroundColor();
+            this.titleBarsColor = preset.getTitleBarsColor();
+            this.upperBarColor = preset.getUpperBarColor();
+            this.lowerBarColor = preset.getLowerBarColor();
 
-            this.cardBordersColor = DEFAULT_CARD_BORDER_COLOR;
-            this.costBordersColor = DEFAULT_COST_BORDER_COLOR;
-            this.cardFillColor = DEFAULT_CARD_FILL_COLOR;
-            this.costValueFillColor = DEFAULT_COST_VALUE_FILL_COLOR;
+            this.cardBordersColor = preset.getCardBorderColor();
+            this.cardFillColor = preset.getCardFillColor();
+            this.costBordersColor = preset.getCostBordersColor();
+            this.costValueFillColor = preset.getCostValueFillColor();
             this.costTypeFillColor = DEFAULT_COST_TYPE_FILL_COLOR;
             this.foregroundGridColor = DEFAULT_FOREGROUND_GRID_COLOR;
             this.backgroundGridColor = DEFAULT_BACKGROUND_GRID_COLOR;
@@ -1381,6 +1370,184 @@ public class PdfOutput implements ICardOutput {
             return height;
         }
 
+    }
+
+    public enum DefaultPreset {
+        BW_8 {
+            @Override
+            Color getCardBackgroundColor() {
+                return null;
+            }
+
+            @Override
+            Color getTitleBarsColor() {
+                return Color.BLACK;
+            }
+
+            @Override
+            Color getUpperBarColor() {
+                return null;
+            }
+
+            @Override
+            Color getLowerBarColor() {
+                return null;
+            }
+
+            @Override
+            Color getCardBorderColor() {
+                return Color.BLACK;
+            }
+
+            @Override
+            Color getCostBordersColor() {
+                return Color.BLACK;
+            }
+
+            @Override
+            float getCostValueFontSize() {
+                return 11;
+            }
+
+            @Override
+            Color getCostValueFontColor() {
+                return Color.BLACK;
+            }
+
+            @Override
+            Color getCostValueFillColor() {
+                return null;
+            }
+
+            @Override
+            Color getCardFillColor() {
+                return null;
+            }
+
+        }, COLOR_8 {
+            @Override
+            Color getCardBackgroundColor() {
+                return new Color(0xEFF5EF);
+            }
+
+            @Override
+            Color getTitleBarsColor() {
+                return Color.BLACK;
+            }
+
+            @Override
+            Color getUpperBarColor() {
+                return null;
+            }
+
+            @Override
+            Color getLowerBarColor() {
+                return null;
+            }
+
+            @Override
+            Color getCardBorderColor() {
+                return Color.BLACK;
+            }
+
+            @Override
+            Color getCostBordersColor() {
+                return Color.BLACK;
+            }
+
+            @Override
+            float getCostValueFontSize() {
+                return 11;
+            }
+
+            @Override
+            Color getCostValueFontColor() {
+                return Color.WHITE;
+            }
+
+            @Override
+            Color getCostValueFillColor() {
+                return new Color(0xCC0000);
+            }
+
+            @Override
+            Color getCardFillColor() {
+                return new Color(0xEAF4EE);
+            }
+
+        },
+        BW_9 {
+            @Override
+            Color getCardBackgroundColor() {
+                return null;
+            }
+
+            @Override
+            Color getTitleBarsColor() {
+                return null;
+            }
+
+            @Override
+            Color getUpperBarColor() {
+                return Color.BLACK;
+            }
+
+            @Override
+            Color getLowerBarColor() {
+                return Color.BLACK;
+            }
+
+            @Override
+            Color getCardBorderColor() {
+                return null;
+            }
+
+            @Override
+            Color getCostBordersColor() {
+                return null;
+            }
+
+            @Override
+            float getCostValueFontSize() {
+                return 8;
+            }
+
+            @Override
+            Color getCostValueFontColor() {
+                return Color.BLACK;
+            }
+
+            @Override
+            Color getCostValueFillColor() {
+                return null;
+            }
+
+            @Override
+            Color getCardFillColor() {
+                return null;
+            }
+
+        };
+
+        abstract Color getCardBackgroundColor();
+
+        abstract float getCostValueFontSize();
+
+        abstract Color getCostValueFontColor();
+
+        abstract Color getTitleBarsColor();
+
+        abstract Color getUpperBarColor();
+
+        abstract Color getLowerBarColor();
+
+        abstract Color getCardBorderColor();
+
+        abstract Color getCostBordersColor();
+
+        abstract Color getCostValueFillColor();
+
+        abstract Color getCardFillColor();
     }
 
 }
