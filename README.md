@@ -8,4 +8,6 @@ Needs Java 8+ installed.
 
 ![](doc/card_editor_export.png)
 
-![](doc/card_editor_pdf.png)
+![](doc/card_editor_9th_pdf.png)
+
+![](doc/card_editor_8th_pdf.png)
