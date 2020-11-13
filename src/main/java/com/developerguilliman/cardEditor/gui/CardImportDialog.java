@@ -95,6 +95,7 @@ public class CardImportDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(500, 480));
         setModal(true);
+        getContentPane().setLayout(new java.awt.BorderLayout());
 
         cardTreeScrollPane.setMinimumSize(new java.awt.Dimension(200, 23));
         cardTreeScrollPane.setPreferredSize(new java.awt.Dimension(300, 352));
@@ -268,27 +269,14 @@ public class CardImportDialog extends javax.swing.JDialog {
         int selectedCards = getSelectedCards();
         int totalCards = getTotalCards();
         selectedCardsLabel.setText(selectedCards + "/" + totalCards);
-//        if (selectedCards == 1) {
-//            CardData actualCard = getFirstSelectedCard();
-//            titleTextField.setText(actualCard.getTitle());
-//            nameTextField.setText(actualCard.getName());
-//            legendTextArea.setText(actualCard.getLegend());
-//            rulesTextArea.setText(actualCard.getRules());
-//            costValueTextField.setText(actualCard.getCostValue());
-//            costTypeTextField.setText(actualCard.getCostType());
-//        } else {
-//            titleTextField.setText("");
-//            nameTextField.setText("");
-//            legendTextArea.setText("");
-//            rulesTextArea.setText("");
-//            costValueTextField.setText("");
-//            costTypeTextField.setText("");
-//        }
-
     }//GEN-LAST:event_cardTreeValueChanged
 
     private void cardTreeMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cardTreeMouseMoved
-        CardData actualCard = getPathCardData(cardTree.getPathForLocation(evt.getX(), evt.getY()));
+        updateActualCard(evt.getX(), evt.getY());
+    }//GEN-LAST:event_cardTreeMouseMoved
+
+    private void updateActualCard(int x, int y) {
+        CardData actualCard = getPathCardData(cardTree.getPathForLocation(x, y));
         if (actualCard != null) {
             titleTextField.setText(actualCard.getTitle());
             nameTextField.setText(actualCard.getName());
@@ -304,7 +292,20 @@ public class CardImportDialog extends javax.swing.JDialog {
             costValueTextField.setText("");
             costTypeTextField.setText("");
         }
-    }//GEN-LAST:event_cardTreeMouseMoved
+    }
+
+    private CardData getPathCardData(TreePath tp) {
+        if (tp != null) {
+            DefaultMutableTreeNode pathNode = (DefaultMutableTreeNode) tp.getLastPathComponent();
+            if (pathNode != null) {
+                Object pathObject = pathNode.getUserObject();
+                if (pathObject instanceof CardData) {
+                    return (CardData) pathObject;
+                }
+            }
+        }
+        return null;
+    }
 
     private void updateTree(boolean select) {
 
@@ -331,19 +332,6 @@ public class CardImportDialog extends javax.swing.JDialog {
 
     private static DefaultMutableTreeNode createSectionNode(SectionData section) {
         return new DefaultMutableTreeNode(section, true);
-    }
-
-    private CardData getPathCardData(TreePath tp) {
-        if (tp != null) {
-            DefaultMutableTreeNode pathNode = (DefaultMutableTreeNode) tp.getLastPathComponent();
-            if (pathNode != null) {
-                Object pathObject = pathNode.getUserObject();
-                if (pathObject instanceof CardData) {
-                    return (CardData)pathObject;
-                }
-            }
-        }
-        return null;
     }
 
     private int getSelectedCards() {

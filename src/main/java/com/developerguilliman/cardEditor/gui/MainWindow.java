@@ -684,6 +684,11 @@ public class MainWindow extends javax.swing.JFrame {
         actualCardNode = cardNode;
         selectAndScroll(cardNode);
         forceUpdateUI();
+        java.awt.EventQueue.invokeLater(() -> {
+            nameTextField.requestFocus();
+            nameTextField.setSelectionStart(0);
+            nameTextField.setSelectionEnd(nameTextField.getText().length());
+        });
     }//GEN-LAST:event_addCardButtonActionPerformed
 
     private void removeCardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeCardButtonActionPerformed
@@ -1057,7 +1062,7 @@ public class MainWindow extends javax.swing.JFrame {
         Color textAreaColor = UIManager.getDefaults().getColor(hasActualCard ? "TextField.background" : "TextField.disabledBackground");
         legendTextArea.setBackground(textAreaColor);
         rulesTextArea.setBackground(textAreaColor);
-        
+
         if (hasActualCard) {
             titleTextField.setText(actualCard.getTitle());
             nameTextField.setText(actualCard.getName());
