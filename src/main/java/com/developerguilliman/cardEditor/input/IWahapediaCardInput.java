@@ -19,17 +19,52 @@ package com.developerguilliman.cardEditor.input;
 import com.developerguilliman.cardEditor.data.CardData;
 import com.developerguilliman.cardEditor.data.SectionData;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.jsoup.select.Evaluator;
+import org.jsoup.select.QueryParser;
+import org.jsoup.select.Selector;
 
 /**
  *
  * @author Developer Guilliman <developerguilliman@gmail.com>
  */
 interface IWahapediaCardInput extends ICardInput {
+    
+    public static final Evaluator UL_EVALUATOR = QueryParser.parse("ul");
+    public static final Evaluator LI_EVALUATOR = QueryParser.parse("li");
 
     public static CardData createCard(String title, String name, String legend, String rules, String costValue, String costType) {
-        return new CardData(title.trim(), name.trim().toUpperCase(), legend.trim(), rules.trim(), costValue.trim(), costType.trim());
+        return new CardData(title.trim().toUpperCase(), name.trim().toUpperCase(), legend.trim(), rules.trim(), costValue.trim(), costType.trim());
     }
 
     public void buildFromHtml(Document doc, SectionData list);
+
+    public static String createRules(Elements els) {
+        StringBuilder sb = new StringBuilder();
+        for (Element el : els) {
+            sb.append(createRules(el));
+        }
+        return sb.toString();
+    }
+
+    public static String createRules(Element el) {
+        Elements ulElements = el.select(UL_EVALUATOR);
+        if (ulElements.isEmpty()) {
+            return el.wholeText();
+        }
+        String text = el.wholeText();
+        StringBuilder sb = new StringBuilder();
+        for (Element ulElement : ulElements) {
+            sb.setLength(0);
+            Elements liElements = ulElement.select(LI_EVALUATOR);
+            for (Element liElement : liElements) {
+                sb.append("\n\n• ");
+                sb.append(liElement.wholeText());
+            }
+            text = text.replace(ulElement.wholeText(), sb);
+        }
+        return text.trim();
+    }
 
 }

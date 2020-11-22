@@ -26,12 +26,24 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.jsoup.select.Evaluator;
+import org.jsoup.select.QueryParser;
 
 /**
  *
  * @author Developer Guilliman <developerguilliman@gmail.com>
  */
 public class WahapediaStratagemCardBuilder implements IWahapediaCardInput {
+
+    private static final Evaluator P_STRATNAME_EVALUATOR = QueryParser.parse("p.stratName");
+    private static final Evaluator P_STRATFACTION_EVALUATOR = QueryParser.parse("p.stratFaction");
+    private static final Evaluator P_STRATLEGEND_EVALUATOR = QueryParser.parse("p.stratLegend");
+
+    
+    private static final Evaluator STRATNAME9K_SPAN_EVALUATOR = QueryParser.parse(".stratName_9k span");
+    private static final Evaluator STRATFACTIONCS_EVALUATOR = QueryParser.parse(".stratFaction_CS");
+    private static final Evaluator SHOWFLUFF_EVALUATOR = QueryParser.parse(".ShowFluff");
+    private static final Evaluator STRATTEXT_EVALUATOR = QueryParser.parse(".stratText_CS");
 
     private final int maxToGroup;
     private final boolean reorderByName;
@@ -71,39 +83,44 @@ public class WahapediaStratagemCardBuilder implements IWahapediaCardInput {
 
     @Override
     public void buildFromHtml(Document doc, SectionData list) {
+        buildFromHtml8thStyle(doc, list);
+        buildFromHtml9thStyle(doc, list);
+    }
+
+    public void buildFromHtml8thStyle(Document doc, SectionData list) {
 
         Elements cardElements = doc.select("div.Columns2 div.BreakInsideAvoid.Corner7");
         for (Element cardElement : cardElements) {
-            CardData card = buildStratagem(cardElement);
+            CardData card = buildStratagem8thStyle(cardElement);
             if (card != null) {
                 list.add(card);
             }
         }
     }
 
-    private CardData buildStratagem(Element cardElement) {
+    private CardData buildStratagem8thStyle(Element cardElement) {
 
         try {
             String lastText = "";
 
-            Elements nameElement = cardElement.select("p.stratName");
+            Elements nameElement = cardElement.select(P_STRATNAME_EVALUATOR);
             String name = nameElement.text();
             if (!name.isEmpty()) {
                 lastText = name;
             }
 
-            String faction = cardElement.select("p.stratFaction").text();
+            String faction = cardElement.select(P_STRATFACTION_EVALUATOR).text();
             if (!faction.isEmpty()) {
                 lastText = faction;
             }
 
-            String description = cardElement.select("p.stratLegend").text();
+            String description = cardElement.select(P_STRATLEGEND_EVALUATOR).text();
             if (!description.isEmpty()) {
                 lastText = description;
             }
 
             Element rulesElement = nameElement.parents().first();
-            String rules = rulesElement.text();
+            String rules = IWahapediaCardInput.createRules(rulesElement);
             int io = rules.indexOf(lastText) + lastText.length();
             rules = rules.substring(io);
 
@@ -116,6 +133,45 @@ public class WahapediaStratagemCardBuilder implements IWahapediaCardInput {
                 costValue = alternateCost.trim();
                 costType = "COMMAND POINTS";
             }
+            return IWahapediaCardInput.createCard(faction, name, description, rules, costValue, costType);
+        } catch (Exception e) {
+            System.err.println("Error " + e + " at element " + cardElement.html());
+            return null;
+        }
+    }
+
+    public void buildFromHtml9thStyle(Document doc, SectionData list) {
+
+        Elements cardElements = doc.select("div.stratWrapper_CS");
+        for (Element cardElement : cardElements) {
+            CardData card = buildStratagem9thStyle(cardElement);
+            if (card != null) {
+                list.add(card);
+            }
+        }
+    }
+
+    private CardData buildStratagem9thStyle(Element cardElement) {
+
+        try {
+
+            Elements nameSpanElements = cardElement.select(STRATNAME9K_SPAN_EVALUATOR);
+
+            if (nameSpanElements.isEmpty()) {
+                return null;
+            }
+            String name = nameSpanElements.get(0).text();
+
+            String costValue = nameSpanElements.get(1).text().replace("CP", "");
+
+            String costType = "COMMAND POINTS";
+
+            String faction = cardElement.select(STRATFACTIONCS_EVALUATOR).text().replace(" – ", " ").replace(" - ", " ");
+
+            String description = cardElement.select(SHOWFLUFF_EVALUATOR).text();
+
+            String rules = IWahapediaCardInput.createRules(cardElement.select(STRATTEXT_EVALUATOR));
+
             return IWahapediaCardInput.createCard(faction, name, description, rules, costValue, costType);
         } catch (Exception e) {
             System.err.println("Error " + e + " at element " + cardElement.html());

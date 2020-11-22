@@ -26,6 +26,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.jsoup.select.Evaluator;
+import org.jsoup.select.QueryParser;
 
 /**
  *
@@ -36,6 +38,15 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
     private static final String PSYCHIC_POWER_FIND_FIRST = "has a warp charge ";
     private static final String PSYCHIC_POWER_FIND_SECOND = " of ";
     private static final String PYSCHIC_POWERS = "Psychic Powers";
+
+    private static final Evaluator TD_EVALUATOR = QueryParser.parse("td");
+    private static final Evaluator B_EVALUATOR = QueryParser.parse("b");
+    private static final Evaluator I_EVALUATOR = QueryParser.parse("i");
+
+    private static final Evaluator STRATNAME_SPAN_EVALUATOR = QueryParser.parse(".stratName span");
+    private static final Evaluator STRATFACTIONCS_EVALUATOR = QueryParser.parse(".stratFaction_CS");
+    private static final Evaluator SHOWFLUFF_EVALUATOR = QueryParser.parse(".ShowFluff");
+    private static final Evaluator STRATTEXT_EVALUATOR = QueryParser.parse(".stratText_CS");
 
     private final int maxToGroup;
     private final boolean reorderByName;
@@ -84,20 +95,25 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
                 }
             } catch (Exception e) {
                 System.err.println("Error at element " + cardElement.html());
-                e.printStackTrace();
             }
         }
         for (Element tableElement : doc.select("div.Columns2 tr.tableColumns3")) {
-            String firstCellType = tableElement.select("td").first().text();
-            String lastCellType = tableElement.select("td").last().text();
+            String firstCellType = tableElement.select(TD_EVALUATOR).first().text();
+            String lastCellType = tableElement.select(TD_EVALUATOR).last().text();
 
             for (Element cardElement : tableElement.nextElementSiblings()) {
                 try {
                     list.add(buildFactionCard(cardElement, firstCellType, lastCellType));
                 } catch (Exception e) {
                     System.err.println("Error at element " + cardElement.html());
-                    e.printStackTrace();
                 }
+            }
+        }
+
+        for (Element cardElement : doc.select("div.stratWrapper_CS")) {
+            CardData card = buildStratagemLike9thStyle(cardElement);
+            if (card != null) {
+                list.add(card);
             }
         }
 
@@ -120,25 +136,6 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
         }
 
         String title = inferTitle(cardElement.parents().select("div.Columns2").first());
-//        String tlc = title.toLowerCase();
-//        if (tlc.equals("abilities") || tlc.endsWith("detachment rules") || tlc.endsWith("chapter tactics") || tlc.endsWith("doctrines")) {
-//            return null;
-//        }
-//        if (!title.endsWith("Traits") && !title.endsWith("Powers") && titleElement.tagName().equalsIgnoreCase("h3")) {
-//            Element parent = titleElement.parent();
-//            Element parentParent = parent.parent();
-//            if (parentParent.is(".BreakInsideAvoid")) {
-//                parent = parentParent;
-//            }
-//            Element postElementTitle = parent.previousElementSibling();
-//            while (postElementTitle != null && !postElementTitle.tag().equals("h3") && !postElementTitle.tag().equals("h2")) {
-//                postElementTitle = postElementTitle.previousElementSibling();
-//            }
-//            if (postElementTitle != null) {
-//                title = title + " " + postElementTitle.ownText();
-//            }
-//        }
-
         String name = cardElement.text();
         int ioName = name.indexOf(':');
         if (ioName > 0) {
@@ -151,14 +148,14 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
 
         String rules;
         if (nextElements.size() == 2) {
-            rules = nextElements.last().text();
+            rules = IWahapediaCardInput.createRules(nextElements.last());
         } else {
-            rules = cardElement.parent().text();
+            rules = IWahapediaCardInput.createRules(cardElement.parent());
             int ioRules = rules.indexOf(legend) + legend.length();
             rules = rules.substring(ioRules);
         }
         String costValue = extractPsychicPowerCost(rules);
-        String costType = costValue.isEmpty() ? " ": "WARP CHARGE";
+        String costType = costValue.isEmpty() ? " " : "WARP CHARGE";
         return IWahapediaCardInput.createCard(title, name, legend, rules, costValue, costType);
 
     }
@@ -175,22 +172,15 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
 
         String title = inferTitle(cardElement.parents().select("table").first());
 
-        Elements cellElements = cardElement.select("td");
+        Elements cellElements = cardElement.select(TD_EVALUATOR);
         Element lastElement = cellElements.last();
         String first = cellElements.first().text();
-        String last = lastElement.text();
-        String bold = lastElement.select("b").text();
-        String italic = lastElement.select("i").text();
+        String last = IWahapediaCardInput.createRules(lastElement);
+        String bold = lastElement.select(B_EVALUATOR).text();
+        String italic = lastElement.select(I_EVALUATOR).text();
 
         String name = bold.endsWith(":") ? bold.substring(0, bold.length() - 1) : bold;
 
-//
-//        if (lastCellType.toUpperCase().endsWith("TRAIT")) {
-//            title = first.concat(" Warlord Trait");
-//        } else
-//        if (firstCellType.equals("D6") || firstCellType.equals("D3")) {
-//            title = lastCellType;
-//        } else
         if (name.isEmpty()) {
             name = first;
         } else if (!firstCellType.equals("D6") && !firstCellType.equals("D3")) {
@@ -201,12 +191,40 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
         String legend = italic;
         String rules = last.substring(last.indexOf(italic) + italic.length());
         String costValue = extractPsychicPowerCost(rules);
-        String costType = costValue.isEmpty() ? " ": "WARP CHARGE";
-       
+        String costType = costValue.isEmpty() ? " " : "WARP CHARGE";
+
         return IWahapediaCardInput.createCard(title, name, legend, rules, costValue, costType);
     }
 
-    private String titleCase(String title) {
+    private CardData buildStratagemLike9thStyle(Element cardElement) {
+
+        try {
+
+            Elements nameSpanElements = cardElement.select(STRATNAME_SPAN_EVALUATOR);
+
+            if (nameSpanElements.isEmpty()) {
+                return null;
+            }
+            String name = nameSpanElements.get(0).text();
+
+            String costValue = nameSpanElements.get(1).text().replace("CP", "");
+
+            String costType = "COMMAND POINTS";
+
+            String faction = cardElement.select(STRATFACTIONCS_EVALUATOR).text().replace(" – ", " ").replace(" - ", " ");
+
+            String description = cardElement.select(SHOWFLUFF_EVALUATOR).text();
+
+            String rules = IWahapediaCardInput.createRules(cardElement.select(STRATTEXT_EVALUATOR));
+
+            return IWahapediaCardInput.createCard(faction, name, description, rules, costValue, costType);
+        } catch (Exception e) {
+            System.err.println("Error " + e + " at element " + cardElement.html());
+            return null;
+        }
+    }
+
+    private static String titleCase(String title) {
         int len = title.length();
         char[] charBuffer = new char[len];
         boolean upperNextChar = true;
