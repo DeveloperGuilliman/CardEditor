@@ -304,8 +304,8 @@ public class MainWindow extends javax.swing.JFrame {
         wahapediaAllImportMenuItem = new javax.swing.JMenuItem();
         exportMenu = new javax.swing.JMenu();
         pdfExportMenu = new javax.swing.JMenu();
-        bw8ExportMenuItem = new javax.swing.JMenuItem();
         bw9ExportMenuItem = new javax.swing.JMenuItem();
+        bw8ExportMenuItem = new javax.swing.JMenuItem();
         color8ExportMenuItem1 = new javax.swing.JMenuItem();
         lastExportMenuItem = new javax.swing.JMenuItem();
         sectionMenu = new javax.swing.JMenu();
@@ -556,15 +556,6 @@ public class MainWindow extends javax.swing.JFrame {
 
         pdfExportMenu.setText("Export PDF");
 
-        bw8ExportMenuItem.setText("Black & White 8th edition...");
-        bw8ExportMenuItem.setToolTipText("");
-        bw8ExportMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bw8ExportMenuItemActionPerformed(evt);
-            }
-        });
-        pdfExportMenu.add(bw8ExportMenuItem);
-
         bw9ExportMenuItem.setText("Black & White 9th edition...");
         bw9ExportMenuItem.setToolTipText("");
         bw9ExportMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -573,6 +564,15 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         pdfExportMenu.add(bw9ExportMenuItem);
+
+        bw8ExportMenuItem.setText("Black & White 8th edition...");
+        bw8ExportMenuItem.setToolTipText("");
+        bw8ExportMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bw8ExportMenuItemActionPerformed(evt);
+            }
+        });
+        pdfExportMenu.add(bw8ExportMenuItem);
 
         color8ExportMenuItem1.setText("Color 8th edition...");
         color8ExportMenuItem1.setToolTipText("");

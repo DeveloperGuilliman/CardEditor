@@ -187,8 +187,8 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         resetPopupMenu = new javax.swing.JPopupMenu();
-        bw8MenuItem = new javax.swing.JMenuItem();
         bw9MenuItem = new javax.swing.JMenuItem();
+        bw8MenuItem = new javax.swing.JMenuItem();
         color8MenuItem = new javax.swing.JMenuItem();
         pagePanel = new javax.swing.JPanel();
         pageFieldPanel = new javax.swing.JPanel();
@@ -284,14 +284,6 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
         resetButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
 
-        bw8MenuItem.setText("Black & White 8th edition");
-        bw8MenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bw8MenuItemActionPerformed(evt);
-            }
-        });
-        resetPopupMenu.add(bw8MenuItem);
-
         bw9MenuItem.setText("Black & White 9th edition");
         bw9MenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -299,6 +291,14 @@ public class PdfCreateOptionsDialog extends javax.swing.JDialog {
             }
         });
         resetPopupMenu.add(bw9MenuItem);
+
+        bw8MenuItem.setText("Black & White 8th edition");
+        bw8MenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bw8MenuItemActionPerformed(evt);
+            }
+        });
+        resetPopupMenu.add(bw8MenuItem);
 
         color8MenuItem.setText("Color 8th edition");
         color8MenuItem.addActionListener(new java.awt.event.ActionListener() {

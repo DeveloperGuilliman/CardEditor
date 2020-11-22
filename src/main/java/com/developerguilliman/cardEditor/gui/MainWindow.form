@@ -100,15 +100,6 @@
                 <Property name="text" type="java.lang.String" value="Export PDF"/>
               </Properties>
               <SubComponents>
-                <MenuItem class="javax.swing.JMenuItem" name="bw8ExportMenuItem">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Black &amp; White 8th edition..."/>
-                    <Property name="toolTipText" type="java.lang.String" value=""/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bw8ExportMenuItemActionPerformed"/>
-                  </Events>
-                </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="bw9ExportMenuItem">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Black &amp; White 9th edition..."/>
@@ -116,6 +107,15 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bw9ExportMenuItemActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="bw8ExportMenuItem">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Black &amp; White 8th edition..."/>
+                    <Property name="toolTipText" type="java.lang.String" value=""/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bw8ExportMenuItemActionPerformed"/>
                   </Events>
                 </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="color8ExportMenuItem1">
