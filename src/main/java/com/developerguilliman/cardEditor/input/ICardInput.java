@@ -75,7 +75,7 @@ public interface ICardInput {
         return reorderByName ? comparatorBase.thenComparing(CardData::getName) : comparatorBase;
     }
 
-    public static TreeSet<CardData> createListDeduplicator(SectionData list) {
+    public static SectionData createListDeduplicator(SectionData list) {
         TreeSet<CardData> dedup = new TreeSet<>(
                 Comparator.comparing(CardData::getTitle)
                         .thenComparing(CardData::getName)
@@ -85,7 +85,7 @@ public interface ICardInput {
                         .thenComparing(CardData::getCostType)
         );
         dedup.addAll(list);
-        return dedup;
+        return new SectionData(dedup);
     }
 
     public static TreeSet<CardData> createSectionsDeduplicator(CardCollectionData list) {

@@ -68,9 +68,8 @@ public class WahapediaStratagemCardBuilder implements IWahapediaCardInput {
             Collections.sort(list, ICardInput.getComparator(reorderByName));
 
             if (deduplicate) {
-                list.retainAll(ICardInput.createListDeduplicator(list));
+                list = ICardInput.createListDeduplicator(list);
                 System.out.println("Found " + list.size() + " deduplicated cards");
-
             }
             CardCollectionData cardSections = ICardInput.divideSections(list);
             ICardInput.regroupSections(cardSections, maxToGroup);

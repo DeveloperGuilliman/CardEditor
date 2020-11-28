@@ -21,7 +21,7 @@ import com.developerguilliman.cardEditor.data.CardData;
 import com.developerguilliman.cardEditor.data.SectionData;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.swing.JTree;
@@ -231,7 +231,7 @@ public class CardImportDialog extends javax.swing.JDialog {
     private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importButtonActionPerformed
         MainWindow mainWindow = (MainWindow) getParent();
         Callable<List<String>> callable = () -> {
-            HashMap<SectionData, SectionData> newCards = new HashMap<>();
+            LinkedHashMap<SectionData, SectionData> newCards = new LinkedHashMap<>();
             for (TreePath selectedPath : cardTree.getSelectionPaths()) {
                 DefaultMutableTreeNode pathNode = (DefaultMutableTreeNode) selectedPath.getLastPathComponent();
 

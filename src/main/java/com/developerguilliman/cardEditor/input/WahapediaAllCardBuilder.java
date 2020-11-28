@@ -63,20 +63,8 @@ public class WahapediaAllCardBuilder implements ICardInput {
             Collections.sort(list, ICardInput.getComparator(reorderByName));
 
             if (deduplicate) {
-
-                TreeSet<CardData> deduplicator = new TreeSet<>(
-                        Comparator.comparing(CardData::getTitle)
-                                .thenComparing(CardData::getName)
-                                .thenComparing(CardData::getLegend)
-                                .thenComparing(CardData::getRules)
-                                .thenComparing(CardData::getCostValue)
-                                .thenComparing(CardData::getCostType)
-                );
-
-                deduplicator.addAll(list);
-                list.retainAll(deduplicator);
+                list = ICardInput.createListDeduplicator(list);
                 System.out.println("Found " + list.size() + " deduplicated cards");
-
             }
             CardCollectionData cardSections = ICardInput.divideSections(list);
             ICardInput.regroupSections(cardSections, maxToGroup);
