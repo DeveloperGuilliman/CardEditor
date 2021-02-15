@@ -224,7 +224,7 @@ public class PdfOutput implements ICardOutput {
 
         Calendar now = Calendar.getInstance();
         PDDocumentInformation info = new PDDocumentInformation();
-        info.setCreator("Card Editor 0.2.6");
+        info.setCreator("Card Editor 0.2.7");
         info.setProducer("https://github.com/DeveloperGuilliman/CardEditor");
         info.setCreationDate(now);
         info.setModificationDate(now);
