@@ -309,7 +309,9 @@ public class MainWindow extends javax.swing.JFrame {
         color8ExportMenuItem1 = new javax.swing.JMenuItem();
         lastExportMenuItem = new javax.swing.JMenuItem();
         sectionMenu = new javax.swing.JMenu();
-        compactAllSectionsMenuItem = new javax.swing.JMenuItem();
+        mergeSectionPreviousMenuItem = new javax.swing.JMenuItem();
+        mergeSectionNextMenuItem = new javax.swing.JMenuItem();
+        mergeAllSectionsMenuItem = new javax.swing.JMenuItem();
         reorderTitleSectionMenuItem = new javax.swing.JMenuItem();
         reorderNameSectionMenuItem = new javax.swing.JMenuItem();
         deduplicateMenuItem = new javax.swing.JMenuItem();
@@ -599,13 +601,29 @@ public class MainWindow extends javax.swing.JFrame {
 
         sectionMenu.setText("Section");
 
-        compactAllSectionsMenuItem.setText("Compact all sections");
-        compactAllSectionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        mergeSectionPreviousMenuItem.setText("Merge section with previous section");
+        mergeSectionPreviousMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                compactAllSectionsMenuItemActionPerformed(evt);
+                mergeSectionPreviousMenuItemActionPerformed(evt);
             }
         });
-        sectionMenu.add(compactAllSectionsMenuItem);
+        sectionMenu.add(mergeSectionPreviousMenuItem);
+
+        mergeSectionNextMenuItem.setText("Merge section with next section");
+        mergeSectionNextMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mergeSectionNextMenuItemActionPerformed(evt);
+            }
+        });
+        sectionMenu.add(mergeSectionNextMenuItem);
+
+        mergeAllSectionsMenuItem.setText("Merge all sections");
+        mergeAllSectionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mergeAllSectionsMenuItemActionPerformed(evt);
+            }
+        });
+        sectionMenu.add(mergeAllSectionsMenuItem);
 
         reorderTitleSectionMenuItem.setText("Reorder cards by title");
         reorderTitleSectionMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -792,7 +810,7 @@ public class MainWindow extends javax.swing.JFrame {
         WaitingDialog.show(this, "Loading misc cards from Wahapedia...", callable);
         }//GEN-LAST:event_wahapediaWarlordTraitImportMenuItemActionPerformed
 
-    private void compactAllSectionsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compactAllSectionsMenuItemActionPerformed
+    private void mergeAllSectionsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mergeAllSectionsMenuItemActionPerformed
         SectionData singleSection = new SectionData();
         for (SectionData section : cards) {
             singleSection.addAll(section);
@@ -800,7 +818,7 @@ public class MainWindow extends javax.swing.JFrame {
         cards.clear();
         cards.add(singleSection);
         updateTree();
-    }//GEN-LAST:event_compactAllSectionsMenuItemActionPerformed
+    }//GEN-LAST:event_mergeAllSectionsMenuItemActionPerformed
 
     private void reorderNameSectionMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reorderNameSectionMenuItemActionPerformed
         if (actualSection == null) {
@@ -926,6 +944,36 @@ public class MainWindow extends javax.swing.JFrame {
         new PdfCreateOptionsDialog(this, actualFile, cards, pdfSettings).setVisible(true);
     }//GEN-LAST:event_color8ExportMenuItem1ActionPerformed
 
+    private void mergeSectionPreviousMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mergeSectionPreviousMenuItemActionPerformed
+        int prevIndex = cards.getExactIndex(actualSection) -1;
+        if (prevIndex < 0) {
+            return;
+        }
+        SectionData prevSection = cards.get(prevIndex);
+        ArrayList<CardData> actualCards = new ArrayList<>();
+        actualCards.addAll(prevSection);
+        actualCards.addAll(actualSection);
+        actualSection.clear();
+        actualSection.addAll(actualCards);
+        cards.remove(prevIndex);
+        updateTree();
+    }//GEN-LAST:event_mergeSectionPreviousMenuItemActionPerformed
+
+    private void mergeSectionNextMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mergeSectionNextMenuItemActionPerformed
+      int nextIndex = cards.getExactIndex(actualSection) + 1;
+        if (nextIndex >= cards.size()) {
+            return;
+        }
+        SectionData nextSection = cards.get(nextIndex);
+        ArrayList<CardData> actualCards = new ArrayList<>();
+        actualCards.addAll(actualSection);
+        actualCards.addAll(nextSection);
+        actualSection.clear();
+        actualSection.addAll(actualCards);
+        cards.remove(nextIndex);
+        updateTree();
+    }//GEN-LAST:event_mergeSectionNextMenuItemActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addCardButton;
     private javax.swing.JButton addSectionButton;
@@ -936,7 +984,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel cardsButtonsPanel;
     private javax.swing.JMenuItem cardsXmlImportMenuItem;
     private javax.swing.JMenuItem color8ExportMenuItem1;
-    private javax.swing.JMenuItem compactAllSectionsMenuItem;
     private javax.swing.JPanel costPanel;
     private javax.swing.JLabel costTypeLabel;
     private javax.swing.JPanel costTypePanel;
@@ -957,6 +1004,9 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextArea legendTextArea;
     private javax.swing.JMenuItem loadMenuItem;
     private javax.swing.JMenuBar mainMenuBar1;
+    private javax.swing.JMenuItem mergeAllSectionsMenuItem;
+    private javax.swing.JMenuItem mergeSectionNextMenuItem;
+    private javax.swing.JMenuItem mergeSectionPreviousMenuItem;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JTextField nameTextField;
     private javax.swing.JMenuItem newMenuItem;

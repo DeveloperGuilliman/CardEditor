@@ -146,12 +146,28 @@
             <Property name="text" type="java.lang.String" value="Section"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="compactAllSectionsMenuItem">
+            <MenuItem class="javax.swing.JMenuItem" name="mergeSectionPreviousMenuItem">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Compact all sections"/>
+                <Property name="text" type="java.lang.String" value="Merge section with previous section"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="compactAllSectionsMenuItemActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mergeSectionPreviousMenuItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="mergeSectionNextMenuItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Merge section with next section"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mergeSectionNextMenuItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="mergeAllSectionsMenuItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Merge all sections"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mergeAllSectionsMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="reorderTitleSectionMenuItem">
