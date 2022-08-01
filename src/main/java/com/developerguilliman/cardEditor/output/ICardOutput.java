@@ -16,10 +16,11 @@
  */
 package com.developerguilliman.cardEditor.output;
 
-import com.developerguilliman.cardEditor.data.CardCollectionData;
-import com.developerguilliman.cardEditor.warning.IWarningHandler;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import com.developerguilliman.cardEditor.data.CardCollectionData;
+import com.developerguilliman.cardEditor.warning.IWarningHandler;
 
 public interface ICardOutput {
 

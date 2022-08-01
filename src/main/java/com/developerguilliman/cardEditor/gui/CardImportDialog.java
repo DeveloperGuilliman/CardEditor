@@ -16,20 +16,22 @@
  */
 package com.developerguilliman.cardEditor.gui;
 
-import com.developerguilliman.cardEditor.data.CardCollectionData;
-import com.developerguilliman.cardEditor.data.CardData;
-import com.developerguilliman.cardEditor.data.SectionData;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
+
+import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+
+import com.developerguilliman.cardEditor.data.CardCollectionData;
+import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
 
 /**
  *
@@ -231,6 +233,10 @@ public class CardImportDialog extends javax.swing.JDialog {
 
     private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importButtonActionPerformed
         MainWindow mainWindow = (MainWindow) getParent();
+        TreePath[] selected = cardTree.getSelectionPaths();
+		if (selected == null || selected.length == 0) {
+			JOptionPane.showMessageDialog(this, "No cards selected", "Error", JOptionPane.ERROR_MESSAGE);
+		}
         Callable<List<String>> callable = () -> {
             LinkedHashMap<SectionData, SectionData> newCards = new LinkedHashMap<>();
             for (TreePath selectedPath : cardTree.getSelectionPaths()) {
@@ -356,9 +362,9 @@ public class CardImportDialog extends javax.swing.JDialog {
     }
 
     private static void selectNodes(JTree tree, DefaultMutableTreeNode node, boolean select) {
-        ArrayList<DefaultMutableTreeNode> list = Collections.list(node.children());
-        for (DefaultMutableTreeNode treeNode : list) {
-            selectNodes(tree, treeNode, select);
+        List<TreeNode> list = Collections.list(node.children());
+        for (TreeNode treeNode : list) {
+            selectNodes(tree, (DefaultMutableTreeNode) treeNode, select);
         }
         if (!node.isRoot()) {
             TreePath path = createPath(node);

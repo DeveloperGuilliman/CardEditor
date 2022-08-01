@@ -16,12 +16,10 @@
  */
 package com.developerguilliman.cardEditor.input;
 
-import com.developerguilliman.cardEditor.data.CardCollectionData;
-import com.developerguilliman.cardEditor.data.CardData;
-import com.developerguilliman.cardEditor.data.SectionData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,24 +27,19 @@ import org.jsoup.select.Elements;
 import org.jsoup.select.Evaluator;
 import org.jsoup.select.QueryParser;
 
+import com.developerguilliman.cardEditor.data.CardCollectionData;
+import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
+
 /**
  *
  * @author Developer Guilliman <developerguilliman@gmail.com>
  */
 public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
 
-    private static final String PSYCHIC_POWER_FIND_FIRST = "has a warp charge ";
-    private static final String PSYCHIC_POWER_FIND_SECOND = " of ";
-    private static final String PYSCHIC_POWERS = "Psychic Powers";
-
     private static final Evaluator TD_EVALUATOR = QueryParser.parse("td");
     private static final Evaluator B_EVALUATOR = QueryParser.parse("b");
     private static final Evaluator I_EVALUATOR = QueryParser.parse("i");
-
-    private static final Evaluator STRATNAME_SPAN_EVALUATOR = QueryParser.parse(".stratName span");
-    private static final Evaluator STRATFACTIONCS_EVALUATOR = QueryParser.parse(".stratFaction_CS");
-    private static final Evaluator SHOWFLUFF_EVALUATOR = QueryParser.parse(".ShowFluff");
-    private static final Evaluator STRATTEXT_EVALUATOR = QueryParser.parse(".stratText_CS");
 
     private final int maxToGroup;
     private final boolean reorderByName;
@@ -108,13 +101,6 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
             }
         }
 
-        for (Element cardElement : doc.select("div.stratWrapper_CS")) {
-            CardData card = buildStratagemLike9thStyle(cardElement);
-            if (card != null) {
-                list.add(card);
-            }
-        }
-
     }
 
     private CardData buildRandomCard(Element cardElement) {
@@ -152,9 +138,7 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
             int ioRules = rules.indexOf(legend) + legend.length();
             rules = rules.substring(ioRules);
         }
-        String costValue = extractPsychicPowerCost(rules);
-        String costType = costValue.isEmpty() ? " " : "WARP CHARGE";
-        return IWahapediaCardInput.createCard(title, name, legend, rules, costValue, costType);
+        return IWahapediaCardInput.createCard(title, name, legend, rules, "", "");
 
     }
 
@@ -188,38 +172,8 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
 
         String legend = italic;
         String rules = last.substring(last.indexOf(italic) + italic.length());
-        String costValue = extractPsychicPowerCost(rules);
-        String costType = costValue.isEmpty() ? " " : "WARP CHARGE";
 
-        return IWahapediaCardInput.createCard(title, name, legend, rules, costValue, costType);
-    }
-
-    private CardData buildStratagemLike9thStyle(Element cardElement) {
-
-        try {
-
-            Elements nameSpanElements = cardElement.select(STRATNAME_SPAN_EVALUATOR);
-
-            if (nameSpanElements.isEmpty()) {
-                return null;
-            }
-            String name = nameSpanElements.get(0).text();
-
-            String costValue = nameSpanElements.get(1).text().replace("CP", "");
-
-            String costType = "COMMAND POINTS";
-
-            String faction = cardElement.select(STRATFACTIONCS_EVALUATOR).text().replace(" – ", " ").replace(" - ", " ");
-
-            String description = cardElement.select(SHOWFLUFF_EVALUATOR).text();
-
-            String rules = IWahapediaCardInput.createRules(cardElement.select(STRATTEXT_EVALUATOR));
-
-            return IWahapediaCardInput.createCard(faction, name, description, rules, costValue, costType);
-        } catch (Exception e) {
-            System.err.println("Error " + e + " at element " + cardElement.html());
-            return null;
-        }
+        return IWahapediaCardInput.createCard(title, name, legend, rules, "", "");
     }
 
     private static String titleCase(String title) {
@@ -284,28 +238,10 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
         } else {
             title = (first + " " + last).trim();
         }
-
-        if (title.endsWith(PYSCHIC_POWERS)) {
-            title = title.substring(0, title.length() - PYSCHIC_POWERS.length()).concat("Discipline");
-        } else if (title.endsWith("Traits")) {
+        if (title.endsWith("Traits")) {
             title = title.substring(0, title.length() - 1);
         }
         return title;
-    }
-
-    private static String extractPsychicPowerCost(String rules) {
-        int prefixIndexOf = rules.indexOf(PSYCHIC_POWER_FIND_FIRST);
-        if (prefixIndexOf >= 0) {
-            prefixIndexOf = rules.indexOf(PSYCHIC_POWER_FIND_SECOND, prefixIndexOf);
-            if (prefixIndexOf >= 0) {
-                prefixIndexOf += PSYCHIC_POWER_FIND_SECOND.length();
-                int endIndexOf = rules.indexOf('.', prefixIndexOf);
-                if (endIndexOf > prefixIndexOf) {
-                    return rules.substring(prefixIndexOf, endIndexOf);
-                }
-            }
-        }
-        return "";
     }
 
     private static String getTrimText(Element element) {

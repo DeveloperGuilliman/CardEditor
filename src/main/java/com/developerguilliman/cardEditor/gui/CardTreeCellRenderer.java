@@ -16,13 +16,15 @@
  */
 package com.developerguilliman.cardEditor.gui;
 
-import com.developerguilliman.cardEditor.data.CardCollectionData;
-import com.developerguilliman.cardEditor.data.CardData;
-import com.developerguilliman.cardEditor.data.SectionData;
 import java.awt.Component;
+
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+
+import com.developerguilliman.cardEditor.data.CardCollectionData;
+import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
 
 /**
  *

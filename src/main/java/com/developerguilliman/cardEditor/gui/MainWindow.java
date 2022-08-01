@@ -16,35 +16,22 @@
  */
 package com.developerguilliman.cardEditor.gui;
 
-import com.developerguilliman.cardEditor.data.CardCollectionData;
-import com.developerguilliman.cardEditor.data.CardData;
-import com.developerguilliman.cardEditor.data.SectionData;
-import com.developerguilliman.cardEditor.input.ICardInput;
-import com.developerguilliman.cardEditor.input.WahapediaAllCardBuilder;
-import com.developerguilliman.cardEditor.input.WahapediaMiscCardBuilder;
-import com.developerguilliman.cardEditor.input.WahapediaStratagemCardBuilder;
-import com.developerguilliman.cardEditor.input.XmlCardInput;
-import com.developerguilliman.cardEditor.output.PdfOutput;
-import com.developerguilliman.cardEditor.output.XmlCardOutput;
-import com.developerguilliman.cardEditor.warning.WarningArrayList;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.event.CellEditorListener;
@@ -58,6 +45,15 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+
+import com.developerguilliman.cardEditor.data.CardCollectionData;
+import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
+import com.developerguilliman.cardEditor.input.ICardInput;
+import com.developerguilliman.cardEditor.input.XmlCardInput;
+import com.developerguilliman.cardEditor.output.PdfOutput;
+import com.developerguilliman.cardEditor.output.XmlCardOutput;
+import com.developerguilliman.cardEditor.warning.WarningArrayList;
 
 /**
  *
@@ -299,8 +295,6 @@ public class MainWindow extends javax.swing.JFrame {
         exitMenuItem = new javax.swing.JMenuItem();
         importMenu = new javax.swing.JMenu();
         cardsXmlImportMenuItem = new javax.swing.JMenuItem();
-        wahapediaStratagemImportMenuItem = new javax.swing.JMenuItem();
-        wahapediaWarlordTraitImportMenuItem = new javax.swing.JMenuItem();
         wahapediaAllImportMenuItem = new javax.swing.JMenuItem();
         exportMenu = new javax.swing.JMenu();
         pdfExportMenu = new javax.swing.JMenu();
@@ -320,6 +314,7 @@ public class MainWindow extends javax.swing.JFrame {
         setTitle("Card editor");
         setIconImage(createIcon("images/cards.png"));
         setMinimumSize(new java.awt.Dimension(600, 460));
+        getContentPane().setLayout(new java.awt.BorderLayout());
 
         treePanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3));
         treePanel.setPreferredSize(new java.awt.Dimension(350, 400));
@@ -528,23 +523,7 @@ public class MainWindow extends javax.swing.JFrame {
         });
         importMenu.add(cardsXmlImportMenuItem);
 
-        wahapediaStratagemImportMenuItem.setText("Wahapedia Stratagem Cards...");
-        wahapediaStratagemImportMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                wahapediaStratagemImportMenuItemActionPerformed(evt);
-            }
-        });
-        importMenu.add(wahapediaStratagemImportMenuItem);
-
-        wahapediaWarlordTraitImportMenuItem.setText("Wahapedia Misc Cards...");
-        wahapediaWarlordTraitImportMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                wahapediaWarlordTraitImportMenuItemActionPerformed(evt);
-            }
-        });
-        importMenu.add(wahapediaWarlordTraitImportMenuItem);
-
-        wahapediaAllImportMenuItem.setText("Wahapedia All Cards...");
+        wahapediaAllImportMenuItem.setText("Wahapedia Cards...");
         wahapediaAllImportMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 wahapediaAllImportMenuItemActionPerformed(evt);
@@ -772,43 +751,11 @@ public class MainWindow extends javax.swing.JFrame {
         updateTree();
     }//GEN-LAST:event_newMenuItemActionPerformed
 
-    private void wahapediaStratagemImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaStratagemImportMenuItemActionPerformed
-        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import Stratagems cards for", "Wahapedia Stratagems cards import", JOptionPane.QUESTION_MESSAGE);
-        if (urlString == null) {
-            return;
-        }
-        Callable<List<String>> callable = () -> {
-            WahapediaStratagemCardBuilder builder = new WahapediaStratagemCardBuilder(1, false, true);
-            CardCollectionData newCards = builder.build(new URL(urlString).openStream());
-            java.awt.EventQueue.invokeLater(() -> {
-                new CardImportDialog(MainWindow.this, newCards).setVisible(true);
-            });
-            return null;
-        };
-        WaitingDialog.show(this, "Loading stratagem cards from Wahapedia...", callable);
-    }//GEN-LAST:event_wahapediaStratagemImportMenuItemActionPerformed
-
     private void bw8ExportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bw8ExportMenuItemActionPerformed
         pdfSettings = new PdfOutput.Builder(PdfOutput.DefaultPreset.BW_8);
         lastExportMenuItem.setEnabled(true);
         new PdfCreateOptionsDialog(this, actualFile, cards, pdfSettings).setVisible(true);
     }//GEN-LAST:event_bw8ExportMenuItemActionPerformed
-
-    private void wahapediaWarlordTraitImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaWarlordTraitImportMenuItemActionPerformed
-        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import Misc cards for", "Wahapedia Misc cards import", JOptionPane.QUESTION_MESSAGE);
-        if (urlString == null) {
-            return;
-        }
-        Callable<List<String>> callable = () -> {
-            WahapediaMiscCardBuilder builder = new WahapediaMiscCardBuilder(1, false, true);
-            CardCollectionData newCards = builder.build(new URL(urlString).openStream());
-            java.awt.EventQueue.invokeLater(() -> {
-                new CardImportDialog(MainWindow.this, newCards).setVisible(true);
-            });
-            return null;
-        };
-        WaitingDialog.show(this, "Loading misc cards from Wahapedia...", callable);
-        }//GEN-LAST:event_wahapediaWarlordTraitImportMenuItemActionPerformed
 
     private void mergeAllSectionsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mergeAllSectionsMenuItemActionPerformed
         SectionData singleSection = new SectionData();
@@ -868,19 +815,9 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_cardTreeValueChanged
 
     private void wahapediaAllImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wahapediaAllImportMenuItemActionPerformed
-        String urlString = JOptionPane.showInputDialog(this, "Type the Wahapedia faction URL to import all cards for", "Wahapedia all cards import", JOptionPane.QUESTION_MESSAGE);
-        if (urlString == null) {
-            return;
-        }
-        Callable<List<String>> callable = () -> {
-            WahapediaAllCardBuilder builder = new WahapediaAllCardBuilder(1, false, true);
-            CardCollectionData newCards = builder.build(new URL(urlString).openStream());
-            java.awt.EventQueue.invokeLater(() -> {
-                new CardImportDialog(MainWindow.this, newCards).setVisible(true);
-            });
-            return null;
-        };
-        WaitingDialog.show(this, "Loading all cards from Wahapedia...", callable);
+        java.awt.EventQueue.invokeLater(() -> {
+            new WahapediaFactions(MainWindow.this).setVisible(true);
+        });
     }//GEN-LAST:event_wahapediaAllImportMenuItemActionPerformed
 
     private void cardsXmlImportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cardsXmlImportMenuItemActionPerformed
@@ -898,7 +835,7 @@ public class MainWindow extends javax.swing.JFrame {
                 });
                 return null;
             };
-            WaitingDialog.show(MainWindow.this, "Loa...", callable);
+            WaitingDialog.show(MainWindow.this, "Loading...", callable);
         }
     }//GEN-LAST:event_cardsXmlImportMenuItemActionPerformed
 
@@ -1027,8 +964,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel treeButtonsPanel;
     private javax.swing.JPanel treePanel;
     private javax.swing.JMenuItem wahapediaAllImportMenuItem;
-    private javax.swing.JMenuItem wahapediaStratagemImportMenuItem;
-    private javax.swing.JMenuItem wahapediaWarlordTraitImportMenuItem;
     // End of variables declaration//GEN-END:variables
 
     public void loadCards(File file, String waitTitle, boolean clear) {
@@ -1239,9 +1174,9 @@ public class MainWindow extends javax.swing.JFrame {
     }
 
     private static void expandNodes(JTree tree, DefaultMutableTreeNode node) {
-        ArrayList<DefaultMutableTreeNode> list = Collections.list(node.children());
-        for (DefaultMutableTreeNode treeNode : list) {
-            expandNodes(tree, treeNode);
+        List<TreeNode> list = Collections.list(node.children());
+        for (TreeNode treeNode : list) {
+            expandNodes(tree, (DefaultMutableTreeNode) treeNode);
         }
         if (!node.isRoot()) {
             TreePath path = createPath(node);

@@ -16,7 +16,6 @@
  */
 package com.developerguilliman.cardEditor.data;
 
-import com.developerguilliman.cardEditor.Utils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -29,6 +28,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
+
+import com.developerguilliman.cardEditor.Utils;
 
 /**
  *

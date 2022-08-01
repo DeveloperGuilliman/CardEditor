@@ -16,14 +16,15 @@
  */
 package com.developerguilliman.cardEditor.input;
 
-import com.developerguilliman.cardEditor.data.CardCollectionData;
-import com.developerguilliman.cardEditor.data.CardData;
-import com.developerguilliman.cardEditor.data.SectionData;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.TreeSet;
+
+import com.developerguilliman.cardEditor.data.CardCollectionData;
+import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
 
 /**
  *

@@ -16,18 +16,12 @@
  */
 package com.developerguilliman.cardEditor.output;
 
-import com.developerguilliman.cardEditor.CardHash;
-import com.developerguilliman.cardEditor.Utils;
-import com.developerguilliman.cardEditor.data.CardCollectionData;
-import com.developerguilliman.cardEditor.data.CardData;
-import com.developerguilliman.cardEditor.data.SectionData;
-import com.developerguilliman.cardEditor.warning.IWarningHandler;
-import com.developerguilliman.cardEditor.warning.WarningConsoleOut;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Iterator;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -37,6 +31,14 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDDocumentOutline;
 import org.apache.pdfbox.pdmodel.interactive.documentnavigation.outline.PDOutlineItem;
+
+import com.developerguilliman.cardEditor.CardHash;
+import com.developerguilliman.cardEditor.Utils;
+import com.developerguilliman.cardEditor.data.CardCollectionData;
+import com.developerguilliman.cardEditor.data.CardData;
+import com.developerguilliman.cardEditor.data.SectionData;
+import com.developerguilliman.cardEditor.warning.IWarningHandler;
+import com.developerguilliman.cardEditor.warning.WarningConsoleOut;
 
 /**
  *

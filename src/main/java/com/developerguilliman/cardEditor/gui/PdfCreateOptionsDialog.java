@@ -16,9 +16,6 @@
  */
 package com.developerguilliman.cardEditor.gui;
 
-import com.developerguilliman.cardEditor.data.CardCollectionData;
-import com.developerguilliman.cardEditor.output.PdfOutput;
-import com.developerguilliman.cardEditor.warning.WarningArrayList;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Frame;
@@ -28,13 +25,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JSpinner;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
+import com.developerguilliman.cardEditor.data.CardCollectionData;
+import com.developerguilliman.cardEditor.output.PdfOutput;
+import com.developerguilliman.cardEditor.warning.WarningArrayList;
 
 /**
  *

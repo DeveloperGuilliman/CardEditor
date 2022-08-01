@@ -18,6 +18,7 @@ package com.developerguilliman.cardEditor.gui;
 
 import java.awt.Frame;
 import java.util.List;
+
 import javax.swing.DefaultListModel;
 
 /**

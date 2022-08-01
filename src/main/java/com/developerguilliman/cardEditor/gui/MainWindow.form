@@ -64,25 +64,9 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cardsXmlImportMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="wahapediaStratagemImportMenuItem">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Wahapedia Stratagem Cards..."/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="wahapediaStratagemImportMenuItemActionPerformed"/>
-              </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="wahapediaWarlordTraitImportMenuItem">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Wahapedia Misc Cards..."/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="wahapediaWarlordTraitImportMenuItemActionPerformed"/>
-              </Events>
-            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="wahapediaAllImportMenuItem">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Wahapedia All Cards..."/>
+                <Property name="text" type="java.lang.String" value="Wahapedia Cards..."/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="wahapediaAllImportMenuItemActionPerformed"/>
