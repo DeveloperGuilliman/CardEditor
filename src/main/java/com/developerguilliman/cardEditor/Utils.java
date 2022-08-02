@@ -24,96 +24,104 @@ import java.util.List;
  */
 public class Utils {
 
-    private Utils() {
+	private Utils() {
 
-    }
+	}
 
-    public static <T> int getExactIndex(List<T> list, T element) {
-        int i = 0;
+	public static <T> int getExactIndex(List<T> list, T element) {
+		int i = 0;
 
-        for (T listItem : list) {
-            if (listItem == element) {
-                return i;
-            }
-            i++;
-        }
-        return -1;
-    }
+		for (T listItem : list) {
+			if (listItem == element) {
+				return i;
+			}
+			i++;
+		}
+		return -1;
+	}
 
-    public static int getBoundIndex(List<?> list, int index) {
-        return Math.max(0, Math.min(list.size() - 1, index));
-    }
+	public static int getBoundIndex(List<?> list, int index) {
+		return Math.max(0, Math.min(list.size() - 1, index));
+	}
 
-    public static int getBoundIndexPlusOne(List<?> list, int index) {
-        return Math.max(0, Math.min(list.size(), index));
-    }
+	public static int getBoundIndexPlusOne(List<?> list, int index) {
+		return Math.max(0, Math.min(list.size(), index));
+	}
 
-    public static String normalize(String str) {
-        return (str != null) ? str : "";
-    }
+	public static String normalize(String str) {
+		return (str != null) ? str : "";
+	}
 
-    public static String normalizeTrim(String str) {
-        return (str != null) ? str.trim() : "";
-    }
+	public static String normalizeTrim(String str) {
+		return (str != null) ? str.trim() : "";
+	}
 
-    public static String rightTrim(String value) {
-        int len = value.length();
-        int end = len;
-        
-        while ((0 < end) && (value.charAt(end - 1) <= ' ')) {
-            end--;
-        }
-        return (end < len) ? value.substring(0, end) : value;
-    }
+	public static String rightTrim(String value) {
+		int len = value.length();
+		int end = len;
 
-    public static String leftTrim(String value) {
-        int len = value.length();
-        int start = 0;
+		while ((0 < end) && (value.charAt(end - 1) <= ' ')) {
+			end--;
+		}
+		return (end < len) ? value.substring(0, end) : value;
+	}
 
-        while ((start < len) && (value.charAt(start) <= ' ')) {
-            start++;
-        }
-        return (start > 0) ? value.substring(start, len) : value;
-    }
+	public static String leftTrim(String value) {
+		int len = value.length();
+		int start = 0;
 
-    public static String longestCommonWords(List<String> list) {
-        String[] array = list.toArray(new String[0]);
-        int aLen = array.length;
-        if (aLen == 0) {
-            return "";
-        }
+		while ((start < len) && (value.charAt(start) <= ' ')) {
+			start++;
+		}
+		return (start > 0) ? value.substring(start, len) : value;
+	}
 
-        String result = "";
-        String s = array[0];
-        int sLen = s.length();
+	public static String longestCommonWords(List<String> list) {
+		String[] array = list.toArray(new String[0]);
+		int aLen = array.length;
+		if (aLen == 0) {
+			return "";
+		}
 
-        for (int i = 0; i < sLen; i = nextSpace(s, i) + 1) {
-            for (int j = nextSpace(s, i); j <= sLen; j = nextSpace(s, j)) {
+		String result = "";
+		String s = array[0];
+		int sLen = s.length();
 
-                String sub = s.substring(i, j);
-                int k;
-                for (k = 1; k < aLen; k++) {
-                    if (!array[k].contains(sub)) {
-                        break;
-                    }
-                }
+		for (int i = 0; i < sLen; i = nextSpace(s, i) + 1) {
+			for (int j = nextSpace(s, i); j <= sLen; j = nextSpace(s, j)) {
 
-                if (k == aLen && result.length() < sub.length()) {
-                    result = sub;
-                }
+				String sub = s.substring(i, j);
+				int k;
+				for (k = 1; k < aLen; k++) {
+					if (!array[k].contains(sub)) {
+						break;
+					}
+				}
 
-            }
-        }
+				if (k == aLen && result.length() < sub.length()) {
+					result = sub;
+				}
 
-        return result;
-    }
+			}
+		}
 
-    private static int nextSpace(String s, int i) {
-        int sLen = s.length();
-        if (i == sLen) {
-            return sLen + 1;
-        }
-        i = s.indexOf(' ', i + 1);
-        return i < 0 ? sLen : i;
-    }
+		return result;
+	}
+
+	private static int nextSpace(String s, int i) {
+		int sLen = s.length();
+		if (i == sLen) {
+			return sLen + 1;
+		}
+		i = s.indexOf(' ', i + 1);
+		return i < 0 ? sLen : i;
+	}
+
+	public static String getVersion() {
+		return "0.3.0";
+	}
+
+	public static String getApplicationName() {
+		return "CardEditor ".concat(getVersion());
+	}
 }

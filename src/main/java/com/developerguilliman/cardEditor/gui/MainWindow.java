@@ -54,6 +54,12 @@ import com.developerguilliman.cardEditor.input.XmlCardInput;
 import com.developerguilliman.cardEditor.output.PdfOutput;
 import com.developerguilliman.cardEditor.output.XmlCardOutput;
 import com.developerguilliman.cardEditor.warning.WarningArrayList;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -309,12 +315,14 @@ public class MainWindow extends javax.swing.JFrame {
         reorderTitleSectionMenuItem = new javax.swing.JMenuItem();
         reorderNameSectionMenuItem = new javax.swing.JMenuItem();
         deduplicateMenuItem = new javax.swing.JMenuItem();
+        helpMenu = new javax.swing.JMenu();
+        githubMenuItem = new javax.swing.JMenuItem();
+        aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Card editor");
         setIconImage(createIcon("images/cards.png"));
         setMinimumSize(new java.awt.Dimension(600, 460));
-        getContentPane().setLayout(new java.awt.BorderLayout());
 
         treePanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3));
         treePanel.setPreferredSize(new java.awt.Dimension(350, 400));
@@ -630,6 +638,26 @@ public class MainWindow extends javax.swing.JFrame {
 
         mainMenuBar1.add(sectionMenu);
 
+        helpMenu.setText("Help");
+
+        githubMenuItem.setText("GitHub page");
+        githubMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                githubMenuItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(githubMenuItem);
+
+        aboutMenuItem.setText("About...");
+        aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                aboutMenuItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(aboutMenuItem);
+
+        mainMenuBar1.add(helpMenu);
+
         setJMenuBar(mainMenuBar1);
 
         setBounds(0, 0, 796, 618);
@@ -911,7 +939,20 @@ public class MainWindow extends javax.swing.JFrame {
         updateTree();
     }//GEN-LAST:event_mergeSectionNextMenuItemActionPerformed
 
+    private void githubMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_githubMenuItemActionPerformed
+        try {
+            Desktop.getDesktop().browse(new URI("https://github.com/DeveloperGuilliman/CardEditor"));
+        } catch (IOException | URISyntaxException ex) {
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_githubMenuItemActionPerformed
+
+    private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
+        new AboutDialog(this).setVisible(true);
+    }//GEN-LAST:event_aboutMenuItemActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JButton addCardButton;
     private javax.swing.JButton addSectionButton;
     private javax.swing.JMenuItem bw8ExportMenuItem;
@@ -934,6 +975,8 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu exportMenu;
     private javax.swing.JMenu fileMenu;
+    private javax.swing.JMenuItem githubMenuItem;
+    private javax.swing.JMenu helpMenu;
     private javax.swing.JMenu importMenu;
     private javax.swing.JMenuItem lastExportMenuItem;
     private javax.swing.JLabel legendLabel;

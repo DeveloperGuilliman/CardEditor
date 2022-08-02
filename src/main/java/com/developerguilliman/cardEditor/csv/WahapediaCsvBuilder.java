@@ -21,12 +21,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import org.unbescape.html.HtmlEscape;
+
+import com.developerguilliman.cardEditor.Utils;
 
 /**
 *
@@ -74,7 +77,10 @@ public class WahapediaCsvBuilder {
 	}
 	
 	public static InputStream getInputStreamFromUrl(String url) throws IOException {
-		return ((HttpURLConnection) new URL(url).openConnection()).getInputStream();
+		HttpURLConnection huc = ((HttpURLConnection) new URL(url).openConnection());
+		huc.addRequestProperty("User-Agent", Utils.getApplicationName());
+		huc.addRequestProperty("Accept", "*/*");
+		return huc.getInputStream();
 	}
 
 	public static String stripHtml(String str) {
