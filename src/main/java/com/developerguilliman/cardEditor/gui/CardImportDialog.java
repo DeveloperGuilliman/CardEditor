@@ -19,7 +19,7 @@ package com.developerguilliman.cardEditor.gui;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.function.Function;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
@@ -32,6 +32,8 @@ import javax.swing.tree.TreePath;
 import com.developerguilliman.cardEditor.data.CardCollectionData;
 import com.developerguilliman.cardEditor.data.CardData;
 import com.developerguilliman.cardEditor.data.SectionData;
+import com.developerguilliman.cardEditor.gui.WaitingDialog.Handler;
+import java.util.concurrent.Callable;
 
 /**
  *
@@ -235,9 +237,10 @@ public class CardImportDialog extends javax.swing.JDialog {
         MainWindow mainWindow = (MainWindow) getParent();
         TreePath[] selected = cardTree.getSelectionPaths();
 		if (selected == null || selected.length == 0) {
-			JOptionPane.showMessageDialog(this, "No cards selected", "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Select at least one card", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
 		}
-        Callable<List<String>> callable = () -> {
+            Callable<List<String>> callable = () -> {
             LinkedHashMap<SectionData, SectionData> newCards = new LinkedHashMap<>();
             for (TreePath selectedPath : cardTree.getSelectionPaths()) {
                 DefaultMutableTreeNode pathNode = (DefaultMutableTreeNode) selectedPath.getLastPathComponent();

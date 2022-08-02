@@ -88,11 +88,21 @@ public class WahapediaFactions extends javax.swing.JDialog {
         importButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         dataPanel = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        selectAllButton = new javax.swing.JButton();
+        selectNoneButton = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
         stratagemCheckBox = new javax.swing.JCheckBox();
         psychicPowersCheckBox = new javax.swing.JCheckBox();
         warlordTraitsCheckBox = new javax.swing.JCheckBox();
         factionAbilitiesCheckBox = new javax.swing.JCheckBox();
         miscCheckBox = new javax.swing.JCheckBox();
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
+        jPanel4 = new javax.swing.JPanel();
+        regroupLabel = new javax.swing.JLabel();
+        regroupSpinner = new javax.swing.JSpinner();
+        reorderCheckBox = new javax.swing.JCheckBox();
+        deduplicateCheckBox = new javax.swing.JCheckBox();
         factionScrollPane = new javax.swing.JScrollPane();
         factionList = new javax.swing.JList<>();
 
@@ -128,22 +138,63 @@ public class WahapediaFactions extends javax.swing.JDialog {
         getContentPane().add(buttonsPanel, java.awt.BorderLayout.SOUTH);
 
         dataPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3));
-        dataPanel.setLayout(new java.awt.GridLayout(0, 1));
+        dataPanel.setLayout(new java.awt.BorderLayout());
+
+        jPanel2.setLayout(new java.awt.GridLayout(0, 2));
+
+        selectAllButton.setText("All");
+        selectAllButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectAllButtonActionPerformed(evt);
+            }
+        });
+        jPanel2.add(selectAllButton);
+
+        selectNoneButton.setText("None");
+        selectNoneButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectNoneButtonActionPerformed(evt);
+            }
+        });
+        jPanel2.add(selectNoneButton);
+
+        dataPanel.add(jPanel2, java.awt.BorderLayout.NORTH);
+
+        jPanel3.setLayout(new java.awt.GridLayout(0, 1));
 
         stratagemCheckBox.setText("Stratagems");
-        dataPanel.add(stratagemCheckBox);
+        jPanel3.add(stratagemCheckBox);
 
         psychicPowersCheckBox.setText("Psychic Powers");
-        dataPanel.add(psychicPowersCheckBox);
+        jPanel3.add(psychicPowersCheckBox);
 
         warlordTraitsCheckBox.setText("Warlord Traits");
-        dataPanel.add(warlordTraitsCheckBox);
+        jPanel3.add(warlordTraitsCheckBox);
 
         factionAbilitiesCheckBox.setText("Faction Abilities");
-        dataPanel.add(factionAbilitiesCheckBox);
+        jPanel3.add(factionAbilitiesCheckBox);
 
-        miscCheckBox.setText("Misc");
-        dataPanel.add(miscCheckBox);
+        miscCheckBox.setText("Misc (slow)");
+        jPanel3.add(miscCheckBox);
+        jPanel3.add(filler2);
+
+        dataPanel.add(jPanel3, java.awt.BorderLayout.CENTER);
+
+        jPanel4.setLayout(new java.awt.GridLayout(0, 1));
+
+        regroupLabel.setText("Regroup sections with less than:");
+        jPanel4.add(regroupLabel);
+
+        regroupSpinner.setModel(new javax.swing.SpinnerNumberModel(2, 0, null, 1));
+        jPanel4.add(regroupSpinner);
+
+        reorderCheckBox.setText("Reorder by name");
+        jPanel4.add(reorderCheckBox);
+
+        deduplicateCheckBox.setText("Remove duplicates");
+        jPanel4.add(deduplicateCheckBox);
+
+        dataPanel.add(jPanel4, java.awt.BorderLayout.SOUTH);
 
         getContentPane().add(dataPanel, java.awt.BorderLayout.EAST);
 
@@ -157,64 +208,112 @@ public class WahapediaFactions extends javax.swing.JDialog {
 
     private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importButtonActionPerformed
 
+    	LinkedHashMap<String, Faction> selectedFactions = getSelectedFactions();
+
+    	if (selectedFactions == null || selectedFactions.isEmpty()) {
+    		JOptionPane.showMessageDialog(this, "Select at least one faction", "Error", JOptionPane.ERROR_MESSAGE);
+    		return;
+    	}
+
     	boolean stratagems = stratagemCheckBox.isSelected();
     	boolean psychicPowers = psychicPowersCheckBox.isSelected();
     	boolean warlordTraits = warlordTraitsCheckBox.isSelected();
     	boolean factionAbilities = factionAbilitiesCheckBox.isSelected();
     	boolean misc = miscCheckBox.isSelected();
-    	
-		if (!stratagems && !psychicPowers && !warlordTraits && !factionAbilities && !misc) {
-            JOptionPane.showMessageDialog(this, "No option selected", "Error", JOptionPane.ERROR_MESSAGE);    		
-            return;
+
+    	if (!stratagems && !psychicPowers && !warlordTraits && !factionAbilities && !misc) {
+    		JOptionPane.showMessageDialog(this, "Select at least one card type", "Error", JOptionPane.ERROR_MESSAGE);
+    		return;
     	}
-    	
-      MainWindow mainWindow = (MainWindow) getParent();
-    	
-        LinkedHashMap<String, Faction> selectedFactions = getSelectedFactions();
 
-        Callable<List<String>> callable = () -> {
-            CardCollectionData newCards = new CardCollectionData();
+    	MainWindow mainWindow = (MainWindow) getParent();
 
-            if (stratagems) {
-                newCards.addAll(new WahapediaStratagems(selectedFactions).build(WahapediaStratagems.getInputStreamFromUrl()));
-            }
-            if (psychicPowers) {
-                newCards.addAll(new WahapediaPsychicPowers(selectedFactions).build(WahapediaPsychicPowers.getInputStreamFromUrl()));
-            }
-            if (warlordTraits) {
-                newCards.addAll(new WahapediaWarlordTraits(selectedFactions).build(WahapediaWarlordTraits.getInputStreamFromUrl()));
-            }
-            if (factionAbilities) {
-                newCards.addAll(new WahapediaAbilities(selectedFactions).build(WahapediaAbilities.getInputStreamFromUrl()));
-            }
-            if (misc) {
-            	for (Faction faction: selectedFactions.values()) {
-                    newCards.addAll(new WahapediaMiscCardBuilder(1, false, false).build(WahapediaCsvBuilder.getInputStreamFromUrl(faction.getLink().concat("/"))));
-            	}
-            }
-            new CardImportDialog(mainWindow, newCards).setVisible(true);
-            dispose();
+    	WaitingDialog.Handler callable = (label) -> {
+    		CardCollectionData newCards = new CardCollectionData();
+
+    		int regroup = (int) regroupSpinner.getModel().getValue() - 1;
+    		boolean reorderByName = reorderCheckBox.isSelected();
+    		boolean deduplicate = deduplicateCheckBox.isSelected();
+
+    		if (stratagems) {
+    			label.accept("Loading Stratagems...");
+    			newCards.addAll(new WahapediaStratagems(selectedFactions, regroup, reorderByName, deduplicate)
+    					.build(WahapediaStratagems.getInputStreamFromUrl()));
+    		}
+    		if (psychicPowers) {
+    			label.accept("Loading Psychic Powers...");
+    			newCards.addAll(new WahapediaPsychicPowers(selectedFactions, regroup, reorderByName, deduplicate)
+    					.build(WahapediaPsychicPowers.getInputStreamFromUrl()));
+    		}
+    		if (warlordTraits) {
+    			label.accept("Loading Warlord Traits...");
+    			newCards.addAll(new WahapediaWarlordTraits(selectedFactions, regroup, reorderByName, deduplicate)
+    					.build(WahapediaWarlordTraits.getInputStreamFromUrl()));
+    		}
+    		if (factionAbilities) {
+    			label.accept("Loading Abilities...");
+    			newCards.addAll(new WahapediaAbilities(selectedFactions, regroup, reorderByName, deduplicate)
+    					.build(WahapediaAbilities.getInputStreamFromUrl()));
+    		}
+    		if (misc) {
+    			label.accept("Loading Misc...");
+    			for (Faction faction : selectedFactions.values()) {
+    				newCards.addAll(new WahapediaMiscCardBuilder(regroup, reorderByName, deduplicate)
+    						.build(WahapediaCsvBuilder.getInputStreamFromUrl(faction.getLink().concat("/"))));
+    			}
+    		}
+    		dispose();
+            java.awt.EventQueue.invokeLater(() -> {
+        		new CardImportDialog(mainWindow, newCards).setVisible(true);
+
+            });
             return null;
-        };
-        WaitingDialog.show(mainWindow, "Loading...", callable);
+    	};
+    	WaitingDialog.show(mainWindow, "Loading...", callable);
     }//GEN-LAST:event_importButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         dispose();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
+    private void selectAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllButtonActionPerformed
+        stratagemCheckBox.setSelected(true);
+        psychicPowersCheckBox.setSelected(true);
+        warlordTraitsCheckBox.setSelected(true);
+        factionAbilitiesCheckBox.setSelected(true);
+        miscCheckBox.setSelected(true);
+    }//GEN-LAST:event_selectAllButtonActionPerformed
+
+    private void selectNoneButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectNoneButtonActionPerformed
+        stratagemCheckBox.setSelected(false);
+        psychicPowersCheckBox.setSelected(false);
+        warlordTraitsCheckBox.setSelected(false);
+        factionAbilitiesCheckBox.setSelected(false);
+        miscCheckBox.setSelected(false);
+    }//GEN-LAST:event_selectNoneButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel buttonsPanel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JPanel dataPanel;
+    private javax.swing.JCheckBox deduplicateCheckBox;
     private javax.swing.JCheckBox factionAbilitiesCheckBox;
     private javax.swing.JList<String> factionList;
     private javax.swing.JScrollPane factionScrollPane;
     private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler2;
     private javax.swing.JButton importButton;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JCheckBox miscCheckBox;
     private javax.swing.JCheckBox psychicPowersCheckBox;
+    private javax.swing.JLabel regroupLabel;
+    private javax.swing.JSpinner regroupSpinner;
+    private javax.swing.JCheckBox reorderCheckBox;
+    private javax.swing.JButton selectAllButton;
+    private javax.swing.JButton selectNoneButton;
     private javax.swing.JLabel selectedCardsLabel;
     private javax.swing.JCheckBox stratagemCheckBox;
     private javax.swing.JCheckBox warlordTraitsCheckBox;
@@ -235,4 +334,5 @@ public class WahapediaFactions extends javax.swing.JDialog {
     	}
         return selected;
     }
+    
 }

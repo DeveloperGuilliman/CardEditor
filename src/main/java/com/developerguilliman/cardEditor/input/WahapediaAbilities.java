@@ -19,6 +19,7 @@ package com.developerguilliman.cardEditor.input;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
@@ -36,6 +37,7 @@ public class WahapediaAbilities implements ICardInput {
 
 	private static final String STRATAGEM_URL = "https://wahapedia.ru/wh40k9ed/Abilities.csv";
 
+	@SuppressWarnings("unused")
 	private static final int ID_ROW = 0;
 	
 	private static final int TYPE_ROW = 1;
@@ -44,6 +46,7 @@ public class WahapediaAbilities implements ICardInput {
 	
 	private static final int LEGEND_ROW = 3;
 	
+	@SuppressWarnings("unused")
 	private static final int WARGEAR_ROW = 4;
 
 	private static final int FACTION_ROW = 5;
@@ -51,9 +54,18 @@ public class WahapediaAbilities implements ICardInput {
 	private static final int DESCRIPTION_ROW = 6;
 
 	private final LinkedHashMap<String, Faction> factions;
+	
+	private final int maxToGroup;
 
-	public WahapediaAbilities(LinkedHashMap<String, Faction> selectedFactions) {
+	private final boolean reorderByName;
+
+	private final boolean deduplicate;
+
+	public WahapediaAbilities(LinkedHashMap<String, Faction> selectedFactions, int maxToGroup, boolean reorderByName, boolean deduplicate) {
 		this.factions = selectedFactions;
+        this.maxToGroup = maxToGroup;
+        this.reorderByName = reorderByName;
+        this.deduplicate = deduplicate;
 	}
 
 	@Override
@@ -69,8 +81,8 @@ public class WahapediaAbilities implements ICardInput {
 				if (!factions.keySet().contains(faction)) {
 					continue;
 				}
-				String name = row.get(NAME_ROW).trim();
-				String type = row.get(TYPE_ROW).trim();
+				String name = row.get(NAME_ROW).trim().toUpperCase();
+				String type = row.get(TYPE_ROW).trim().toUpperCase();
 				String legend = row.get(LEGEND_ROW).trim();
 				
 				if (type.isEmpty() && legend.isEmpty()) {
@@ -78,7 +90,6 @@ public class WahapediaAbilities implements ICardInput {
 				}
 				
 				String description = WahapediaCsvBuilder.stripHtml(row.get(DESCRIPTION_ROW));
-
 				SectionData sectionData = sections.get(type);
 				if (sectionData == null) {
 					sectionData = new SectionData();
@@ -86,7 +97,25 @@ public class WahapediaAbilities implements ICardInput {
 				}
 				sectionData.add(new CardData(type, name, legend, description, "", ""));
 			}
-			return new CardCollectionData(sections.values());
+            
+            CardCollectionData cardSections = new CardCollectionData();            
+            
+            for (SectionData list: sections.values()) {
+            	Collections.sort(list, ICardInput.getComparator(reorderByName));
+                list = ICardInput.createListDeduplicator(list);
+                cardSections.add(list);
+            }
+            
+            System.out.println("Found " + cardSections.countCards() + " ability cards");
+
+
+            if (deduplicate) {
+                System.out.println("Found " + cardSections.countCards() + " deduplicated ability cards");
+            }
+            
+			ICardInput.regroupSections(cardSections, maxToGroup);
+            System.out.println("Organized in " + cardSections.size() + " sections");
+            return cardSections;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

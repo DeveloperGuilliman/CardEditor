@@ -41,9 +41,11 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
     private static final Evaluator B_EVALUATOR = QueryParser.parse("b");
     private static final Evaluator I_EVALUATOR = QueryParser.parse("i");
 
-    private final int maxToGroup;
-    private final boolean reorderByName;
-    private final boolean deduplicate;
+	private final int maxToGroup;
+
+	private final boolean reorderByName;
+
+	private final boolean deduplicate;
 
     public WahapediaMiscCardBuilder(int maxToGroup, boolean reorderByName, boolean deduplicate) {
 
@@ -58,13 +60,13 @@ public class WahapediaMiscCardBuilder implements IWahapediaCardInput {
             Document doc = Jsoup.parse(source, null, "");
             SectionData list = new SectionData();
             buildFromHtml(doc, list);
-            System.out.println("Found " + list.size() + " cards");
+            System.out.println("Found " + list.size() + " misc cards");
 
             Collections.sort(list, ICardInput.getComparator(reorderByName));
 
             if (deduplicate) {
                 list = ICardInput.createListDeduplicator(list);
-                System.out.println("Found " + list.size() + " deduplicated cards");
+                System.out.println("Found " + list.size() + " deduplicated misc cards");
             }
             CardCollectionData cardSections = ICardInput.divideSections(list);
             ICardInput.regroupSections(cardSections, maxToGroup);

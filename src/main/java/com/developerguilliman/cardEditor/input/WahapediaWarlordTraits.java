@@ -19,6 +19,7 @@ package com.developerguilliman.cardEditor.input;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
@@ -38,10 +39,12 @@ public class WahapediaWarlordTraits implements ICardInput {
 
 	private static final int FACTION_ROW = 0;
 	
+	@SuppressWarnings("unused")
 	private static final int FN_ROW = 1;
 	
 	private static final int TYPE_ROW = 2;
 	
+	@SuppressWarnings("unused")
 	private static final int ROLL_ROW = 3;
 
 	private static final int NAME_ROW = 4;
@@ -51,10 +54,18 @@ public class WahapediaWarlordTraits implements ICardInput {
 	private static final int DESCRIPTION_ROW = 6;
 
 	private final LinkedHashMap<String, Faction> factions;
+	
+	private final int maxToGroup;
 
-	public WahapediaWarlordTraits(LinkedHashMap<String, Faction> selectedFactions) {
+	private final boolean reorderByName;
+
+	private final boolean deduplicate;
+
+	public WahapediaWarlordTraits(LinkedHashMap<String, Faction> selectedFactions, int maxToGroup, boolean reorderByName, boolean deduplicate) {
 		this.factions = selectedFactions;
-	}
+        this.maxToGroup = maxToGroup;
+        this.reorderByName = reorderByName;
+        this.deduplicate = deduplicate;	}
 
 	@Override
 	public CardCollectionData build(InputStream source) {
@@ -69,11 +80,10 @@ public class WahapediaWarlordTraits implements ICardInput {
 				if (!factions.keySet().contains(faction)) {
 					continue;
 				}
-				String name = row.get(NAME_ROW).trim();
-				String type = row.get(TYPE_ROW).trim();
+				String name = row.get(NAME_ROW).trim().toUpperCase();
+				String type = row.get(TYPE_ROW).trim().toUpperCase();
 				String legend = row.get(LEGEND_ROW).trim();
 				String description = WahapediaCsvBuilder.stripHtml(row.get(DESCRIPTION_ROW));
-
 				SectionData sectionData = sections.get(type);
 				if (sectionData == null) {
 					sectionData = new SectionData();
@@ -81,7 +91,23 @@ public class WahapediaWarlordTraits implements ICardInput {
 				}
 				sectionData.add(new CardData(type, name, legend, description, "", ""));
 			}
-			return new CardCollectionData(sections.values());
+            CardCollectionData cardSections = new CardCollectionData();            
+            
+            for (SectionData list: sections.values()) {
+            	Collections.sort(list, ICardInput.getComparator(reorderByName));
+                list = ICardInput.createListDeduplicator(list);
+                cardSections.add(list);
+            }
+            
+            System.out.println("Found " + cardSections.countCards() + " warlord trait cards");
+
+            if (deduplicate) {
+                System.out.println("Found " + cardSections.countCards() + " deduplicated warlord trait cards");
+            }
+            
+			ICardInput.regroupSections(cardSections, maxToGroup);
+            System.out.println("Organized in " + cardSections.size() + " sections");
+            return cardSections;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

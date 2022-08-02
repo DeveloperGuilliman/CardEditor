@@ -19,6 +19,7 @@ package com.developerguilliman.cardEditor.input;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
@@ -46,17 +47,27 @@ public class WahapediaStratagems implements ICardInput {
 
 	private static final int LEGEND_ROW = 4;
 
+	@SuppressWarnings("unused")
 	private static final int SOURCE_ROW = 5;
 
 	private static final int DESCRIPTION_ROW = 6;
 
+	@SuppressWarnings("unused")
 	private static final int ID_ROW = 7;
 
 	private final LinkedHashMap<String, Faction> factions;
+	
+	private final int maxToGroup;
 
-	public WahapediaStratagems(LinkedHashMap<String, Faction> selectedFactions) {
+	private final boolean reorderByName;
+
+	private final boolean deduplicate;
+
+	public WahapediaStratagems(LinkedHashMap<String, Faction> selectedFactions, int maxToGroup, boolean reorderByName, boolean deduplicate) {
 		this.factions = selectedFactions;
-	}
+        this.maxToGroup = maxToGroup;
+        this.reorderByName = reorderByName;
+        this.deduplicate = deduplicate;	}
 
 	@Override
 	public CardCollectionData build(InputStream source) {
@@ -71,12 +82,11 @@ public class WahapediaStratagems implements ICardInput {
 				if (!factions.keySet().contains(faction)) {
 					continue;
 				}
-				String name = row.get(NAME_ROW).trim();
-				String type = row.get(TYPE_ROW).trim();
+				String name = row.get(NAME_ROW).trim().toUpperCase();
+				String type = row.get(TYPE_ROW).trim().toUpperCase();
 				String cost = row.get(COST_ROW).trim();
 				String legend = row.get(LEGEND_ROW).trim();
 				String description = WahapediaCsvBuilder.stripHtml(row.get(DESCRIPTION_ROW));
-
 				SectionData sectionData = sections.get(type);
 				if (sectionData == null) {
 					sectionData = new SectionData();
@@ -84,7 +94,24 @@ public class WahapediaStratagems implements ICardInput {
 				}
 				sectionData.add(new CardData(type, name, legend, description, cost, "COMMAND POINTS"));
 			}
-			return new CardCollectionData(sections.values());
+            CardCollectionData cardSections = new CardCollectionData();            
+            
+            for (SectionData list: sections.values()) {
+            	Collections.sort(list, ICardInput.getComparator(reorderByName));
+                list = ICardInput.createListDeduplicator(list);
+                cardSections.add(list);
+            }
+            
+            System.out.println("Found " + cardSections.countCards() + " stratagem cards");
+
+
+            if (deduplicate) {
+                System.out.println("Found " + cardSections.countCards() + " deduplicated stratagem cards");
+            }
+            
+			ICardInput.regroupSections(cardSections, maxToGroup);
+            System.out.println("Organized in " + cardSections.size() + " sections");
+            return cardSections;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

@@ -239,5 +239,13 @@ public class CardCollectionData implements List<SectionData> {
     public Stream<SectionData> parallelStream() {
         return sections.parallelStream();
     }
+    
+    public int countCards() {
+    	int i = 0;
+    	for (SectionData s : sections) {
+    		i+= sections.size();
+    	}
+    	return i;
+    }
 
 }

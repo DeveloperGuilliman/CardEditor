@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
+<Form version="1.5" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="2"/>
     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -96,36 +96,123 @@
         </Constraint>
       </Constraints>
 
-      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
-        <Property name="columns" type="int" value="1"/>
-        <Property name="rows" type="int" value="0"/>
-      </Layout>
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JCheckBox" name="stratagemCheckBox">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Stratagems"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JCheckBox" name="psychicPowersCheckBox">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Psychic Powers"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JCheckBox" name="warlordTraitsCheckBox">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Warlord Traits"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JCheckBox" name="factionAbilitiesCheckBox">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Faction Abilities"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JCheckBox" name="miscCheckBox">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Misc"/>
-          </Properties>
-        </Component>
+        <Container class="javax.swing.JPanel" name="jPanel2">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+              <BorderConstraints direction="North"/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
+            <Property name="columns" type="int" value="2"/>
+            <Property name="rows" type="int" value="0"/>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JButton" name="selectAllButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="All"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="selectAllButtonActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="selectNoneButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="None"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="selectNoneButtonActionPerformed"/>
+              </Events>
+            </Component>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="jPanel3">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+              <BorderConstraints direction="Center"/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
+            <Property name="columns" type="int" value="1"/>
+            <Property name="rows" type="int" value="0"/>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JCheckBox" name="stratagemCheckBox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Stratagems"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="psychicPowersCheckBox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Psychic Powers"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="warlordTraitsCheckBox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Warlord Traits"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="factionAbilitiesCheckBox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Faction Abilities"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="miscCheckBox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Misc (slow)"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.Box$Filler" name="filler2">
+              <Properties>
+                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[0, 32767]"/>
+                </Property>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.VerticalGlue"/>
+              </AuxValues>
+            </Component>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="jPanel4">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+              <BorderConstraints direction="South"/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
+            <Property name="columns" type="int" value="1"/>
+            <Property name="rows" type="int" value="0"/>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JLabel" name="regroupLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Regroup sections with less than:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JSpinner" name="regroupSpinner">
+              <Properties>
+                <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                  <SpinnerModel initial="2" minimum="0" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                </Property>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="reorderCheckBox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Reorder by name"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="deduplicateCheckBox">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Remove duplicates"/>
+              </Properties>
+            </Component>
+          </SubComponents>
+        </Container>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JScrollPane" name="factionScrollPane">

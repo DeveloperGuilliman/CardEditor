@@ -21,6 +21,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 
 import javax.swing.JOptionPane;
 
@@ -54,25 +55,46 @@ public class WaitingDialog extends javax.swing.JDialog {
     public static void show(java.awt.Frame parent, String workLabel, Callable<List<String>> callable, String warningLabel, Runnable postShow) {
         show(parent, workLabel, callable, warningLabel, postShow, postShow);
     }
-
     public static void show(java.awt.Frame parent, String workLabel, Callable<List<String>> callable, String warningLabel, Runnable postWarnings, Runnable postNoWarnings) {
-        WaitingDialog l = new WaitingDialog(parent, workLabel);
+        show(parent, workLabel, new Handler() {
+
+            @Override
+            public List<String> apply(Consumer<String> t) throws Exception {
+                return callable.call();
+            }
+        }, warningLabel, postWarnings, postNoWarnings);
+    }
+    
+     public static void show(java.awt.Frame parent, String label, Handler handler) {
+        show(parent, label, handler, null, null, null);
+    }
+
+    public static void show(java.awt.Frame parent, String label, Handler handler, Runnable postShow) {
+        show(parent, label, handler, null, postShow, postShow);
+    }
+
+    public static void show(java.awt.Frame parent, String workLabel, Handler handler, String warningLabel, Runnable postShow) {
+        show(parent, workLabel, handler, warningLabel, postShow, postShow);
+    }
+    	 
+    public static void show(java.awt.Frame parent, String workLabel, Handler handler, String warningLabel, Runnable postWarnings, Runnable postNoWarnings) {
+        WaitingDialog wd = new WaitingDialog(parent, workLabel);
 
         Thread t = new Thread() {
             @Override
             public void run() {
                 try {
-                    List<String> warnings = callable.call();
-                    l.dispose();
+                    List<String> warnings = handler.apply(createConsumer(wd));
+                    wd.dispose();
 
                     if (warnings != null && !warnings.isEmpty()) {
-                        l.openWarningDialog(parent, warningLabel, warnings, postWarnings);
+                        wd.openWarningDialog(parent, warningLabel, warnings, postWarnings);
                     } else if (postNoWarnings != null) {
                         postNoWarnings.run();
                     }
                 } catch (Throwable t) {
                     t.printStackTrace();
-                    l.dispose();
+                    wd.dispose();
                     Throwable cause = getCause(t);
                     String exClassName = cause.getClass().getName();
                     exClassName = exClassName.substring(exClassName.lastIndexOf('.') + 1);
@@ -86,7 +108,7 @@ public class WaitingDialog extends javax.swing.JDialog {
         t.setDaemon(true);
         t.start();
         java.awt.EventQueue.invokeLater(() -> {
-            l.setVisible(true);
+            wd.setVisible(true);
         });
     }
 
@@ -163,4 +185,20 @@ public class WaitingDialog extends javax.swing.JDialog {
         });
     }
 
+   private static Consumer<String> createConsumer(WaitingDialog wd) {
+        return new Consumer<String>() {
+
+            @Override
+            public void accept(String label) {
+                wd.loadingLabel.setText(label);
+            }
+        };
+    }
+
+    public interface Handler {
+
+        public List<String> apply(Consumer<String> t) throws Exception;
+
+    }
+    
 }
