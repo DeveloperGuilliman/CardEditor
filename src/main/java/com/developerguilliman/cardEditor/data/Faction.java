@@ -14,7 +14,11 @@ public class Faction implements Serializable {
 
 	private String name;
 
+	private String fullName;
+
 	private String link;
+
+	private String parentId;
 
 	public String getId() {
 		return id;
@@ -32,6 +36,14 @@ public class Faction implements Serializable {
 		this.name = name;
 	}
 
+	public String getFullName() {
+		return fullName;
+	}
+
+	public void setFullName(String FullName) {
+		this.fullName = FullName;
+	}
+
 	public String getLink() {
 		return link;
 	}
@@ -40,9 +52,17 @@ public class Faction implements Serializable {
 		this.link = link;
 	}
 
+	public String getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, link, name);
+		return Objects.hash(fullName, id, link, name, parentId);
 	}
 
 	@Override
@@ -54,12 +74,15 @@ public class Faction implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Faction other = (Faction) obj;
-		return Objects.equals(id, other.id) && Objects.equals(link, other.link) && Objects.equals(name, other.name);
+		return Objects.equals(fullName, other.fullName) && Objects.equals(id, other.id)
+				&& Objects.equals(link, other.link) && Objects.equals(name, other.name)
+				&& Objects.equals(parentId, other.parentId);
 	}
 
 	@Override
 	public String toString() {
-		return "Faction [id=" + id + ", name=" + name + ", link=" + link + "]";
+		return "Faction [id=" + id + ", name=" + name + ", fullName=" + fullName + ", link=" + link + ", parentId="
+				+ parentId + "]";
 	}
 
 }

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -67,9 +66,13 @@ public class WahapediaCsvBuilder {
 	
 	private static ArrayList<String> addSplitted(ArrayList<String> al, String readedString) {
 		for (String s : SEPARATOR_PATTERN.split(readedString, -1)) {
-			al.add(s);
+			al.add(s.replaceAll("\uEFBBBF", "").trim());
 		}
 		return al;
+	}
+	
+	public ArrayList<String> getHeader() {
+		return header;
 	}
 
 	public ArrayList<ArrayList<String>> getData() {
@@ -77,6 +80,7 @@ public class WahapediaCsvBuilder {
 	}
 	
 	public static InputStream getInputStreamFromUrl(String url) throws IOException {
+                System.out.println("Connecting to URL: " + url);
 		HttpURLConnection huc = ((HttpURLConnection) new URL(url).openConnection());
 		huc.addRequestProperty("User-Agent", Utils.getApplicationName());
 		huc.addRequestProperty("Accept", "*/*");

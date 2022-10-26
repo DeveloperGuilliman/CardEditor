@@ -19,47 +19,86 @@ package com.developerguilliman.cardEditor.csv;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import com.developerguilliman.cardEditor.data.Faction;
 
 /**
-*
-* @author Developer Guilliman <developerguilliman@gmail.com>
-*/
+ *
+ * @author Developer Guilliman <developerguilliman@gmail.com>
+ */
 public class WahapediaCsvFactions {
 
 	private static final String FACTIONS_URL = "https://wahapedia.ru/wh40k9ed/Factions.csv";
 
-	private static final int ID_ROW = 0;
+	private static final String ID_ROW = "﻿id";
 
-	private static final int NAME_ROW = 1;
+	private static final String NAME_ROW = "name";
 
-	private static final int LINK_ROW = 2;
+	private static final String LINK_ROW = "link";
+
+	private static final String IS_SUBFACTION_ROW = "is_subfaction";
+
+	private static final String PARENT_FACTION_ID_ROW = "parent_id";
 
 	private final LinkedHashMap<String, Faction> data;
 
 	public WahapediaCsvFactions() {
 		this.data = new LinkedHashMap<>();
 	}
-	
+
 	public WahapediaCsvFactions build(InputStream source) throws IOException {
-		ArrayList<ArrayList<String>> csvData = new WahapediaCsvBuilder().build(source).getData();
-		for (ArrayList<String> row : csvData) {
+		WahapediaCsvBuilder wahapediaCsvBuilder = new WahapediaCsvBuilder().build(source);
+		ArrayList<String> headers = wahapediaCsvBuilder.getHeader();
+		
+		HashMap<String, Faction> factions = new HashMap<>();
+
+		
+		int idRow = headers.indexOf(ID_ROW);
+		int nameRow = headers.indexOf(NAME_ROW);
+		int linkRow = headers.indexOf(LINK_ROW);
+		int isSubfactionRow = headers.indexOf(IS_SUBFACTION_ROW);
+		int parentFactionId = headers.indexOf(PARENT_FACTION_ID_ROW);
+		for (ArrayList<String> row : wahapediaCsvBuilder.getData()) {
 			Faction faction = new Faction();
-			faction.setId(row.get(ID_ROW));
-			faction.setName(row.get(NAME_ROW));
-			faction.setLink(row.get(LINK_ROW));
-			data.put(faction.getId(), faction);
+			faction.setId(row.get(idRow));
+			faction.setName(row.get(nameRow));
+			faction.setLink(row.get(linkRow));
+			if (Boolean.parseBoolean(row.get(isSubfactionRow))) {
+				faction.setParentId(row.get(parentFactionId));
+			}
+			factions.put(faction.getId(), faction);
+		}
+		ArrayList<Faction> orderedFactions = new ArrayList<>();
+		for (Faction f : factions.values()) {
+			String parentId = f.getParentId();
+			if (parentId != null) {
+				f.setFullName(factions.get(parentId).getName() + " - " + f.getName());
+			} else {
+				f.setFullName(f.getName());
+			}
+			orderedFactions.add(f);
+		}
+		Collections.sort(orderedFactions, new Comparator<Faction>() {
+
+			@Override
+			public int compare(Faction o1, Faction o2) {
+				return o1.getFullName().compareTo(o2.getFullName());
+			}
+		});
+		for (Faction f : orderedFactions) {
+			data.put(f.getId(), f);
 		}
 		return this;
 	}
-	
+
 	public LinkedHashMap<String, Faction> getData() {
 		return data;
 	}
-	
-	
+
 	public static InputStream getInputStreamFromUrl() throws IOException {
 		return WahapediaCsvBuilder.getInputStreamFromUrl(FACTIONS_URL);
 	}

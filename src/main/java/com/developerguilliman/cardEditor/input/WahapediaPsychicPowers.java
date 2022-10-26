@@ -35,30 +35,30 @@ import com.developerguilliman.cardEditor.data.SectionData;
 */
 public class WahapediaPsychicPowers implements ICardInput {
 
-	private static final String STRATAGEM_URL = "https://wahapedia.ru/wh40k9ed/PsychicPowers.csv";
+	private static final String PSYCHIC_POWERS_URL = "https://wahapedia.ru/wh40k9ed/PsychicPowers.csv";
 	
     private static final String PSYCHIC_POWER_FIND_FIRST = "has a warp charge ";
     
     private static final String PSYCHIC_POWER_FIND_SECOND = " of ";
 
 	@SuppressWarnings("unused")
-	private static final int ROLL_ROW = 0;
+	private static final String ROLL_ROW = "roll";
 	
-	private static final int NAME_ROW = 1;
+	private static final String NAME_ROW = "name";
 	
-	private static final int FACTION_ROW = 2;
+	private static final String FACTION_ROW = "faction_id";
 	
 	@SuppressWarnings("unused")
-	private static final int FN_ROW = 3;
+	private static final String FACTION_NAME_ROW = "faction_name";
 
-	private static final int LEGEND_ROW = 4;
+	private static final String LEGEND_ROW = "legend";
 
-	private static final int TYPE_ROW = 5;
+	private static final String TYPE_ROW = "type";
 
-	private static final int DESCRIPTION_ROW = 6;
+	private static final String DESCRIPTION_ROW = "description";
 
 	@SuppressWarnings("unused")
-	private static final int ID_ROW = 7;
+	private static final String ID_ROW = "id";
 
 	private final LinkedHashMap<String, Faction> factions;
 	
@@ -78,19 +78,28 @@ public class WahapediaPsychicPowers implements ICardInput {
 	public CardCollectionData build(InputStream source) {
 		try {
 			
-			ArrayList<ArrayList<String>> csvData = new WahapediaCsvBuilder().build(source).getData();
-			
+			WahapediaCsvBuilder wahapediaCsvBuilder = new WahapediaCsvBuilder().build(source);
+			ArrayList<String> header = wahapediaCsvBuilder.getHeader();			
+
+			//int rollRow = header.indexOf(ROLL_ROW);
+			int nameRow = header.indexOf(NAME_ROW);
+			int factionRow = header.indexOf(FACTION_ROW);
+			//int factionNameRow = header.indexOf(FACTION_NAME_ROW);
+			int legendRow = header.indexOf(LEGEND_ROW);
+			int typeRow = header.indexOf(TYPE_ROW);
+			int descriptionRow = header.indexOf(DESCRIPTION_ROW);
+
 			TreeMap<String, SectionData> sections = new TreeMap<>();
-			
-			for (ArrayList<String> row : csvData) {
-				String faction = row.get(FACTION_ROW).trim();
+
+			for (ArrayList<String> row : wahapediaCsvBuilder.getData()) {
+				String faction = safeGet(row, factionRow);
 				if (!factions.keySet().contains(faction)) {
 					continue;
 				}
-				String name = row.get(NAME_ROW).trim().toUpperCase();
-				String type = row.get(TYPE_ROW).trim().toUpperCase();
-				String legend = row.get(LEGEND_ROW).trim();
-				String description = WahapediaCsvBuilder.stripHtml(row.get(DESCRIPTION_ROW));
+				String name = safeGet(row, nameRow).toUpperCase();
+				String type = safeGet(row, typeRow).toUpperCase();
+				String legend = safeGet(row, legendRow);
+				String description = WahapediaCsvBuilder.stripHtml(safeGet(row, descriptionRow));
 				String cost = extractPsychicPowerCost(description);
 
 				SectionData sectionData = sections.get(type);
@@ -139,7 +148,15 @@ public class WahapediaPsychicPowers implements ICardInput {
     }
 
 	public static InputStream getInputStreamFromUrl() throws IOException {
-		return WahapediaCsvBuilder.getInputStreamFromUrl(STRATAGEM_URL);
+		return WahapediaCsvBuilder.getInputStreamFromUrl(PSYCHIC_POWERS_URL);
 	}
 
+
+	private static String safeGet(ArrayList<String> row, int index) {
+		if (index >= 0 && index < row.size()) {
+			return row.get(index);
+		}
+		return "";
+	}
+	
 }

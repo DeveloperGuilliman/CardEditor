@@ -32,7 +32,12 @@ import javax.swing.JColorChooser;
  */
 public class JColorChooserButton extends JButton {
 
-    private static final String[] HEX_COLOR_PREFIXES = {"#000000", "#00000", "#0000", "#000", "#00", "#0", "#"};
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3466647951142008682L;
+	
+	private static final String[] HEX_COLOR_PREFIXES = {"#000000", "#00000", "#0000", "#000", "#00", "#0", "#"};
     private static final int LOW_LUMA_LIMIT = 120;
 
     private Color selectedColor;

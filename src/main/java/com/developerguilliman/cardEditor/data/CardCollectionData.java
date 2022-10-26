@@ -243,7 +243,7 @@ public class CardCollectionData implements List<SectionData> {
     public int countCards() {
     	int i = 0;
     	for (SectionData s : sections) {
-    		i+= sections.size();
+    		i+= s.size();
     	}
     	return i;
     }

@@ -38,7 +38,12 @@ import com.developerguilliman.cardEditor.data.SectionData;
  */
 public class TreeTransferHandler extends TransferHandler {
 
-    private final JTree cardTree;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2927124919317940240L;
+	
+	private final JTree cardTree;
     private final DataFlavor dataFlavor;
 
     public TreeTransferHandler(JTree cardTree) {
@@ -142,7 +147,12 @@ public class TreeTransferHandler extends TransferHandler {
 
     private static class CardMove implements DataMove {
 
-        private final int cardIndex;
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 2998071903857465469L;
+		
+		private final int cardIndex;
         private final int sectionIndex;
 
         public CardMove(int cardIndex, int sectionIndex) {
@@ -176,7 +186,12 @@ public class TreeTransferHandler extends TransferHandler {
 
     private static class SectionMove implements DataMove {
 
-        private final int sectionIndex;
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 4161203204519347563L;
+		
+		private final int sectionIndex;
 
         public SectionMove(int sectionIndex) {
             this.sectionIndex = sectionIndex;

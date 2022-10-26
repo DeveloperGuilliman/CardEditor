@@ -32,7 +32,12 @@ import com.developerguilliman.cardEditor.data.SectionData;
  */
 public class CardTreeCellRenderer extends DefaultTreeCellRenderer {
 
-    private final CardCollectionData cards;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 994038169621871794L;
+	
+	private final CardCollectionData cards;
 
     public CardTreeCellRenderer(CardCollectionData cards) {
         this.cards = cards;
