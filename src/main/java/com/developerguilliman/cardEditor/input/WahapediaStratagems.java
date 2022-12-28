@@ -50,8 +50,7 @@ public class WahapediaStratagems implements ICardInput {
 	@SuppressWarnings("unused")
 	private static final String SOURCE_ROW = "source_id";
 
-	@SuppressWarnings("unused")
-	private static final String SUBFACTION_ID_ROW = "subfaction_id";
+        private static final String SUBFACTION_ID_ROW = "subfaction_id";
 
 	private static final String DESCRIPTION_ROW = "description";
 
@@ -82,6 +81,7 @@ public class WahapediaStratagems implements ICardInput {
 			ArrayList<String> header = wahapediaCsvBuilder.getHeader();
 
 			int factionRow = header.indexOf(FACTION_ROW);
+			int subFactionRow = header.indexOf(SUBFACTION_ID_ROW);
 			int nameRow = header.indexOf(NAME_ROW);
 			int typeRow = header.indexOf(TYPE_ROW);
 			int costRow = header.indexOf(COST_ROW);
@@ -92,9 +92,10 @@ public class WahapediaStratagems implements ICardInput {
 
 			for (ArrayList<String> row : wahapediaCsvBuilder.getData()) {
 				String faction = safeGet(row, factionRow);
-				if (!factions.keySet().contains(faction)) {
-					continue;
-				}
+				String subFaction = safeGet(row, subFactionRow);
+                                if (!factions.containsKey(faction.isEmpty() ? subFaction: faction)) {
+                                    continue;
+                                }    
 				String name = safeGet(row, nameRow).toUpperCase();
 				String type = safeGet(row, typeRow).toUpperCase();
 				String cost = safeGet(row, costRow);
@@ -135,7 +136,7 @@ public class WahapediaStratagems implements ICardInput {
 
 
 	private static String safeGet(ArrayList<String> row, int index) {
-		if (index >= 0 && index < row.size()) {
+		if (index < row.size()) {
 			return row.get(index);
 		}
 		return "";

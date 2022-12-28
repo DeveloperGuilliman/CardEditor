@@ -34,7 +34,7 @@ public class WahapediaCsvFactions {
 
 	private static final String FACTIONS_URL = "https://wahapedia.ru/wh40k9ed/Factions.csv";
 
-	private static final String ID_ROW = "﻿id";
+	private static final String ID_ROW = "id";
 
 	private static final String NAME_ROW = "name";
 

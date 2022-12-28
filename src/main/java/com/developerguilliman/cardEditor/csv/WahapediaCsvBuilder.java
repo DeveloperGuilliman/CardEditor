@@ -66,7 +66,7 @@ public class WahapediaCsvBuilder {
 	
 	private static ArrayList<String> addSplitted(ArrayList<String> al, String readedString) {
 		for (String s : SEPARATOR_PATTERN.split(readedString, -1)) {
-			al.add(s.replaceAll("\uEFBBBF", "").trim());
+			al.add(s.replaceAll("\uEFBBBF", "").replace('\uFEFF', ' ').trim());
 		}
 		return al;
 	}

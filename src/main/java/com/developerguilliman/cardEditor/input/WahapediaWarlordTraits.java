@@ -30,63 +30,65 @@ import com.developerguilliman.cardEditor.data.Faction;
 import com.developerguilliman.cardEditor.data.SectionData;
 
 /**
-*
-* @author Developer Guilliman <developerguilliman@gmail.com>
-*/
+ *
+ * @author Developer Guilliman <developerguilliman@gmail.com>
+ */
 public class WahapediaWarlordTraits implements ICardInput {
 
 	private static final String STRATAGEM_URL = "https://wahapedia.ru/wh40k9ed/Warlord_traits.csv";
 
 	private static final String FACTION_ROW = "faction_id";
-	
+
 	@SuppressWarnings("unused")
 	private static final String FACTION_NAME_ROW = "faction_name";
-	
+
 	private static final String TYPE_ROW = "type";
-	
+
 	@SuppressWarnings("unused")
 	private static final String ROLL_ROW = "roll";
 
 	private static final String NAME_ROW = "name";
-	
+
 	private static final String LEGEND_ROW = "legend";
 
 	private static final String DESCRIPTION_ROW = "description";
 
 	private final LinkedHashMap<String, Faction> factions;
-	
+
 	private final int maxToGroup;
 
 	private final boolean reorderByName;
 
 	private final boolean deduplicate;
 
-	public WahapediaWarlordTraits(LinkedHashMap<String, Faction> selectedFactions, int maxToGroup, boolean reorderByName, boolean deduplicate) {
+	public WahapediaWarlordTraits(LinkedHashMap<String, Faction> selectedFactions, int maxToGroup,
+			boolean reorderByName, boolean deduplicate) {
 		this.factions = selectedFactions;
-        this.maxToGroup = maxToGroup;
-        this.reorderByName = reorderByName;
-        this.deduplicate = deduplicate;	}
+		this.maxToGroup = maxToGroup;
+		this.reorderByName = reorderByName;
+		this.deduplicate = deduplicate;
+	}
 
 	@Override
 	public CardCollectionData build(InputStream source) {
 		try {
-			
+
 			WahapediaCsvBuilder wahapediaCsvBuilder = new WahapediaCsvBuilder().build(source);
-			ArrayList<String> header = wahapediaCsvBuilder.getHeader();			
+			ArrayList<String> header = wahapediaCsvBuilder.getHeader();
 
 			int factionRow = header.indexOf(FACTION_ROW);
-			//int factionNameRow = header.indexOf(FACTION_NAME_ROW);
+			// int factionNameRow = header.indexOf(FACTION_NAME_ROW);
 			int typeRow = header.indexOf(TYPE_ROW);
-			//int rollRow = header.indexOf(ROLL_ROW);
+			// int rollRow = header.indexOf(ROLL_ROW);
 			int nameRow = header.indexOf(NAME_ROW);
 			int legendRow = header.indexOf(LEGEND_ROW);
 			int descriptionRow = header.indexOf(DESCRIPTION_ROW);
-			
+
 			TreeMap<String, SectionData> sections = new TreeMap<>();
-			
+
 			for (ArrayList<String> row : wahapediaCsvBuilder.getData()) {
 				String faction = safeGet(row, factionRow);
-				if (!factions.keySet().contains(faction)) {
+				if (!factions.containsKey(faction)) {
 					continue;
 				}
 				String name = safeGet(row, nameRow).toUpperCase();
@@ -100,34 +102,34 @@ public class WahapediaWarlordTraits implements ICardInput {
 				}
 				sectionData.add(new CardData(type, name, legend, description, "", ""));
 			}
-            CardCollectionData cardSections = new CardCollectionData();            
-            
-            for (SectionData list: sections.values()) {
-            	Collections.sort(list, ICardInput.getComparator(reorderByName));
-                list = ICardInput.createListDeduplicator(list);
-                cardSections.add(list);
-            }
-            
-            System.out.println("Found " + cardSections.countCards() + " warlord trait cards");
+			CardCollectionData cardSections = new CardCollectionData();
 
-            if (deduplicate) {
-                System.out.println("Found " + cardSections.countCards() + " deduplicated warlord trait cards");
-            }
-            
+			for (SectionData list : sections.values()) {
+				Collections.sort(list, ICardInput.getComparator(reorderByName));
+				list = ICardInput.createListDeduplicator(list);
+				cardSections.add(list);
+			}
+
+			System.out.println("Found " + cardSections.countCards() + " warlord trait cards");
+
+			if (deduplicate) {
+				System.out.println("Found " + cardSections.countCards() + " deduplicated warlord trait cards");
+			}
+
 			ICardInput.regroupSections(cardSections, maxToGroup);
-            System.out.println("Organized in " + cardSections.size() + " sections");
-            return cardSections;
+			System.out.println("Organized in " + cardSections.size() + " sections");
+			return cardSections;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static InputStream getInputStreamFromUrl() throws IOException {
 		return WahapediaCsvBuilder.getInputStreamFromUrl(STRATAGEM_URL);
-	}	
+	}
 
 	private static String safeGet(ArrayList<String> row, int index) {
-		if (index >= 0 && index < row.size()) {
+		if (index < row.size()) {
 			return row.get(index);
 		}
 		return "";
